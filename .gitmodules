@@ -1,6 +1,0 @@
-[submodule "included-source"]
-	path    = include/terraform-deploy-root
-	url     = git://github.com/beyond-data-network/azurecloud-deploy.git
-  	shallow = true
-  	ignore  = all
-
