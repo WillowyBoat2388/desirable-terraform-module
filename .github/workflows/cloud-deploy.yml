@@ -10,8 +10,7 @@ on:
       - main
   # deployment:
   # workflow_call:
-  # release:
-  #   types: [published]
+  
 
 #Special permissions required for OIDC authentication
 permissions:
