@@ -1,0 +1,61 @@
+name: 'Terraform Apply Production Rollback'
+
+on:
+  workflow_call:
+  
+#Special permissions required for OIDC authentication
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+#These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
+env:
+  ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+  ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+  ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+  ARM_USE_AZUREAD: true
+  ARM_USE_OIDC: true
+
+jobs:           
+  terraform-roll:
+    name: 'Terraform Apply Production Rollback'
+    runs-on: ubuntu-latest
+    environment: production
+    defaults:
+      run:
+        working-directory: staging
+    
+    steps:
+      
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
+    # Download saved plan from artifacts  
+    - name: Download Terraform Plan
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan
+        path: staging
+
+    # Decrypt plan
+    - name: Decrypt Terraform Plan
+      id: tf-plan-decrypt
+      env:
+        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+      run: |
+        gpg --batch "--passphrase=$ENCRYPTION_KEY" -o tfplan --decrypt tfplan.gpg
+    
+    - name: Terraform Destroy Production
+      working-directory: production
+      run: |
+        terraform apply -destroy -auto-approve tfplan

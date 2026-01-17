@@ -33,7 +33,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Azure/staging
+        working-directory: staging
     env:
       #this is needed since we are running terraform with read-only permissions
       ARM_RESOURCE_PROVIDER_REGISTRATIONS: "extended" #"none"
@@ -109,7 +109,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: tfplan
-        path: Azure/staging/tfplan.gpg
+        path: staging/tfplan.gpg
         
     # Create string output of Terraform Plan
     - name: Create String Output
@@ -181,7 +181,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: tfplan
-        path: Azure/staging
+        path: staging
 
     # Decrypt plan
     - name: Decrypt Terraform Plan
@@ -196,7 +196,7 @@ jobs:
       run: terraform apply -auto-approve tfplan
 
     - name: Terraform Apply Production
-      working-directory: Azure/prod
+      working-directory: production
       run: 
         terraform apply -auto-approve tfplan
 
@@ -208,4 +208,4 @@ jobs:
     name: 'Terraform Apply Production Rollback'
     needs: [terraform-apply]
     if: ${{ github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'failure' }}
-    uses: ./.github/workflows/tf-plan-apply-failsafe.yml
+    uses: ./.github/workflows/clouddeploy-failsafe.yml
