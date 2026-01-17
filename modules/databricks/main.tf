@@ -76,11 +76,11 @@ resource "databricks_group_member" "eng" {
 # }
 
 # resource "databricks_grant" "sandbox_data_engineers" {
-#   provider = databricks.workspace
-#   metastore = data.databricks_current_metastore.this.id
+  # provider = databricks.workspace
+  # metastore = data.databricks_current_metastore.this.id
 
-#   principal  = data.databricks_group.admins.id
-#   privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
+  # principal  = data.databricks_group.admins.id
+  # privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
 # }
 
 # resource "databricks_credential" "external_mi" {
@@ -110,15 +110,15 @@ resource "databricks_cluster" "cluster" {
 
 }
 
-# resource "databricks_permissions" "cluster_usage" {
-#   # provider   = databricks.workspace
-#   cluster_id = databricks_cluster.cluster.id
+resource "databricks_permissions" "cluster_usage" {
+  # provider   = databricks.workspace
+  cluster_id = databricks_cluster.cluster.id
 
-#   access_control {
-#     group_name       = databricks_group.eng.display_name
-#     permission_level = "CAN_ATTACH_TO"
-#   }
-# }
+  access_control {
+    group_name       = databricks_group.eng.display_name
+    permission_level = "CAN_ATTACH_TO"
+  }
+}
 
 locals {
   tags = {

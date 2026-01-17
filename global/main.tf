@@ -151,14 +151,14 @@ resource "random_string" "acr_name" {
   upper   = false
 }
 
-resource "azurerm_container_registry" "app_registry" {
-  name                = "${random_string.acr_name.result}registry"
-  resource_group_name = var.environment
-  location            = var.location
-  sku                 = "Basic"
-  admin_enabled       = true
+# resource "azurerm_container_registry" "app_registry" {
+#   name                = "${random_string.acr_name.result}registry"
+#   resource_group_name = var.environment
+#   location            = var.location
+#   sku                 = "Basic"
+#   admin_enabled       = true
 
-}
+# }
 
 resource "random_string" "azurerm_key_vault_name" {
   length  = 13

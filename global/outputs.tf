@@ -3,17 +3,17 @@ output "public_ip_address" {
   value = azurerm_public_ip.vnet_public_ip.ip_address
 }
 
-output "registry_pass" {
-  value = azurerm_container_registry.app_registry.admin_password
-}
+# output "registry_pass" {
+#   value = azurerm_container_registry.app_registry.admin_password
+# }
 
-output "registry_user" {
-  value = azurerm_container_registry.app_registry.admin_username
-}
+# output "registry_user" {
+#   value = azurerm_container_registry.app_registry.admin_username
+# }
 
-output "registry_url" {
-  value = azurerm_container_registry.app_registry.login_server
-}
+# output "registry_url" {
+#   value = azurerm_container_registry.app_registry.login_server
+# }
 
 output "logAnalyticsWorkspace" {
   value = azapi_resource.logAnalyticsWorkspace.id
