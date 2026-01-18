@@ -28,7 +28,7 @@ QUERY
 
 data "azurerm_eventhub_namespace" "eventhub_namespaces" {
   name                = azapi_resource.eventhub_namespace.name
-  resource_group_name = var.environment
+  resource_group_name = var.rg_name
 }
 
 
@@ -64,7 +64,7 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
 
   serialization {
     type = "Parquet"
-    # encoding        = "UTF8"
-    field_delimiter = ","
+    encoding        = "UTF8"
+    # field_delimiter = ","
   }
 }

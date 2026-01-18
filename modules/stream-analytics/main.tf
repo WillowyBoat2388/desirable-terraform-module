@@ -493,7 +493,7 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
 resource "azurerm_role_assignment" "roleAssignment3" {
   scope                = azurerm_storage_account.storage_account.id
   role_definition_name = "Storage Account Contributor"
-  principal_id         = var.identity_id
+  principal_id         = var.identity_objid
 
   depends_on = [azurerm_storage_container.analytics_container]
 }
@@ -501,7 +501,7 @@ resource "azurerm_role_assignment" "roleAssignment3" {
 resource "azurerm_role_assignment" "roleAssignment4" {
   scope                = azurerm_storage_container.analytics_container.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = var.identity_id
+  principal_id         = var.identity_objid
 
   depends_on = [azurerm_storage_container.analytics_container]
 }

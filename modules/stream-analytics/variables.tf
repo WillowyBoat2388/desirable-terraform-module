@@ -44,6 +44,11 @@ variable "identity_id" {
   type        = string
 }
 
+variable "identity_objid" {
+  description = "managed identity object id"
+  type        = string
+}
+
 variable "number_of_streaming_units" {
   type        = number
   description = "Number of streaming units."

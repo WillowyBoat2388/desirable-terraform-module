@@ -81,6 +81,7 @@ module "data-workflow" {
   rg_id          = azapi_resource.env.id
   rg_parent_id   = azapi_resource.env.parent_id
   identity_id    = local.msi_id
+  identity_objid = local.msi_oid
   identity_subid = local.msi_sid
   rg_name        = local.name
 
