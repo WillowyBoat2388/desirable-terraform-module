@@ -1,7 +1,7 @@
 locals {
   environment = var.environment
   name        = azapi_resource.env.name
-  region      = "US West 2"
+  region      = "West US 2"
   app_name    = "azureadmin"
   domain      = "bdatanet.tech"
   prefix      = "bdn"
