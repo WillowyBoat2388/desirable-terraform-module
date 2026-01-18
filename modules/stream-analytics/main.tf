@@ -509,19 +509,19 @@ resource "azurerm_role_assignment" "roleAssignment4" {
 
 resource "azurerm_role_assignment" "roleAssignment1" {
   scope                = azapi_resource.workspace.id
-  role_definition_name = "User Access Administrator"
+  role_definition_name = "Role Based Access Control Administrator"
   principal_id         = data.azurerm_client_config.current.object_id
 
   depends_on = [azapi_resource.workspace]
 }
 
-# resource "azurerm_role_assignment" "extid-roleAssignment" {
-#   scope                = azapi_resource.workspace.id
-#   role_definition_name = "Contributor"
-#   principal_id         = data.azurerm_client_config.current.object_id
+resource "azurerm_role_assignment" "extid-roleAssignment" {
+  scope                = azapi_resource.workspace.id
+  role_definition_name = "Contributor"
+  principal_id         = data.azurerm_client_config.current.object_id
 
-#   depends_on = [azapi_resource.workspace]
-# }
+  depends_on = [azapi_resource.workspace]
+}
 
 
 
