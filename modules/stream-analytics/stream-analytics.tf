@@ -64,7 +64,7 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
 
   serialization {
     type = "Parquet"
-    encoding        = "UTF8"
+    # encoding        = "UTF8"
     # field_delimiter = ","
   }
 }
