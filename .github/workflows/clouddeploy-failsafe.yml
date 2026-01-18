@@ -24,7 +24,7 @@ jobs:
     environment: production
     defaults:
       run:
-        working-directory: staging
+        working-directory: production
     
     steps:
       
@@ -40,21 +40,6 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    # Download saved plan from artifacts  
-    - name: Download Terraform Plan
-      uses: actions/download-artifact@v4
-      with:
-        name: tfplan
-        path: staging
-
-    # Decrypt plan
-    - name: Decrypt Terraform Plan
-      id: tf-plan-decrypt
-      env:
-        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-      run: |
-        gpg --batch "--passphrase=$ENCRYPTION_KEY" -o tfplan --decrypt tfplan.gpg
-    
     - name: Terraform Destroy Production
       working-directory: production
       run: |
