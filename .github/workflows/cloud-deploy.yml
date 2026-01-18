@@ -197,6 +197,12 @@ jobs:
     - name: Terraform Apply
       run: terraform apply -auto-approve tfplan
 
+    # Terraform Plan Approve for Prod
+    - name: Tfplan Transfer
+      working-directory: .
+      run: 
+        cp staging/tfplan production/tfplan
+
     - name: Terraform Apply Production
       working-directory: production
       run: 
