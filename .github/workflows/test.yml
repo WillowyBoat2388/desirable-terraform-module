@@ -1,0 +1,27 @@
+name: 'Terraform Step Test'
+
+on:
+
+  push:
+    branches:
+      - main
+  
+permissions:
+  contents: read
+
+
+jobs:
+  terraform-copy-test:
+    name: 'Terraform test'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: staging
+    steps:
+      
+    
+    # Terraform Plan Approve for Prod
+    - name: Tfplan Transfer
+      working-directory: .
+      run: 
+        cp staging/main.tf production/tested.tf
