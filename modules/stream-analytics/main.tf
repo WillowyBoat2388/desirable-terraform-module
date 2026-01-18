@@ -265,18 +265,18 @@ resource "azapi_resource" "eventhub" {
   }
 }
 
-resource "azurerm_databricks_access_connector" "service_connector" {
-  name                = "service_connector"
-  resource_group_name = var.rg_name
-  location            = var.location
+# resource "azurerm_databricks_access_connector" "service_connector" {
+#   name                = "service_connector"
+#   resource_group_name = var.rg_name
+#   location            = var.location
 
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [var.identity_subid]
-  }
+#   identity {
+#     type         = "UserAssigned"
+#     identity_ids = [var.identity_subid]
+#   }
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
 # data "azurerm_key_vault_key" "managed_key_vault" {}
 
@@ -515,16 +515,13 @@ resource "azurerm_role_assignment" "roleAssignment1" {
   depends_on = [azapi_resource.workspace]
 }
 
-resource "azurerm_role_assignment" "extid-roleAssignment" {
-  scope                = azapi_resource.workspace.id
-  role_definition_name = "Contributor"
-  principal_id         = data.azurerm_client_config.current.object_id
+# resource "azurerm_role_assignment" "extid-roleAssignment" {
+#   scope                = azapi_resource.workspace.id
+#   role_definition_name = "Contributor"
+#   principal_id         = data.azurerm_client_config.current.object_id
 
-  depends_on = [azapi_resource.workspace]
-}
-
-
-
+#   depends_on = [azapi_resource.workspace]
+# }
 
 
 
@@ -548,10 +545,10 @@ locals {
 
 }
 
-output "databricks_service_connector" {
-  value = azurerm_databricks_access_connector.service_connector.id
+# output "databricks_service_connector" {
+#   value = azurerm_databricks_access_connector.service_connector.id
 
-}
+# }
 
 output "databricks_workspace_url" {
   value = azapi_resource.workspace.output.properties.workspaceUrl
