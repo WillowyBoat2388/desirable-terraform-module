@@ -199,7 +199,7 @@ jobs:
 
     # Terraform Plan Approve for Prod
     - name: Tfplan Transfer
-      working-directory: ..
+      working-directory: ${{ github.workspace }}
       run: 
         cp staging/tfplan production/tfplan
 
