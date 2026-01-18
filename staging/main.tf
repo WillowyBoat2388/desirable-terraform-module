@@ -1,3 +1,9 @@
+
+
+data "azurerm_client_config" "current" {}
+
+
+
 locals {
   environment = var.environment
   name        = azapi_resource.env.name
@@ -5,9 +11,9 @@ locals {
   app_name    = "azureadmin"
   domain      = "bdatanet.tech"
   prefix      = "bdn"
-  msi_oid     = azapi_resource.managed_identity.output.properties.principalId
-  msi_sid     = azapi_resource.managed_identity.id
-  msi_id      = azapi_resource.managed_identity.output.properties.clientId
+  msi_oid     = data.azurerm_client_config.current.object_id
+  msi_sid     = data.azurerm_client_config.current.subscription_id
+  msi_id      = data.azurerm_client_config.current.client_id
 
 }
 
@@ -29,31 +35,6 @@ resource "azapi_resource" "env" {
   location = local.region
   name     = "${random_pet.rg_name.id}-${var.environment}"
 }
-
-resource "azapi_resource" "managed_identity" {
-  body                      = {}
-  location                  = local.region
-  name                      = "${local.environment}-service_account"
-  parent_id                 = azapi_resource.env.id
-  schema_validation_enabled = true
-  type                      = "Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview"
-  response_export_values    = ["*"]
-}
-
-
-resource "azurerm_role_assignment" "roleAssignment1" {
-  scope                = azapi_resource.env.id
-  role_definition_name = "Contributor"
-  principal_id         = local.msi_oid
-}
-
-resource "azurerm_role_assignment" "roleAssignment2" {
-  scope                = azapi_resource.env.id
-  role_definition_name = "User Access Administrator"
-  principal_id         = local.msi_oid
-}
-
-
 
 module "global" {
   source = "../global"
@@ -100,7 +81,7 @@ module "databricks" {
   team         = var.team
   rg_id        = azapi_resource.env.id
   rg_parent_id = azapi_resource.env.parent_id
-  # identity_objid                  = local.msi_oid
+  identity_objid                  = local.msi_oid
   # identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
   workspace_url                   = module.data-workflow.databricks_workspace_url
