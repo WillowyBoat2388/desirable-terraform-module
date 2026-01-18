@@ -30,3 +30,22 @@ provider "azurerm" {
   features {}
 }
 provider "azapi" {}
+
+
+provider "databricks" {
+  host                        = module.data-workflow.databricks_workspace_url
+  azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
+  auth_type                   = "github-oidc-azure" 
+  # alias = "workspace"
+}
+
+
+
+
+# data "azurerm_client_config" "current" {}
+
+# provider "databricks" {
+#   alias      = "account"
+#   host       = "https://accounts.azuredatabricks.net"
+#   # account_id = "https://accounts.azuredatabricks.net" #data.azurerm_client_config.current.client_id
+# }
