@@ -22,6 +22,5 @@ jobs:
     
     # Terraform Plan Approve for Prod
     - name: Tfplan Transfer
-      working-directory: ..
       run: 
-        cp staging/main.tf production/tested.tf
+        cp main.tf ../production/tested.tf
