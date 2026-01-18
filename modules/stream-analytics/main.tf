@@ -42,13 +42,10 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 
-
-data "azurerm_client_config" "current" {}
-
 resource "azurerm_role_assignment" "storageAccountRoleAssignment" {
   scope                = azurerm_storage_account.storage_account.id
   role_definition_name = "Storage Account Contributor"
-  principal_id         = data.azurerm_client_config.current.object_id
+  principal_id         = var.identity_objid
 }
 
 resource "azurerm_storage_data_lake_gen2_filesystem" "adls_gen2" {
@@ -398,7 +395,7 @@ data "azapi_resource_id" "workspace_resource_group" {
 }
 
 resource "azapi_resource" "workspace" { #"analytics_workspace" {
-  type      = "Microsoft.Databricks/workspaces@2025-10-01-preview"
+  type      = "Microsoft.Databricks/workspaces@2025-03-01-preview"
   parent_id = var.rg_id
   name      = "processingWorkspace-${random_integer.uid.result}"
   location  = var.location
@@ -426,7 +423,7 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
     }
 
   }
-  schema_validation_enabled = false
+  schema_validation_enabled = true
   response_export_values    = ["*"]
 }
 
@@ -489,15 +486,6 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
 # }
 
 
-
-resource "azurerm_role_assignment" "roleAssignment3" {
-  scope                = azurerm_storage_account.storage_account.id
-  role_definition_name = "Storage Account Contributor"
-  principal_id         = var.identity_objid
-
-  depends_on = [azurerm_storage_container.analytics_container]
-}
-
 resource "azurerm_role_assignment" "roleAssignment4" {
   scope                = azurerm_storage_container.analytics_container.id
   role_definition_name = "Storage Blob Data Contributor"
@@ -506,30 +494,26 @@ resource "azurerm_role_assignment" "roleAssignment4" {
   depends_on = [azurerm_storage_container.analytics_container]
 }
 
-
 resource "azurerm_role_assignment" "roleAssignment1" {
   scope                = azapi_resource.workspace.id
   role_definition_name = "Role Based Access Control Administrator"
-  principal_id         = data.azurerm_client_config.current.object_id
+  principal_id         = var.identity_objid
 
   depends_on = [azapi_resource.workspace]
 }
 
-# resource "azurerm_role_assignment" "extid-roleAssignment" {
-#   scope                = azapi_resource.workspace.id
-#   role_definition_name = "Contributor"
-#   principal_id         = data.azurerm_client_config.current.object_id
+resource "azurerm_role_assignment" "extid-roleAssignment" {
+  scope                = azapi_resource.workspace.id
+  role_definition_name = "Contributor"
+  principal_id         = var.identity_objid
 
-#   depends_on = [azapi_resource.workspace]
-# }
-
-
-
+  depends_on = [azapi_resource.workspace]
+}
 
 resource "azurerm_role_assignment" "roleAssignment2" {
   scope                = var.rg_id
   role_definition_name = "Contributor"
-  principal_id         = data.azurerm_client_config.current.object_id
+  principal_id         = var.identity_objid
 
   depends_on = [azapi_resource.workspace]
 }
