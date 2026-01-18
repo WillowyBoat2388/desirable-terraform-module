@@ -74,14 +74,14 @@ module "databricks" {
   source = "../modules/databricks"
 
   # Input variables
-  environment  = local.environment
-  location     = local.region
-  prefix       = local.prefix
-  owner        = "architect"
-  team         = var.team
-  rg_id        = azapi_resource.env.id
-  rg_parent_id = azapi_resource.env.parent_id
-  identity_objid                  = local.msi_oid
+  environment    = local.environment
+  location       = local.region
+  prefix         = local.prefix
+  owner          = "architect"
+  team           = var.team
+  rg_id          = azapi_resource.env.id
+  rg_parent_id   = azapi_resource.env.parent_id
+  identity_objid = local.msi_oid
   # identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
   workspace_url                   = module.data-workflow.databricks_workspace_url
