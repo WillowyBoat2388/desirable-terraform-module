@@ -63,10 +63,10 @@ variable "workspace_url" {
   type        = string
 }
 
-variable "service_connector" {
-  description = "databricks service connector id"
-  type        = string
-}
+# variable "service_connector" {
+#   description = "databricks service connector id"
+#   type        = string
+# }
 
 variable "prefix" {
   description = "The prefix used for all resources in this example"
