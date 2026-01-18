@@ -73,7 +73,7 @@ jobs:
       id: checkov
       uses: bridgecrewio/checkov-action@master
       with: 
-        directory: Azure/staging
+        directory: staging
         skip_check: CKV_AZURE_211,CKV_AZURE_165,CKV_AZURE_233,CKV_AZURE_166
         framework: terraform
         soft_fail: true
