@@ -162,7 +162,7 @@ jobs:
     needs: [terraform-plan]
     defaults:
       run:
-        working-directory: Azure/staging
+        working-directory: staging
     
     steps:
       
@@ -203,7 +203,7 @@ jobs:
         terraform apply -auto-approve tfplan
 
     - name: Terraform Destroy Staging
-      working-directory: Azure/staging
+      working-directory: staging
       run: terraform apply -destroy -auto-approve tfplan
 
   terraform-rollback:
