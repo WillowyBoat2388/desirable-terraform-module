@@ -72,7 +72,7 @@ module "global" {
 # Analytics Module
 module "data-workflow" {
   source = "../modules/stream-analytics"
-   # Input Variables
+  # Input Variables
   environment    = local.environment
   location       = local.region
   prefix         = local.prefix
