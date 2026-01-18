@@ -5,9 +5,9 @@ on:
     types: [closed]
     branches:
       [ main ]
-  # push:
-  #  branches:
-  #    - main
+  push:
+    branches:
+      - main
   # deployment:
   # workflow_call:
   
@@ -199,7 +199,7 @@ jobs:
 
     # Terraform Plan Approve for Prod
     - name: Tfplan Transfer
-      working-directory: ${{ github.workspace }}
+      working-directory: .
       run: 
         cp staging/tfplan production/tfplan
 
