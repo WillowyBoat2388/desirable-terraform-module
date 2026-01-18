@@ -44,10 +44,10 @@ variable "identity_subid" {
 #   type        = string
 # }
 
-# variable "identity_objid" {
-#   description = "managed identity object id"
-#   type        = string
-# }
+variable "identity_objid" {
+  description = "managed identity object id"
+  type        = string
+}
 
 variable "cluster_autotermination_minutes" {}
 variable "cluster_num_workers" {}
