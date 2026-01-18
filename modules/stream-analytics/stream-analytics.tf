@@ -61,7 +61,10 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
   path_pattern              = "analytics/output/{date}/{time}"
   date_format               = "yyyy-MM-dd"
   time_format               = "HH"
+  batch_min_rows            = 10000
+  batch_max_wait_time       = "00:00:30"
 
+ 
   serialization {
     type = "Parquet"
     # encoding        = "UTF8"
