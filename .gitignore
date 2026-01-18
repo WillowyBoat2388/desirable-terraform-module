@@ -1,4 +1,9 @@
 *.npg
 *.py
+*.terraform
+*.terraform.lock.hcl
 
 
+
+# Local .env files
+.env

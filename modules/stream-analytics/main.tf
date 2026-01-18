@@ -135,8 +135,8 @@ resource "azurerm_storage_data_lake_gen2_path" "adls_gen2_path" {
 }
 
 
-resource "azurerm_storage_container" "storage_container" {
-  name                  = "storagecontainer"
+resource "azurerm_storage_container" "analytics_container" {
+  name                  = "analyticscontainer"
   storage_account_id    = azurerm_storage_account.storage_account.id
   container_access_type = "blob"
 }
@@ -495,15 +495,15 @@ resource "azurerm_role_assignment" "roleAssignment3" {
   role_definition_name = "Storage Account Contributor"
   principal_id         = var.identity_id
 
-  depends_on = [azurerm_storage_container.storage_container]
+  depends_on = [azurerm_storage_container.analytics_container]
 }
 
 resource "azurerm_role_assignment" "roleAssignment4" {
-  scope                = azurerm_storage_container.storage_container.id
+  scope                = azurerm_storage_container.analytics_container.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = var.identity_id
 
-  depends_on = [azurerm_storage_container.storage_container]
+  depends_on = [azurerm_storage_container.analytics_container]
 }
 
 
