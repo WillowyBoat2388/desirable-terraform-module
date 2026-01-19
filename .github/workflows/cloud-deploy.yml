@@ -252,5 +252,5 @@ jobs:
   terraform-rollback:
     name: 'Terraform Apply Production Rollback'
     if: github.ref == 'refs/heads/main' && needs.terraform-production.result == 'failure'
-    needs: [terraform-apply]
+    needs: [terraform-production]
     uses: ./.github/workflows/clouddeploy-failsafe.yml
