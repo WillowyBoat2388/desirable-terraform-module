@@ -46,6 +46,7 @@ data "databricks_group" "admins" {
 resource "databricks_group" "eng" {
   # provider     = databricks.account
   display_name = "Data Engineering"
+  depends_on = [data.databricks_spark_version.latest_lts]
 }
 
 resource "databricks_group_member" "eng" {
@@ -107,7 +108,18 @@ resource "databricks_cluster" "cluster" {
   num_workers             = var.cluster_num_workers
   data_security_mode      = var.cluster_data_security_mode
   # single_user_name        = databricks_group.eng.display_name
+  depends_on = [data.databricks_spark_version.latest_lts]
 
+}
+
+resource "databricks_permissions" "cluster_manage" {
+  # provider   = databricks.workspace
+  cluster_id = databricks_cluster.cluster.id
+
+  access_control {
+    group_name       = databricks_group.eng.display_name
+    permission_level = "CAN_MANAGE"
+  }
 }
 
 resource "databricks_permissions" "cluster_usage" {
