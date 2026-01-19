@@ -35,7 +35,7 @@ provider "azapi" {}
 
 
 provider "databricks" {
-  host                        = module.data-workflow.databricks_workspace_url
+  # host                        = module.data-workflow.databricks_workspace_url
   azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
   # auth_type                   = "github-oidc-azure"
   azure_client_id = local.msi_id
