@@ -494,21 +494,21 @@ resource "azurerm_role_assignment" "roleAssignment4" {
   depends_on = [azurerm_storage_container.analytics_container]
 }
 
-resource "azurerm_role_assignment" "roleAssignment1" {
-  scope                = azapi_resource.workspace.id
-  role_definition_name = "Role Based Access Control Administrator"
-  principal_id         = var.identity_objid
+# resource "azurerm_role_assignment" "roleAssignment1" {
+#   scope                = azapi_resource.workspace.id
+#   role_definition_name = "Role Based Access Control Administrator"
+#   principal_id         = var.identity_objid
 
-  depends_on = [azapi_resource.workspace]
-}
+#   depends_on = [azapi_resource.workspace]
+# }
 
-resource "azurerm_role_assignment" "extid-roleAssignment" {
-  scope                = azapi_resource.workspace.id
-  role_definition_name = "Contributor"
-  principal_id         = var.identity_objid
+# resource "azurerm_role_assignment" "extid-roleAssignment" {
+#   scope                = azapi_resource.workspace.id
+#   role_definition_name = "Contributor"
+#   principal_id         = var.identity_objid
 
-  depends_on = [azapi_resource.workspace]
-}
+#   depends_on = [azapi_resource.workspace]
+# }
 
 resource "azurerm_role_assignment" "roleAssignment2" {
   scope                = var.rg_id
