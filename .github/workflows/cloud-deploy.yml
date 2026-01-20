@@ -246,6 +246,7 @@ jobs:
           fi
 
       - name: Terraform Apply Product
+        if: steps.tf-apply-plan.outputs.exitcode == 2
         run: 
           terraform apply -auto-approve tfplan
 
