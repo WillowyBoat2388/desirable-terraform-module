@@ -2,6 +2,11 @@
 
 data "azurerm_client_config" "current" {}
 
+data "azurerm_user_assigned_identity" "home" {
+  name                = "ong-rw"
+  resource_group_name = "management"
+}
+
 
 
 locals {
@@ -12,7 +17,7 @@ locals {
   domain      = "bdatanet.tech"
   prefix      = "ong"
   msi_oid     = data.azurerm_client_config.current.object_id
-  msi_sid     = data.azurerm_client_config.current.subscription_id
+  msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
 
 }
@@ -74,15 +79,15 @@ module "databricks" {
   source = "../modules/databricks"
 
   # Input variables
-  environment    = local.environment
-  location       = local.region
-  prefix         = local.prefix
-  owner          = "architect"
-  team           = var.team
-  rg_id          = azapi_resource.env.id
-  rg_parent_id   = azapi_resource.env.parent_id
-  identity_objid = local.msi_oid
-  # identity_clientid               = local.msi_id
+  environment                     = local.environment
+  location                        = local.region
+  prefix                          = local.prefix
+  owner                           = "architect"
+  team                            = var.team
+  rg_id                           = azapi_resource.env.id
+  rg_parent_id                    = azapi_resource.env.parent_id
+  identity_objid                  = local.msi_oid
+  identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
   workspace_url                   = module.data-workflow.databricks_workspace_url
   workspace_id                    = module.data-workflow.databricks_id

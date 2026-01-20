@@ -600,10 +600,10 @@ locals {
 
 }
 
-# output "databricks_service_connector" {
-#   value = azurerm_databricks_access_connector.service_connector.id
+output "databricks_service_connector" {
+  value = azurerm_databricks_access_connector.service_connector.id
 
-# }
+}
 
 output "databricks_workspace_url" {
   value = azapi_resource.workspace.output.properties.workspaceUrl

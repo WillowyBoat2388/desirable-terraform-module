@@ -39,10 +39,10 @@ variable "identity_subid" {
   type        = string
 }
 
-# variable "identity_clientid" {
-#   description = "managed identity client id"
-#   type        = string
-# }
+variable "identity_clientid" {
+  description = "managed identity client id"
+  type        = string
+}
 
 variable "identity_objid" {
   description = "managed identity object id"
