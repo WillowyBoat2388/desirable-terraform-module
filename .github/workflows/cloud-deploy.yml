@@ -13,7 +13,6 @@ on:
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
 
@@ -80,6 +79,8 @@ jobs:
           
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
           
+          echo "exitcode=$exitcode"
+
           if [ $exitcode -eq 1 ]; then
             echo Terraform Plan Failed!
             exit 1
@@ -87,10 +88,6 @@ jobs:
             exit 0
           fi
 
-      - name: Get Plan Output
-        env: 
-          TF_PLAN_EXITCODE: ${{ steps.tf-plan.outputs.exitcode }}
-        run: echo "Terraform Plan Exit Code is $TF_PLAN_EXITCODE"
 
       # Encrypt plan
       # Generate with, for example: dd bs=1 count=64 if=/dev/urandom 2>/dev/null | base64
