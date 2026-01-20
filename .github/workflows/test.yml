@@ -1,15 +1,9 @@
-name: 'Terraform Plan/Apply'
+name: 'Terraform Test'
 
 on:
-  # pull_request_target:
-  #   types: [closed]
-  #   branches:
-  #     [ main ]
   push:
     branches:
       - main
-  # deployment:
-  # workflow_call:
   
 
 #Special permissions required for OIDC authentication
