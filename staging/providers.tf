@@ -39,7 +39,7 @@ provider "databricks" {
   host                        = module.data-workflow.databricks_workspace_url
   azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
 
-  # alias = "workspace"
+  alias = "workspace"
 }
 
 

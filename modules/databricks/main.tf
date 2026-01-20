@@ -11,14 +11,14 @@ resource "random_string" "cluster_name" {
 data "databricks_spark_version" "latest_lts" {
 
   long_term_support = true
-  # provider          = databricks.workspace
-  depends_on = [var.workspace_id, var.workspace_url]
+  provider          = databricks.workspace
+  depends_on        = [var.workspace_id, var.workspace_url]
 }
 
 # Create the cluster with the "smallest" amount
 # of resources allowed.
 data "databricks_node_type" "smallest" {
-  # provider   = databricks.workspace
+  provider   = databricks.workspace
   local_disk = true
   provider_config {
     workspace_id = var.workspace_id
@@ -45,13 +45,13 @@ data "databricks_group" "admins" {
 
 
 resource "databricks_group" "eng" {
-  # provider     = databricks.account
+  provider     = databricks.workspace
   display_name = "Data Engineering"
   depends_on   = [var.workspace_id, data.databricks_spark_version.latest_lts]
 }
 
 resource "databricks_group_member" "eng" {
-  # provider  = databricks.account
+  provider   = databricks.workspace
   group_id   = databricks_group.eng.id
   member_id  = data.databricks_group.admins.id
   depends_on = [data.databricks_group.admins, databricks_group.eng]
@@ -99,7 +99,7 @@ resource "databricks_group_member" "eng" {
 
 
 resource "databricks_cluster" "cluster" {
-  # provider                = databricks.workspace
+  provider                = databricks.workspace
   cluster_name            = random_string.cluster_name.result
   kind                    = "CLASSIC_PREVIEW"
   is_single_node          = true
@@ -114,7 +114,7 @@ resource "databricks_cluster" "cluster" {
 }
 
 resource "databricks_permissions" "cluster_manage" {
-  # provider   = databricks.workspace
+  provider   = databricks.workspace
   cluster_id = databricks_cluster.cluster.id
 
   access_control {
