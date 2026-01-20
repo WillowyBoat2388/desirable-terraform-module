@@ -88,7 +88,7 @@ module "databricks" {
   workspace_id                    = module.data-workflow.databricks_workspace_id
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
-  cluster_data_security_mode      = "SINGLE_USER"
+  cluster_data_security_mode      = "USER_ISOLATION"
   # providers = {
   #   databricks.workspace = databricks.workspace
   #   databricks.account   = databricks.account

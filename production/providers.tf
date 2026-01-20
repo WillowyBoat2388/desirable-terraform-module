@@ -9,7 +9,8 @@ terraform {
 
   required_providers {
     databricks = {
-      source = "databricks/databricks"
+      source  = "databricks/databricks"
+      version = "1.100.0"
     }
     azapi = {
       source  = "Azure/azapi"
@@ -34,7 +35,7 @@ provider "azapi" {}
 
 provider "databricks" {
   host                        = module.data-workflow.databricks_workspace_url
-  azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
+  azure_workspace_resource_id = module.data-workflow.databricks_workspace_id
   # azure_client_id             = local.msi_id
   # alias = "workspace"
 }
