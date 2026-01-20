@@ -251,6 +251,8 @@ resource "azurerm_eventhub" "eventhub" {
     cleanup_policy          = "Delete"
     retention_time_in_hours = 1
   }
+
+  depends_on = [ azurerm_role_assignment.storageAccountRoleAssignment2 ]
 }
 
 resource "azapi_resource" "eventhub" {
