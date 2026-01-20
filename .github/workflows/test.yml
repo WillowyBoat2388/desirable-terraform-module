@@ -3,7 +3,7 @@ name: 'Terraform Test'
 on:
   push:
     branches:
-      - develop
+      - main
   
 
 #Special permissions required for OIDC authentication
