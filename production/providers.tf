@@ -2,7 +2,7 @@ terraform {
 
 
   backend "azurerm" {
-    storage_account_name = "bdncloudcontrol"        # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+    storage_account_name = "dagsterinarian27"       # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
     container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
     key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
   }
@@ -35,8 +35,7 @@ provider "azapi" {}
 provider "databricks" {
   host                        = module.data-workflow.databricks_workspace_url
   azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
-  auth_type                   = "github-oidc-azure"
-  azure_client_id             = local.msi_id
+  # azure_client_id             = local.msi_id
   # alias = "workspace"
 }
 

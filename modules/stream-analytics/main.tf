@@ -48,6 +48,12 @@ resource "azurerm_role_assignment" "storageAccountRoleAssignment" {
   principal_id         = var.identity_objid
 }
 
+resource "azurerm_role_assignment" "storageAccountRoleAssignment2" {
+  scope                = azurerm_storage_account.storage_account.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = var.identity_objid
+}
+
 resource "azurerm_storage_data_lake_gen2_filesystem" "adls_gen2" {
   name               = "example"
   storage_account_id = azurerm_storage_account.storage_account.id
@@ -392,6 +398,8 @@ data "azapi_resource_id" "workspace_resource_group" {
   type      = "Microsoft.Resources/resourceGroups@2020-06-01"
   parent_id = var.rg_parent_id
   name      = "databricks-rg-processingWorkspace"
+
+  depends_on = [var.identity_objid]
 }
 
 resource "azapi_resource" "workspace" { #"analytics_workspace" {
@@ -488,27 +496,20 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
 
 resource "azurerm_role_assignment" "roleAssignment4" {
   scope                = azurerm_storage_container.analytics_container.id
-  role_definition_name = "Storage Blob Data Contributor"
+  role_definition_name = "Storage Blob Data Owner"
   principal_id         = var.identity_objid
 
   depends_on = [azurerm_storage_container.analytics_container]
 }
 
-# resource "azurerm_role_assignment" "roleAssignment1" {
-#   scope                = azapi_resource.workspace.id
-#   role_definition_name = "Role Based Access Control Administrator"
-#   principal_id         = var.identity_objid
 
-#   depends_on = [azapi_resource.workspace]
-# }
+resource "azurerm_role_assignment" "roleAssignment3" {
+  scope                = azurerm_storage_account.storage_account.id
+  role_definition_name = "Storage Connector Contributor"
+  principal_id         = var.identity_objid
 
-# resource "azurerm_role_assignment" "extid-roleAssignment" {
-#   scope                = azapi_resource.workspace.id
-#   role_definition_name = "Contributor"
-#   principal_id         = var.identity_objid
-
-#   depends_on = [azapi_resource.workspace]
-# }
+  depends_on = [azurerm_storage_account.storage_account]
+}
 
 resource "azurerm_role_assignment" "roleAssignment2" {
   scope                = var.rg_id

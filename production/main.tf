@@ -10,7 +10,7 @@ locals {
   region      = "West US 2"
   app_name    = "azureadmin"
   domain      = "bdatanet.tech"
-  prefix      = "bdn"
+  prefix      = "ong"
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_client_config.current.subscription_id
   msi_id      = data.azurerm_client_config.current.client_id

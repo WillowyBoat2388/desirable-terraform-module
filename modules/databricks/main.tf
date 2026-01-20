@@ -12,6 +12,7 @@ data "databricks_spark_version" "latest_lts" {
 
   long_term_support = true
   # provider          = databricks.workspace
+  depends_on = [var.workspace_id, var.workspace_url]
 }
 
 # Create the cluster with the "smallest" amount
@@ -46,7 +47,7 @@ data "databricks_group" "admins" {
 resource "databricks_group" "eng" {
   # provider     = databricks.account
   display_name = "Data Engineering"
-  depends_on   = [data.databricks_spark_version.latest_lts]
+  depends_on   = [var.workspace_id, data.databricks_spark_version.latest_lts]
 }
 
 resource "databricks_group_member" "eng" {

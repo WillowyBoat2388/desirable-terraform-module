@@ -1,10 +1,7 @@
 name: 'Terraform Plan/Apply'
 
 on:
-  pull_request_target:
-    types: [closed]
-    branches:
-      [ main ]
+  
   push:
     branches:
       - main
@@ -16,7 +13,6 @@ on:
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
 env:
@@ -37,123 +33,126 @@ jobs:
       run:
         working-directory: staging
     env:
-      #this is needed since we are running terraform with read-only permissions
-      ARM_RESOURCE_PROVIDER_REGISTRATIONS: "extended" #"none"
+      ARM_CLIENT_ID: "${{ env.ARM_CLIENT_ID }}"
+      ARM_SUBSCRIPTION_ID: "${{ env.ARM_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ env.ARM_TENANT_ID }}"
+      ARM_USE_AZUREAD: "${{ env.ARM_USE_AZUREAD }}"
+      ARM_USE_OIDC: "${{ env.ARM_USE_OIDC }}"
+
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
-      
     
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # Install the latest version of the Terraform CLI
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      # with:
-      #   terraform_wrapper: false
+      # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        # with:
+        #   terraform_wrapper: false
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
 
-    # Validate terraform files
-    - name: Terraform Validate
-      run: terraform validate
+      # Validate terraform files
+      - name: Terraform Validate
+        run: terraform validate
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    # Will fail the build if not
-    - name: Terraform Format
-      run: terraform fmt -check
-    
-    # Perform a security scan of the terraform code using checkov
-    - name: Run Checkov action
-      id: checkov
-      uses: bridgecrewio/checkov-action@master
-      with: 
-        directory: staging
-        skip_check: CKV_AZURE_211,CKV_AZURE_165,CKV_AZURE_233,CKV_AZURE_166
-        framework: terraform
-        soft_fail: true
-
-
-    # Generates an execution plan for Terraform
-    # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-    - name: Terraform Plan
-      id: tf-plan
-      run: |
-        export exitcode=0
-        terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-
-        echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-        
-        if [ $exitcode -eq 1 ]; then
-          echo Terraform Plan Failed!
-          exit 1
-        else 
-          exit 0
-        fi
-
-    # Encrypt plan
-    # Generate with, for example: dd bs=1 count=64 if=/dev/urandom 2>/dev/null | base64
-    - name: Encrypt Terraform Plan
-      id: tf-plan-encrypt
-      env:
-        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-      run: |
-        gpg --batch "--passphrase=$ENCRYPTION_KEY" --symmetric --cipher-algo AES256 --digest-algo sha256 --s2k-mode 3 --s2k-digest-algo sha256 --s2k-count 65011712 tfplan
-
-        
-    # Save plan to artifacts  
-    - name: Publish Terraform Plan
-      uses: actions/upload-artifact@v4
-      with:
-        name: tfplan
-        path: staging/tfplan.gpg
-        
-    # Create string output of Terraform Plan
-    - name: Create String Output
-      id: tf-plan-string
-      run: |
-        TERRAFORM_PLAN=$(terraform show -no-color tfplan)
-        
-        delimiter="$(openssl rand -hex 8)"
-        echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
-        echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
-        echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
-        echo "" >> $GITHUB_OUTPUT
-        echo '```terraform' >> $GITHUB_OUTPUT
-        echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
-        echo '```' >> $GITHUB_OUTPUT
-        echo "</details>" >> $GITHUB_OUTPUT
-        echo "${delimiter}" >> $GITHUB_OUTPUT
-        
-    # Publish Terraform Plan as task summary
-    - name: Publish Terraform Plan to Task Summary
-      env:
-        SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
-      run: |
-        echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+      # Checks that all Terraform configuration files adhere to a canonical format
+      # Will fail the build if not
+      - name: Terraform Format
+        run: terraform fmt -check
       
-    # If this is a PR post the changes
-    - name: Push Terraform Output to PR
-      if: github.ref != 'refs/heads/main'
-      uses: actions/github-script@v7
-      env:
-        SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
-      with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const body = `${process.env.SUMMARY}`;
-            github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-            })
-                
+      # Perform a security scan of the terraform code using checkov
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with: 
+          directory: staging
+          skip_check: CKV_AZURE_211,CKV_AZURE_165,CKV_AZURE_233,CKV_AZURE_166
+          framework: terraform
+          soft_fail: true
+
+
+      # Generates an execution plan for Terraform
+      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          export exitcode=0
+          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          
+          if [ $exitcode -eq 1 ]; then
+            echo Terraform Plan Failed!
+            exit 1
+          else 
+            exit 0
+          fi
+
+      # Encrypt plan
+      # Generate with, for example: dd bs=1 count=64 if=/dev/urandom 2>/dev/null | base64
+      - name: Encrypt Terraform Plan
+        id: tf-plan-encrypt
+        env:
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+        run: |
+          gpg --batch "--passphrase=$ENCRYPTION_KEY" --symmetric --cipher-algo AES256 --digest-algo sha256 --s2k-mode 3 --s2k-digest-algo sha256 --s2k-count 65011712 tfplan
+
+          
+      # Save plan to artifacts  
+      - name: Publish Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: staging/tfplan.gpg
+          
+      # Create string output of Terraform Plan
+      - name: Create String Output
+        id: tf-plan-string
+        run: |
+          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+          
+          delimiter="$(openssl rand -hex 8)"
+          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo '```terraform' >> $GITHUB_OUTPUT
+          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+          echo '```' >> $GITHUB_OUTPUT
+          echo "</details>" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> $GITHUB_OUTPUT
+          
+      # Publish Terraform Plan as task summary
+      - name: Publish Terraform Plan to Task Summary
+        env:
+          SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
+        run: |
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+        
+      # If this is a PR post the changes
+      - name: Push Terraform Output to PR
+        if: github.ref != 'refs/heads/main'
+        uses: actions/github-script@v7
+        env:
+          SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
+        with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            script: |
+              const body = `${process.env.SUMMARY}`;
+              github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: body
+              })
+                  
   terraform-apply:
     name: 'Terraform Apply'
     if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
@@ -166,88 +165,88 @@ jobs:
     
     steps:
       
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
 
-    # Download saved plan from artifacts  
-    - name: Download Terraform Plan
-      uses: actions/download-artifact@v4
-      with:
-        name: tfplan
-        path: staging
+      # Download saved plan from artifacts  
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: staging
 
-    # Decrypt plan
-    - name: Decrypt Terraform Plan
-      id: tf-plan-decrypt
-      env:
-        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-      run: |
-        gpg --batch "--passphrase=$ENCRYPTION_KEY" -o tfplan --decrypt tfplan.gpg
-    
-    # Terraform Apply
-    - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan
-
-  terraform-production:
-    name: 'Terraform Apply Production'
-    if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
-    runs-on: ubuntu-latest
-    environment: production
-    needs: [terraform-apply]
-    defaults:
-      run:
-        working-directory: production
-    
-    steps:
+      # Decrypt plan
+      - name: Decrypt Terraform Plan
+        id: tf-plan-decrypt
+        env:
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+        run: |
+          gpg --batch "--passphrase=$ENCRYPTION_KEY" -o tfplan --decrypt tfplan.gpg
       
-    
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v4
+      # Terraform Apply
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
 
-    # Install the latest version of the Terraform CLI
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_wrapper: false
-
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      run: terraform init
-
-    # Generates an execution plan for Terraform
-    # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-    - name: Terraform Plan
-      id: tf-plan
-      run: |
-        export exitcode=0
-        terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-
-        echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+    terraform-production:
+      name: 'Terraform Apply Production'
+      if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
+      runs-on: ubuntu-latest
+      environment: production
+      needs: [terraform-apply]
+      defaults:
+        run:
+          working-directory: production
+      
+      steps:
         
-        if [ $exitcode -eq 1 ]; then
-          echo Terraform Plan Failed!
-          exit 1
-        else 
-          exit 0
-        fi
+      
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Terraform Apply Product
-      run: 
-        terraform apply -auto-approve tfplan
+      # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
-    - name: Terraform Destroy Staging
-      working-directory: staging
-      run: terraform apply -destroy -auto-approve tfplan
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
+
+      # Generates an execution plan for Terraform
+      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          export exitcode=0
+          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          
+          if [ $exitcode -eq 1 ]; then
+            echo Terraform Plan Failed!
+            exit 1
+          else 
+            exit 0
+          fi
+
+      - name: Terraform Apply Product
+        run: 
+          terraform apply -auto-approve tfplan
+
+      - name: Terraform Destroy Staging
+        working-directory: staging
+        run: terraform apply -destroy -auto-approve tfplan
 
   terraform-rollback:
     name: 'Terraform Apply Production Rollback'
