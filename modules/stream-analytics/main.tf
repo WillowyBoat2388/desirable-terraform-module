@@ -144,7 +144,23 @@ resource "azurerm_storage_container" "analytics_container" {
   container_access_type = "blob"
 }
 
-resource "random_uuid" "roleass" {
+resource "random_uuid" "roleass4" {
+  keepers = {
+    # Generate a new id each time we switch to a new AMI id
+    ami_id = var.rg_id
+  }
+
+}
+
+resource "random_uuid" "roleass2" {
+  keepers = {
+    # Generate a new id each time we switch to a new AMI id
+    ami_id = var.rg_id
+  }
+
+}
+
+resource "random_uuid" "roleass3" {
   keepers = {
     # Generate a new id each time we switch to a new AMI id
     ami_id = var.rg_id
