@@ -13,6 +13,7 @@ on:
 permissions:
   id-token: write
   contents: read
+  pull_requests: write
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
 
@@ -228,7 +229,7 @@ jobs:
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
-        id: tf-plan
+        id: tf-apply-plan
         run: |
           export exitcode=0
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
