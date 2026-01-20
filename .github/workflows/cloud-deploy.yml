@@ -15,29 +15,22 @@ permissions:
   contents: read
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
-env:
-  ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-  ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-  ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-  ARM_USE_AZUREAD: true
-  ARM_USE_OIDC: true
 
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     environment: production
-    # if: github.event.pull_request.merged == true
 
     defaults:
       run:
         working-directory: staging
     env:
-      ARM_CLIENT_ID: "${{ env.ARM_CLIENT_ID }}"
-      ARM_SUBSCRIPTION_ID: "${{ env.ARM_SUBSCRIPTION_ID }}"
-      ARM_TENANT_ID: "${{ env.ARM_TENANT_ID }}"
-      ARM_USE_AZUREAD: "${{ env.ARM_USE_AZUREAD }}"
-      ARM_USE_OIDC: "${{ env.ARM_USE_OIDC }}"
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+      ARM_USE_AZUREAD: true
+      ARM_USE_OIDC: true
 
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
@@ -162,7 +155,14 @@ jobs:
     defaults:
       run:
         working-directory: staging
-    
+    env:
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+      ARM_USE_AZUREAD: true
+      ARM_USE_OIDC: true
+  
+  
     steps:
       
       # Checkout the repository to the GitHub Actions runner
@@ -196,19 +196,24 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
 
-    terraform-production:
-      name: 'Terraform Apply Production'
-      if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
-      runs-on: ubuntu-latest
-      environment: production
-      needs: [terraform-apply]
-      defaults:
-        run:
-          working-directory: production
+  terraform-production:
+    name: 'Terraform Apply Production'
+    if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [terraform-apply]
+    defaults:
+      run:
+        working-directory: production
+    env:
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+      ARM_USE_AZUREAD: true
+      ARM_USE_OIDC: true
       
-      steps:
-        
-      
+    steps:  
+    
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
