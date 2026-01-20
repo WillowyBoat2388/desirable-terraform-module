@@ -144,6 +144,14 @@ resource "azurerm_storage_container" "analytics_container" {
   container_access_type = "blob"
 }
 
+resource "random_uuid" "roleass" {
+  keepers = {
+    # Generate a new id each time we switch to a new AMI id
+    ami_id = var.rg_id
+  }
+
+}
+
 
 # Generate a random integer to create a globally unique name
 resource "random_integer" "uid" {
@@ -504,7 +512,7 @@ data "azurerm_role_definition" "roleDataOwner" {
 
 resource "azapi_resource" "roleAssignment4" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-  name      = random_pet.stream.id
+  name      = random_uuid.roleass4.result
   parent_id = azurerm_storage_container.analytics_container.id
   body = {
     properties = {
@@ -528,7 +536,7 @@ data "azurerm_role_definition" "roleConnectorContributor" {
 
 resource "azapi_resource" "roleAssignment3" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-  name      = random_pet.stream.id
+  name      = random_uuid.roleass3.result
   parent_id = azurerm_storage_account.storage_account.id
   body = {
     properties = {
@@ -553,7 +561,7 @@ data "azurerm_role_definition" "roleContributor" {
 
 resource "azapi_resource" "roleAssignment2" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-  name      = random_pet.stream.id
+  name      = random_uuid.roleass2.result
   parent_id = var.rg_id
   body = {
     properties = {
