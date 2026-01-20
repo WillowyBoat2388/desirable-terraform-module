@@ -504,7 +504,7 @@ data "azurerm_role_definition" "roleDataOwner" {
 
 resource "azapi_resource" "roleAssignment4" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-  name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
+  name      = random_pet.stream.id
   parent_id = azurerm_storage_container.analytics_container.id
   body = {
     properties = {
@@ -528,7 +528,7 @@ data "azurerm_role_definition" "roleConnectorContributor" {
 
 resource "azapi_resource" "roleAssignment3" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-  name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
+  name      = random_pet.stream.id
   parent_id = azurerm_storage_account.storage_account.id
   body = {
     properties = {
@@ -553,7 +553,7 @@ data "azurerm_role_definition" "roleContributor" {
 
 resource "azapi_resource" "roleAssignment2" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-  name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
+  name      = random_pet.stream.id
   parent_id = var.rg_id
   body = {
     properties = {
