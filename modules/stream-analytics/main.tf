@@ -494,31 +494,77 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
 # }
 
 
-resource "azurerm_role_assignment" "roleAssignment4" {
-  scope                = azurerm_storage_container.analytics_container.id
-  role_definition_name = "Storage Blob Data Owner"
-  principal_id         = var.identity_objid
+data "azurerm_role_definition" "roleContributor" {
+  name  = "Storage Blob Data Owner"
+  scope = azurerm_storage_container.analytics_container.id
 
   depends_on = [azurerm_storage_container.analytics_container]
 }
 
 
-resource "azurerm_role_assignment" "roleAssignment3" {
-  scope                = azurerm_storage_account.storage_account.id
-  role_definition_name = "Storage Connector Contributor"
-  principal_id         = var.identity_objid
+resource "azapi_resource" "roleAssignment2" {
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+  name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
+  parent_id = azurerm_storage_container.analytics_container.id
+  body = {
+    properties = {
+      principalId      = var.identity_objid
+      principalType    = "ManagedIdentity"
+      roleDefinitionId = data.azurerm_role_definition.roleDataOwner.id
+    }
+  }
+
+  depends_on = [azurerm_storage_container.analytics_container]
+}
+
+
+data "azurerm_role_definition" "roleContributor" {
+  name  = "Service Connector Contributor"
+  scope = azurerm_storage_account.storage_account.id
 
   depends_on = [azurerm_storage_account.storage_account]
 }
 
-resource "azurerm_role_assignment" "roleAssignment2" {
-  scope                = var.rg_id
-  role_definition_name = "Contributor"
-  principal_id         = var.identity_objid
+
+resource "azapi_resource" "roleAssignment3" {
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+  name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
+  parent_id = azurerm_storage_account.storage_account.id
+  body = {
+    properties = {
+      principalId      = var.identity_objid
+      principalType    = "ManagedIdentity"
+      roleDefinitionId = data.azurerm_role_definition.roleConnectorContributor.id
+    }
+  }
+
+  depends_on = [azurerm_storage_account.storage_account]
+}
+
+
+
+data "azurerm_role_definition" "roleContributor" {
+  name  = "Contributor"
+  scope = var.rg_id
 
   depends_on = [azapi_resource.workspace]
 }
 
+
+resource "azapi_resource" "roleAssignment2" {
+  type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+  name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
+  parent_id = var.rg_id
+  body = {
+    properties = {
+      principalId      = var.identity_objid
+      principalType    = "managedIdentity"
+      roleDefinitionId = data.azurerm_role_definition.roleContributor.id
+    }
+  }
+
+  depends_on = [azapi_resource.workspace]
+}
 
 locals {
   tags = {
