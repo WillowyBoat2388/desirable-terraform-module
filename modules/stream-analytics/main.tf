@@ -420,7 +420,7 @@ resource "azurerm_databricks_access_connector" "service_connector" {
 
 data "azapi_resource_id" "workspace_resource_group" {
   type      = "Microsoft.Resources/resourceGroups@2020-06-01"
-  parent_id = var.rg_id
+  parent_id = var.rg_parent_id
   name      = "databricks-rg-processingWorkspace"
 
 }
