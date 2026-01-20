@@ -1,10 +1,14 @@
 name: 'Terraform Plan/Apply'
 
 on:
-  
-  push:
+  pull_request_target:
+    types: [closed]
     branches:
-      - main
+      [ main ]
+  
+  # push:
+  #   branches:
+  #     - main
   # deployment:
   # workflow_call:
   
