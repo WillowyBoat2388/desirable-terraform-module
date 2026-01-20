@@ -76,7 +76,7 @@ jobs:
         run: |
           export exitcode=0
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-
+          
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
           
           if [ $exitcode -eq 1 ]; then
@@ -146,7 +146,7 @@ jobs:
                   
   terraform-apply:
     name: 'Terraform Apply'
-    if: github.ref == 'refs/heads/main' # && needs.terraform-plan.outputs.tfplanExitCode == 2
+    if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 0
     runs-on: ubuntu-latest
     needs: [terraform-plan]
     defaults:
