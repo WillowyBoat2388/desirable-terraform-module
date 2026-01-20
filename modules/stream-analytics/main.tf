@@ -509,7 +509,7 @@ resource "azapi_resource" "roleAssignment4" {
   body = {
     properties = {
       principalId      = var.identity_objid
-      principalType    = "ManagedIdentity"
+      principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleDataOwner.id
     }
   }
@@ -533,7 +533,7 @@ resource "azapi_resource" "roleAssignment3" {
   body = {
     properties = {
       principalId      = var.identity_objid
-      principalType    = "ManagedIdentity"
+      principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleConnectorContributor.id
     }
   }
@@ -558,7 +558,7 @@ resource "azapi_resource" "roleAssignment2" {
   body = {
     properties = {
       principalId      = var.identity_objid
-      principalType    = "managedIdentity"
+      principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleContributor.id
     }
   }
