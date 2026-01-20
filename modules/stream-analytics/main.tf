@@ -252,7 +252,7 @@ resource "azurerm_eventhub" "eventhub" {
     retention_time_in_hours = 1
   }
 
-  depends_on = [ azurerm_role_assignment.storageAccountRoleAssignment2 ]
+  depends_on = [azurerm_role_assignment.storageAccountRoleAssignment2]
 }
 
 resource "azapi_resource" "eventhub" {
