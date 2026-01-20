@@ -494,7 +494,7 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
 # }
 
 
-data "azurerm_role_definition" "roleContributor" {
+data "azurerm_role_definition" "roleDataOwner" {
   name  = "Storage Blob Data Owner"
   scope = azurerm_storage_container.analytics_container.id
 
@@ -502,7 +502,7 @@ data "azurerm_role_definition" "roleContributor" {
 }
 
 
-resource "azapi_resource" "roleAssignment2" {
+resource "azapi_resource" "roleAssignment4" {
   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
   name      = "6faae21a-0cd6-4536-8c23-a278823d12ed"
   parent_id = azurerm_storage_container.analytics_container.id
@@ -518,7 +518,7 @@ resource "azapi_resource" "roleAssignment2" {
 }
 
 
-data "azurerm_role_definition" "roleContributor" {
+data "azurerm_role_definition" "roleConnectorContributor" {
   name  = "Service Connector Contributor"
   scope = azurerm_storage_account.storage_account.id
 
