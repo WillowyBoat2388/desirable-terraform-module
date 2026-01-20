@@ -26,10 +26,10 @@ data "databricks_node_type" "smallest" {
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
-data "databricks_current_metastore" "this" {
-  # provider   = databricks.workspace
-  depends_on = [data.databricks_spark_version.latest_lts]
-}
+# data "databricks_current_metastore" "this" {
+#   # provider   = databricks.workspace
+#   depends_on = [data.databricks_spark_version.latest_lts]
+# }
 
 
 data "databricks_group" "admins" {
@@ -123,15 +123,15 @@ resource "databricks_permissions" "cluster_manage" {
   }
 }
 
-resource "databricks_permissions" "cluster_usage" {
-  # provider   = databricks.workspace
-  cluster_id = databricks_cluster.cluster.id
+# resource "databricks_permissions" "cluster_usage" {
+#   # provider   = databricks.workspace
+#   cluster_id = databricks_cluster.cluster.id
 
-  access_control {
-    group_name       = databricks_group.eng.display_name
-    permission_level = "CAN_ATTACH_TO"
-  }
-}
+#   access_control {
+#     group_name       = databricks_group.eng.display_name
+#     permission_level = "CAN_ATTACH_TO"
+#   }
+# }
 
 locals {
   tags = {

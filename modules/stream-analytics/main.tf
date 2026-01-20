@@ -292,18 +292,18 @@ resource "azapi_resource" "eventhub" {
   }
 }
 
-# resource "azurerm_databricks_access_connector" "service_connector" {
-#   name                = "service_connector"
-#   resource_group_name = var.rg_name
-#   location            = var.location
+resource "azurerm_databricks_access_connector" "service_connector" {
+  name                = "service_connector"
+  resource_group_name = var.rg_name
+  location            = var.location
 
-#   identity {
-#     type         = "UserAssigned"
-#     identity_ids = [var.identity_subid]
-#   }
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [var.identity_subid]
+  }
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}
 
 # data "azurerm_key_vault_key" "managed_key_vault" {}
 
@@ -420,16 +420,15 @@ resource "azapi_resource" "eventhub" {
 
 data "azapi_resource_id" "workspace_resource_group" {
   type      = "Microsoft.Resources/resourceGroups@2020-06-01"
-  parent_id = var.rg_parent_id
+  parent_id = var.rg_id
   name      = "databricks-rg-processingWorkspace"
 
-  depends_on = [var.identity_objid]
 }
 
 resource "azapi_resource" "workspace" { #"analytics_workspace" {
-  type      = "Microsoft.Databricks/workspaces@2025-03-01-preview"
+  type      = "Microsoft.Databricks/workspaces@2025-10-01-preview"
   parent_id = var.rg_id
-  name      = "processingWorkspace-${random_integer.uid.result}"
+  name      = "processingWorkspace"
   location  = var.location
   tags = {
     "Owner"       = var.owner
@@ -449,6 +448,7 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
         }
       }
       publicNetworkAccess = "Enabled"
+      computeMode         = "Hybrid"
     }
     sku = {
       name = "premium"

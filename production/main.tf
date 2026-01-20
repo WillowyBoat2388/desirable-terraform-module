@@ -85,7 +85,7 @@ module "databricks" {
   # identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
   workspace_url                   = module.data-workflow.databricks_workspace_url
-  workspace_id                    = module.data-workflow.databricks_workspace_id
+  workspace_id                    = module.data-workflow.databricks_id
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"

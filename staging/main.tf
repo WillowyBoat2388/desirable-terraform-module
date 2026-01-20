@@ -2,6 +2,11 @@
 
 data "azurerm_client_config" "current" {}
 
+data "azurerm_user_assigned_identity" "home" {
+  name                = "architectidentity-rw"
+  resource_group_name = "management"
+}
+
 
 
 locals {
@@ -12,7 +17,7 @@ locals {
   domain      = "bdatanet.tech"
   prefix      = "ong"
   msi_oid     = data.azurerm_client_config.current.object_id
-  msi_sid     = data.azurerm_client_config.current.subscription_id
+  msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
 
 }
