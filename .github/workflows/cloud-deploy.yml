@@ -34,122 +34,122 @@ jobs:
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
-    steps:
+  steps:
+  
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Install the latest version of the Terraform CLI
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      # with:
+      #   terraform_wrapper: false
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
+    # Validate terraform files
+    - name: Terraform Validate
+      run: terraform validate
+
+    # Checks that all Terraform configuration files adhere to a canonical format
+    # Will fail the build if not
+    - name: Terraform Format
+      run: terraform fmt -check
     
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Install the latest version of the Terraform CLI
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        # with:
-        #   terraform_wrapper: false
-
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: Terraform Init
-        run: terraform init
-
-      # Validate terraform files
-      - name: Terraform Validate
-        run: terraform validate
-
-      # Checks that all Terraform configuration files adhere to a canonical format
-      # Will fail the build if not
-      - name: Terraform Format
-        run: terraform fmt -check
-      
-      # Perform a security scan of the terraform code using checkov
-      - name: Run Checkov action
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
-        with: 
-          directory: staging
-          skip_check: CKV_AZURE_211,CKV_AZURE_165,CKV_AZURE_233,CKV_AZURE_166
-          framework: terraform
-          soft_fail: true
+    # Perform a security scan of the terraform code using checkov
+    - name: Run Checkov action
+      id: checkov
+      uses: bridgecrewio/checkov-action@master
+      with: 
+        directory: staging
+        skip_check: CKV_AZURE_211,CKV_AZURE_165,CKV_AZURE_233,CKV_AZURE_166
+        framework: terraform
+        soft_fail: true
 
 
-      # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Plan
-        id: tf-plan
-        run: |
-          export exitcode=0
-          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-          
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else 
-            exit 0
-          fi
-
-      # Encrypt plan
-      # Generate with, for example: dd bs=1 count=64 if=/dev/urandom 2>/dev/null | base64
-      - name: Encrypt Terraform Plan
-        id: tf-plan-encrypt
-        env:
-          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
-        run: |
-          gpg --batch "--passphrase=$ENCRYPTION_KEY" --symmetric --cipher-algo AES256 --digest-algo sha256 --s2k-mode 3 --s2k-digest-algo sha256 --s2k-count 65011712 tfplan
-
-          
-      # Save plan to artifacts  
-      - name: Publish Terraform Plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: staging/tfplan.gpg
-          
-      # Create string output of Terraform Plan
-      - name: Create String Output
-        id: tf-plan-string
-        run: |
-          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
-          
-          delimiter="$(openssl rand -hex 8)"
-          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
-          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
-          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo '```terraform' >> $GITHUB_OUTPUT
-          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
-          echo '```' >> $GITHUB_OUTPUT
-          echo "</details>" >> $GITHUB_OUTPUT
-          echo "${delimiter}" >> $GITHUB_OUTPUT
-          
-      # Publish Terraform Plan as task summary
-      - name: Publish Terraform Plan to Task Summary
-        env:
-          SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
-        run: |
-          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+    # Generates an execution plan for Terraform
+    # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+    - name: Terraform Plan
+      id: tf-plan
+      run: |
+        export exitcode=0
+        terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
         
-      # If this is a PR post the changes
-      - name: Push Terraform Output to PR
-        if: github.ref != 'refs/heads/main'
-        uses: actions/github-script@v7
-        env:
-          SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
-        with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            script: |
-              const body = `${process.env.SUMMARY}`;
-              github.rest.issues.createComment({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body: body
-              })
-                  
+        echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+        
+        if [ $exitcode -eq 1 ]; then
+          echo Terraform Plan Failed!
+          exit 1
+        else 
+          exit 0
+        fi
+
+    # Encrypt plan
+    # Generate with, for example: dd bs=1 count=64 if=/dev/urandom 2>/dev/null | base64
+    - name: Encrypt Terraform Plan
+      id: tf-plan-encrypt
+      env:
+        ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+      run: |
+        gpg --batch "--passphrase=$ENCRYPTION_KEY" --symmetric --cipher-algo AES256 --digest-algo sha256 --s2k-mode 3 --s2k-digest-algo sha256 --s2k-count 65011712 tfplan
+
+        
+    # Save plan to artifacts  
+    - name: Publish Terraform Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan
+        path: staging/tfplan.gpg
+        
+    # Create string output of Terraform Plan
+    - name: Create String Output
+      id: tf-plan-string
+      run: |
+        TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+        
+        delimiter="$(openssl rand -hex 8)"
+        echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+        echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+        echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+        echo "" >> $GITHUB_OUTPUT
+        echo '```terraform' >> $GITHUB_OUTPUT
+        echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+        echo '```' >> $GITHUB_OUTPUT
+        echo "</details>" >> $GITHUB_OUTPUT
+        echo "${delimiter}" >> $GITHUB_OUTPUT
+        
+    # Publish Terraform Plan as task summary
+    - name: Publish Terraform Plan to Task Summary
+      env:
+        SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
+      run: |
+        echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+      
+    # If this is a PR post the changes
+    - name: Push Terraform Output to PR
+      if: github.ref != 'refs/heads/main'
+      uses: actions/github-script@v7
+      env:
+        SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
+      with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const body = `${process.env.SUMMARY}`;
+            github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+            })
+                
   terraform-apply:
     name: 'Terraform Apply'
     needs: [terraform-plan]
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == '2'
+    if: github.ref == 'refs/heads/main' && needs.terraform-plan.outputs.tfplanExitCode == 2
     defaults:
       run:
         working-directory: staging
