@@ -144,6 +144,12 @@ resource "azurerm_storage_container" "analytics_container" {
   container_access_type = "blob"
 }
 
+resource "azurerm_storage_container" "events_container" {
+  name                  = "upstream-stream"
+  storage_account_id    = azurerm_storage_account.storage_account.id
+  container_access_type = "blob"
+}
+
 resource "random_uuid" "roleass4" {
   keepers = {
     # Generate a new id each time we switch to a new AMI id
@@ -252,7 +258,7 @@ resource "azurerm_eventhub" "eventhub" {
     retention_time_in_hours = 1
   }
 
-  depends_on = [azurerm_role_assignment.storageAccountRoleAssignment2]
+  depends_on = [azurerm_role_assignment.storageAccountRoleAssignment2, azapi_resource.roleAssignment4]
 }
 
 resource "azapi_resource" "eventhub" {
@@ -292,6 +298,8 @@ resource "azapi_resource" "eventhub" {
       status = "Active"
     }
   }
+  depends_on = [azurerm_role_assignment.storageAccountRoleAssignment2, azapi_resource.roleAssignment4]
+
 }
 
 # resource "azurerm_databricks_access_connector" "service_connector" {
