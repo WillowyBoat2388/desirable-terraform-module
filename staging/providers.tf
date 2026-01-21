@@ -51,8 +51,8 @@ data "terraform_remote_state" "foo" {
 
 
 provider "databricks" {
-  host                        = output.databricks_workspace_url         #: data.terraform_remote_state.foo.outputs.databricks_workspace_url
-  azure_workspace_resource_id = output.databricks_workspace_resource_id #: data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
+  host                        = module.data-workflow.databricks_workspace_url         #: data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id #: data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
   auth_type                   = "azure-cli"
   # alias = "workspace"
 }
