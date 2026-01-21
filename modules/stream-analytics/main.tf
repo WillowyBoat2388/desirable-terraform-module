@@ -294,18 +294,18 @@ resource "azapi_resource" "eventhub" {
   }
 }
 
-resource "azurerm_databricks_access_connector" "service_connector" {
-  name                = "service_connector"
-  resource_group_name = var.rg_name
-  location            = var.location
+# resource "azurerm_databricks_access_connector" "service_connector" {
+#   name                = "service_connector"
+#   resource_group_name = var.rg_name
+#   location            = var.location
 
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [var.identity_subid]
-  }
+#   identity {
+#     type         = "UserAssigned"
+#     identity_ids = [var.identity_subid]
+#   }
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
 # data "azurerm_key_vault_key" "managed_key_vault" {}
 
@@ -602,10 +602,10 @@ locals {
 
 }
 
-output "databricks_service_connector" {
-  value = azurerm_databricks_access_connector.service_connector.id
+# output "databricks_service_connector" {
+#   value = azurerm_databricks_access_connector.service_connector.id
 
-}
+# }
 
 output "databricks_workspace_url" {
   value = azapi_resource.workspace.output.properties.workspaceUrl
