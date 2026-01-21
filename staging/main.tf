@@ -104,15 +104,3 @@ module "databricks" {
 }
 
 
-output "databricks_workspace_url" {
-  value = module.data-workflow.databricks_workspace_url
-}
-
-output "databricks_workspace_id" {
-  value = module.data-workflow.databricks_workspace_id
-}
-
-output "databricks_workspace_resource_id" {
-  value = module.data-workflow.databricks_workspace_resource_id
-}
-

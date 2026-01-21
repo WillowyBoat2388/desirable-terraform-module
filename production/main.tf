@@ -22,7 +22,7 @@ locals {
 
 }
 
-resource "random_string" "staging" {
+resource "random_string" "production" {
   length  = 15
   lower   = true
   numeric = true
@@ -90,15 +90,17 @@ module "databricks" {
   identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
   workspace_url                   = module.data-workflow.databricks_workspace_url
-  workspace_id                    = module.data-workflow.databricks_id
+  workspace_id                    = module.data-workflow.databricks_workspace_id
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
   # providers = {
-  #   databricks.workspace = databricks.workspace
+  # databricks.workspace = databricks.workspace
   #   databricks.account   = databricks.account
   # }
 
 
   depends_on = [module.global, module.data-workflow]
 }
+
+
