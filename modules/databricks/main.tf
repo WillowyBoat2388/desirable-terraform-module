@@ -4,6 +4,11 @@ resource "random_string" "cluster_name" {
   numeric = false
   special = false
   upper   = false
+
+  keepers = {
+    constant = var.rg_id
+  }
+
 }
 
 # Use the latest Databricks Runtime

@@ -166,6 +166,11 @@ resource "random_string" "azurerm_key_vault_name" {
   numeric = false
   special = false
   upper   = false
+
+  keepers = {
+    constant = var.rg_id
+  }
+
 }
 
 locals {
@@ -195,6 +200,11 @@ resource "random_string" "azurerm_key_vault_key_name" {
   numeric = false
   special = false
   upper   = false
+
+  keepers = {
+    constant = var.rg_id
+  }
+
 }
 
 resource "azurerm_key_vault_key" "key" {

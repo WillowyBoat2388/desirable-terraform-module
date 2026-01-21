@@ -1,6 +1,12 @@
 
 resource "random_pet" "stream_analytics_job_name" {
   prefix = var.prefix
+
+  keepers = {
+    constant = var.rg_id
+  }
+
+
 }
 
 resource "azurerm_stream_analytics_job" "job" {

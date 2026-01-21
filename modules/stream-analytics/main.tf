@@ -179,10 +179,22 @@ resource "random_uuid" "roleass3" {
 resource "random_integer" "uid" {
   min = 10000
   max = 99999
+
+  keepers = {
+    constant = var.rg_id
+  }
+
+
 }
 
 resource "random_pet" "stream" {
   prefix = var.prefix
+
+  keepers = {
+    constant = var.rg_id
+  }
+
+
 }
 
 resource "azapi_resource" "eventhub_namespace" {
@@ -438,11 +450,11 @@ data "azapi_resource_id" "workspace_resource_group" {
 resource "azapi_resource" "workspace" { #"analytics_workspace" {
   type      = "Microsoft.Databricks/workspaces@2025-10-01-preview"
   parent_id = var.rg_id
-  name      = "processingWorkspace"
+  name      = "processingWorkspace-${random_integer.uid.result}"
   location  = var.location
   tags = {
     "Owner"       = var.owner
-    id            = "processingWorkspace-${random_integer.uid.result}"
+    id            = "${random_integer.uid.result}"
     "environment" = var.environment
     team          = var.team
   }
