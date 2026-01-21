@@ -278,10 +278,6 @@ jobs:
         run: 
           terraform apply -auto-approve tfplan
 
-      - name: Terraform Destroy Staging
-        working-directory: staging
-        run: terraform apply -destroy -auto-approve tfplan
-
   terraform-rollback:
     name: 'Terraform Apply Production Rollback'
     needs: [terraform-production]
