@@ -58,22 +58,6 @@ resource "databricks_group_member" "eng" {
 }
 
 
-resource "databricks_service_principal" "home" {
-  application_id = var.identity_clientid
-  # provider     = databricks.workspace
-  display_name          = "admin-mla"
-  allow_cluster_create  = true
-  databricks_sql_access = true
-  workspace_access      = true
-
-}
-
-resource "databricks_group_member" "eng-sp" {
-  # provider   = databricks.workspace
-  group_id   = databricks_group.eng.id
-  member_id  = databricks_service_principal.home.id
-  depends_on = [data.databricks_group.admins, databricks_group.eng, databricks_service_principal.home]
-}
 
 # # assign account_admin role
 # resource "databricks_service_principal_role" "this" {
