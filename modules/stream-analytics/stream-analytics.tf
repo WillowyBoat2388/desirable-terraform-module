@@ -24,9 +24,11 @@ resource "azurerm_stream_analytics_job" "job" {
 SELECT
     *
 INTO
-    [YourOutputAlias]
+    [output-to-blob-storage]
 FROM
-    [YourInputAlias]
+    [eventhub-stream-input]
+PARTITION BY PartitionId
+
 QUERY
 
 }
