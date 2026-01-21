@@ -234,32 +234,32 @@ resource "azapi_resource" "eventhub_namespace" {
   }
 }
 
-resource "azurerm_eventhub" "eventhub" {
-
-  name            = "bdn-energy-data"
-  namespace_id    = azapi_resource.eventhub_namespace.id
-  partition_count = 7
-  status          = "Active"
-  capture_description {
-    enabled             = false
-    encoding            = "Avro"
-    interval_in_seconds = 300
-    size_limit_in_bytes = 314572800
-    skip_empty_archives = true
-    destination {
-      archive_name_format = "{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}"
-      blob_container_name = "upstream-stream"
-      name                = "EventHubArchive.AzureBlockBlob"
-      storage_account_id  = azurerm_storage_account.storage_account.id
-    }
-  }
-  retention_description {
-    cleanup_policy          = "Delete"
-    retention_time_in_hours = 1
-  }
-
-  depends_on = [azurerm_role_assignment.storageAccountRoleAssignment2, azapi_resource.roleAssignment4]
-}
+# resource "azurerm_eventhub" "eventhub" {
+# 
+#   name            = "bdn-energy-data"
+#   namespace_id    = azapi_resource.eventhub_namespace.id
+#   partition_count = 7
+#   status          = "Active"
+#   capture_description {
+#     enabled             = false
+#     encoding            = "Avro"
+#     interval_in_seconds = 300
+#     size_limit_in_bytes = 314572800
+#     skip_empty_archives = true
+#     destination {
+#       archive_name_format = "{Namespace}/{EventHub}/{PartitionId}/{Year}/{Month}/{Day}/{Hour}/{Minute}/{Second}"
+#       blob_container_name = "upstream-stream"
+#       name                = "EventHubArchive.AzureBlockBlob"
+#       storage_account_id  = azurerm_storage_account.storage_account.id
+#     }
+#   }
+#   retention_description {
+#     cleanup_policy          = "Delete"
+#     retention_time_in_hours = 1
+#   }
+# 
+#   depends_on = [azurerm_role_assignment.storageAccountRoleAssignment2, azapi_resource.roleAssignment4]
+# }
 
 resource "azapi_resource" "eventhub" {
   type                      = "Microsoft.EventHub/namespaces/eventhubs@2025-05-01-preview"
