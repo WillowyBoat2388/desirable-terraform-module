@@ -73,6 +73,8 @@ resource "azurerm_subnet" "receipt-zone" {
   virtual_network_name = azurerm_virtual_network.rg_vnet.name
   resource_group_name  = var.environment
   address_prefixes     = ["10.0.1.0/24"]
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 resource "azurerm_subnet" "distro-zone" {
@@ -81,6 +83,8 @@ resource "azurerm_subnet" "distro-zone" {
   resource_group_name               = var.environment
   address_prefixes                  = ["10.0.2.0/24"]
   private_endpoint_network_policies = "Enabled"
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 resource "azurerm_subnet" "support-zone" {
@@ -88,12 +92,17 @@ resource "azurerm_subnet" "support-zone" {
   virtual_network_name = azurerm_virtual_network.rg_vnet.name
   resource_group_name  = var.environment
   address_prefixes     = ["10.0.3.0/24"]
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
+
 resource "azurerm_public_ip" "vnet_public_ip" {
   name                = "${var.prefix}-pip"
   location            = var.location
   resource_group_name = var.environment
   allocation_method   = "Static"
+
+
 }
 
 
@@ -103,6 +112,8 @@ resource "azurerm_public_ip" "my_terraform_public_ip" {
   location            = var.location
   resource_group_name = var.environment
   allocation_method   = "Static"
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 # Create Network Security Group and rule
@@ -122,6 +133,8 @@ resource "azurerm_network_security_group" "rg_nsg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 # Create network interface
@@ -136,12 +149,16 @@ resource "azurerm_network_interface" "rg_nic" {
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.my_terraform_public_ip.id
   }
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "example" {
   network_interface_id      = azurerm_network_interface.rg_nic.id
   network_security_group_id = azurerm_network_security_group.rg_nsg.id
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 
