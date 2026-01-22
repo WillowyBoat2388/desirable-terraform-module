@@ -225,7 +225,7 @@ resource "azurerm_key_vault_key" "key" {
   }
 }
 
-output "AppInsightsWorkspace" {
-  value = azapi_resource.AppInsights.id
-}
+# output "AppInsightsWorkspace" {
+#   value = azapi_resource.AppInsights.id
+# }
 
