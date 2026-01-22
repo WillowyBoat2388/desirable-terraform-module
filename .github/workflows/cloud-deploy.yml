@@ -100,7 +100,7 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
-    # needs: [terraform-test]
+    needs: [terraform-test]
     # if: needs.terraform-test.outputs.prodPresent == 'true'
     defaults:
       run:
