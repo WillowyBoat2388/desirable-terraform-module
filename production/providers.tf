@@ -35,8 +35,8 @@ provider "azurerm" {
 provider "azapi" {}
 
 provider "databricks" {
-  host                        = can(local.datab_url) ? local.datab_url : data.terraform_remote_state.foo.outputs.databricks_workspace_url
-  azure_workspace_resource_id = can(local.datab_rid) ? local.datab_rid : data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
+  host                        = data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  azure_workspace_resource_id = data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
   # auth_type                   = "azure-cli"
 
 }
