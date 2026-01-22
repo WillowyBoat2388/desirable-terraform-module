@@ -11,9 +11,3 @@ variable "environment" {
   type        = string
   default     = "production"
 }
-
-variable "this_env_workspace" {
-  description = "Environment workspace  info"
-  type        = list(string)
-  default     = [module.databricks.workspace_url, module.databricks.workspace_resource_id]
-}
