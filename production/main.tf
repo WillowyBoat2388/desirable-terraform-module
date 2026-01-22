@@ -7,7 +7,22 @@ data "azurerm_user_assigned_identity" "home" {
   resource_group_name = "management"
 }
 
+data "terraform_remote_state" "foo" {
+  backend = "azurerm"
+  config = {
 
+    storage_account_name = "dagsterinarian27"       # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+    container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
+    key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
+  }
+}
+
+data "azurerm_databricks_workspace" "example" {
+  name                = "processingWorkspace"
+  resource_group_name = azapi_resource.env.name
+
+  depends_on = [azapi_resource.env, module.data-workflow]
+}
 
 locals {
   environment = var.environment
@@ -19,6 +34,8 @@ locals {
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
+  datab_url   = data.azurerm_databricks_workspace.example ? data.azurerm_databricks_workspace.example.workspace_url : data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  datab_rid   = data.azurerm_databricks_workspace.example ? data.azurerm_databricks_workspace.example.id : data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
 
 }
 
