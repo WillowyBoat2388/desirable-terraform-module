@@ -89,7 +89,7 @@ resource "databricks_group_member" "eng" {
 resource "databricks_storage_credential" "external_mi" {
   # provider = databricks.workspace
   name = "mi_credential"
-
+  owner= databricks_group.eng.display_name
   # purpose = "SERVICE"
   comment = "Managed identity credential managed by TF"
   azure_managed_identity {
@@ -136,15 +136,20 @@ resource "databricks_permissions" "cluster_manage" {
   }
 }
 
-# resource "databricks_permissions" "cluster_usage" {
-#   # provider   = databricks.workspace
-#   cluster_id = databricks_cluster.cluster.id
+resource "databricks_grant" "external_creds" {
+  storage_credential = databricks_storage_credential.external_mi.id
 
-#   access_control {
-#     group_name       = databricks_group.eng.display_name
-#     permission_level = "CAN_ATTACH_TO"
-#   }
-# }
+  principal  = databricks_group.eng.display_name
+  privileges = ["CREATE_EXTERNAL_TABLE"]
+}
+
+resource "databricks_grants" "some" {
+  external_location = databricks_external_location.some.id
+  grant {
+    principal  = databricks_group.eng.display_name
+    privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
+  }
+}
 
 locals {
   tags = {

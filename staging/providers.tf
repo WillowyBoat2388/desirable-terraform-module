@@ -35,8 +35,8 @@ provider "azurerm" {
 provider "azapi" {}
 
 provider "databricks" {
-  host                        = module.data-workflow.databricks_workspace_url
-  azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
+  host                        = local.datab_url
+  azure_workspace_resource_id = local.datab_rid
   # auth_type                   = "azure-cli"
 
 }
