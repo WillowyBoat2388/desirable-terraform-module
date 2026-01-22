@@ -37,6 +37,6 @@ provider "azapi" {}
 provider "databricks" {
   host                        = local.datab_url
   azure_workspace_resource_id = local.datab_rid
-  # auth_type                   = "azure-cli"
+  auth_type                   = "azure-cli"
 
 }
