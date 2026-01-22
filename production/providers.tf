@@ -65,15 +65,15 @@ provider "azapi" {}
 
 # }
 
-# data "terraform_remote_state" "foo" {
-#   backend = "azurerm"
-#   config = {
+data "terraform_remote_state" "foo" {
+  backend = "azurerm"
+  config = {
 
-#     storage_account_name = "dagsterinarian27"       # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
-#     container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
-#     key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
-#   }
-# }
+    storage_account_name = "dagsterinarian27"       # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+    container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
+    key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
+  }
+}
 #   lifecycle {
 #     # The AMI ID must refer to an existing AMI that has the tag "nomad-server".
 #     postcondition {
@@ -106,19 +106,19 @@ provider "azapi" {}
 
 
 
+# provider "databricks" {
+#   host                        = module.data-workflow.databricks_workspace_url
+#   azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
+#   # auth_type                   = "azure-cli"
+#   # alias = "workspace"
+# }
+
 provider "databricks" {
-  host                        = module.data-workflow.databricks_workspace_url
-  azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
+  host                        = data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  azure_workspace_resource_id = data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
   # auth_type                   = "azure-cli"
   # alias = "workspace"
 }
-
-# provider "databricks" {
-#   host                        = data.terraform_remote_state.foo ? data.terraform_remote_state.foo.outputs.databricks_workspace_url : data.terraform_remote_state.bar.outputs.databricks_workspace_url
-#   azure_workspace_resource_id = data.terraform_remote_state.foo ? data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id : data.terraform_remote_state.bar.outputs.databricks_workspace_resource_id
-#   auth_type                   = "azure-cli"
-#   # alias = "workspace"
-# }
 
 
 
