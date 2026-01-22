@@ -117,6 +117,9 @@ module "databricks" {
   depends_on = [module.global, module.data-workflow]
 }
 
+output "rg_name" {
+  value = azapi_resource.env.name
+}
 
 output "databricks_workspace_url" {
   value = module.data-workflow.databricks_workspace_url

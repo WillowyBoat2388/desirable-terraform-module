@@ -17,6 +17,23 @@ data "terraform_remote_state" "foo" {
   }
 }
 
+data "azurerm_databricks_workspace" "network" {
+  name = "processingWorkspace"
+  resource_group_name = data.terraform_remote_state.foo.outputs.rg_name
+
+  lifecycle {
+    # The resource must exist before this data source can be read
+    precondition {
+      condition     = can(data.terraform_remote_state.foo.outputs.rg_name) && data.terraform_remote_state.foo.outputs.rg_name != azapi_resource.env.name
+      error_message = "The resource group name for the Databricks workspace is not available in the remote state."
+    }
+  }
+
+  
+}
+
+
+
 locals {
   environment = var.environment
   name        = azapi_resource.env.name
@@ -27,8 +44,8 @@ locals {
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
-  datab_url   = try(module.data-workflow.databricks_workspace_url, data.terraform_remote_state.foo.outputs.databricks_workspace_url)
-  datab_rid   = try(module.data-workflow.databricks_workspace_resource_id, data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id)
+  datab_url   = try(data.terraform_remote_state.foo.outputs.databricks_workspace_url, module.data-workflow.databricks_workspace_url)
+  datab_rid   = try(data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id, module.data-workflow.databricks_workspace_resource_id)
 
 }
 
