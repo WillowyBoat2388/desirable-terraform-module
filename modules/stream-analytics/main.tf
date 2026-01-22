@@ -639,33 +639,21 @@ output "databricks_service_connector" {
 
 }
 
-data "terraform_remote_state" "foo" {
-  backend = "azurerm"
-  config = {
-
-    storage_account_name = "dagsterinarian27"       # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
-    container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
-    key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
-  }
-
-  depends_on = [azurerm_storage_container.analytics_container]
-}
-
 
 output "databricks_workspace_url" {
-  value = azapi_resource.workspace.id != "" ? azapi_resource.workspace.output.properties.workspaceUrl : data.terraform_remote_state.foo.outputs.workspace_url
+  value = azapi_resource.workspace.output.properties.workspaceUrl
 
   depends_on = [data.terraform_remote_state.foo]
 }
 
 output "databricks_workspace_id" {
-  value = azapi_resource.workspace.id != "" ? azapi_resource.workspace.output.properties.workspaceId : data.terraform_remote_state.foo.outputs.workspace_id
+  value = azapi_resource.workspace.output.properties.workspaceId
 
   depends_on = [data.terraform_remote_state.foo]
 }
 
 output "databricks_workspace_resource_id" {
-  value = azapi_resource.workspace.id != "" ? azapi_resource.workspace.id : data.terraform_remote_state.foo.outputs.workspace_resource_id
+  value = azapi_resource.workspace.id
 
   depends_on = [data.terraform_remote_state.foo]
 }
