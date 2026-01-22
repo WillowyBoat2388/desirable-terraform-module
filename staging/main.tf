@@ -120,7 +120,7 @@ module "databricks" {
   # }
 
 
-  depends_on = [module.global, module.data-workflow, data]
+  depends_on = [module.global, module.data-workflow]
 }
 
 
