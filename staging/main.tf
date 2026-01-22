@@ -34,8 +34,8 @@ locals {
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
-  datab_url   = data.azurerm_databricks_workspace.example.workspace_url
-  datab_rid   = data.azurerm_databricks_workspace.example.id
+  datab_url   = data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  datab_rid   = data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
 
 }
 
@@ -120,7 +120,7 @@ module "databricks" {
   # }
 
 
-  depends_on = [module.global, module.data-workflow]
+  depends_on = [module.global, module.data-workflow, data]
 }
 
 
