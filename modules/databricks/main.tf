@@ -136,20 +136,20 @@ resource "databricks_permissions" "cluster_manage" {
   }
 }
 
-resource "databricks_grant" "external_creds" {
-  storage_credential = databricks_storage_credential.external_mi.id
+# resource "databricks_grant" "external_creds" {
+#   storage_credential = databricks_storage_credential.external_mi.id
 
-  principal  = databricks_group.eng.display_name
-  privileges = ["CREATE_EXTERNAL_TABLE"]
-}
+#   principal  = databricks_group.eng.display_name
+#   privileges = ["CREATE_EXTERNAL_TABLE"]
+# }
 
-resource "databricks_grants" "some" {
-  external_location = databricks_external_location.some.id
-  grant {
-    principal  = databricks_group.eng.display_name
-    privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
-  }
-}
+# resource "databricks_grants" "some" {
+#   external_location = databricks_external_location.some.id
+#   grant {
+#     principal  = databricks_group.eng.display_name
+#     privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
+#   }
+# }
 
 locals {
   tags = {
