@@ -17,12 +17,6 @@ data "terraform_remote_state" "foo" {
   }
 }
 
-data "azurerm_databricks_workspace" "example" {
-  name                = "processingWorkspace"
-  resource_group_name = azapi_resource.env.name
-
-}
-
 locals {
   environment = var.environment
   name        = azapi_resource.env.name
@@ -33,8 +27,8 @@ locals {
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
-  datab_url   = can(module.data-workflow.databricks_workspace_url) ? module.data-workflow.databricks_workspace_url : data.terraform_remote_state.foo.outputs.databricks_workspace_url
-  datab_rid   = can(module.data-workflow.databricks_workspace_resource_id) ? module.data-workflow.databricks_workspace_resource_id : data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
+  datab_url   = can(variable.this_env_workspace[0]) ? module.data-workflow.databricks_workspace_url : data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  datab_rid   = can(variable.this_env_workspace[1]) ? module.data-workflow.databricks_workspace_resource_id : data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
 
 }
 

@@ -17,12 +17,6 @@ data "terraform_remote_state" "foo" {
   }
 }
 
-data "azurerm_databricks_workspace" "example" {
-  name                = "processingWorkspace"
-  resource_group_name = azapi_resource.env.name
-
-  # depends_on = [azapi_resource.env, module.data-workflow]
-}
 
 locals {
   environment = var.environment
