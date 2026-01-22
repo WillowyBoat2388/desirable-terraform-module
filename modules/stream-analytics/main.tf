@@ -480,7 +480,6 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
   schema_validation_enabled = true
   response_export_values    = ["*"]
 
-  depends_on = [data.terraform_remote_state.foo]
 }
 
 #       parameters = {
