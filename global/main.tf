@@ -27,6 +27,8 @@ resource "azapi_resource" "AppInsights" {
   parent_id                 = var.rg_id
   schema_validation_enabled = true
   type                      = "microsoft.insights/components@2020-02-02-preview"
+
+  depends_on = [ azapi_resource.logAnalyticsWorkspace ]
 }
 
 resource "azapi_resource" "logAnalyticsWorkspace" {
