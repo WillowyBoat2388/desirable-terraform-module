@@ -34,8 +34,8 @@ locals {
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
-  datab_url   = coalesce(data.azurerm_databricks_workspace.example.workspace_url, data.terraform_remote_state.foo.outputs.databricks_workspace_url)
-  datab_rid   = coalesce(data.azurerm_databricks_workspace.example.id, data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id)
+  datab_url   = "https://adb-7405616504916724.4.azuredatabricks.net" #coalesce(data.azurerm_databricks_workspace.example.workspace_url, data.terraform_remote_state.foo.outputs.databricks_workspace_url)
+  datab_rid   = "/subscriptions/9cac5d7e-7048-49f8-93ab-f694ff796b56/resourceGroups/ong-eminent-insect-staging/providers/Microsoft.Databricks/workspaces/processingWorkspace-12878" #coalesce(data.azurerm_databricks_workspace.example.id, data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id)
 
 }
 
