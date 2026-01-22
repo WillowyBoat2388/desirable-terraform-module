@@ -89,11 +89,11 @@ module "databricks" {
   identity_objid                  = local.msi_oid
   identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
-  storage_account                 = module.data-workflow.storage_account_id
-  storage_container               = module.data-workflow.storage_container_id
+  storage_account                 = module.data-workflow.storage_account_name
+  storage_container               = module.data-workflow.storage_container_name
   service_connector               = module.data-workflow.databricks_service_connector
   workspace_url                   = module.data-workflow.databricks_workspace_url
-  workspace_id                    = module.data-workflow.databricks_workspace_resource_id
+  workspace_id                    = module.data-workflow.databricks_workspace_id
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
