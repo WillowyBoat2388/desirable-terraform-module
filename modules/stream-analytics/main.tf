@@ -642,19 +642,16 @@ output "databricks_service_connector" {
 output "databricks_workspace_url" {
   value = azapi_resource.workspace.output.properties.workspaceUrl
 
-  depends_on = [data.terraform_remote_state.foo]
 }
 
 output "databricks_workspace_id" {
   value = azapi_resource.workspace.output.properties.workspaceId
 
-  depends_on = [data.terraform_remote_state.foo]
 }
 
 output "databricks_workspace_resource_id" {
   value = azapi_resource.workspace.id
 
-  depends_on = [data.terraform_remote_state.foo]
 }
 
 
