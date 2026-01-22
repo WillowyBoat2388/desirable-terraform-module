@@ -63,13 +63,22 @@ variable "workspace_url" {
   type        = string
 }
 
-# variable "service_connector" {
-#   description = "databricks service connector id"
-#   type        = string
-# }
+variable "service_connector" {
+  description = "databricks service connector id"
+  type        = string
+}
 
 variable "prefix" {
   description = "The prefix used for all resources in this example"
+}
+
+variable "storage_container" {
+  description = "The name of the storage container to create"
+  type        = string
+}
+variable "storage_account" {
+  description = "The name of the storage account to create the container in"
+  type        = string
 }
 
 

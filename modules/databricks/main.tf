@@ -31,10 +31,10 @@ data "databricks_node_type" "smallest" {
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
-# data "databricks_current_metastore" "this" {
-#   # provider   = databricks.workspace
-#   depends_on = [data.databricks_spark_version.latest_lts]
-# }
+data "databricks_current_metastore" "this" {
+  # provider   = databricks.workspace
+  depends_on = [data.databricks_spark_version.latest_lts]
+}
 
 
 data "databricks_group" "admins" {
@@ -86,18 +86,30 @@ resource "databricks_group_member" "eng" {
 # privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
 # }
 
-# resource "databricks_credential" "external_mi" {
-#   # provider = databricks.workspace
-#   name     = "mi_credential"
+resource "databricks_storage_credential" "external_mi" {
+  # provider = databricks.workspace
+  name = "mi_credential"
 
-#   purpose = "SERVICE"
-#   comment = "Managed identity credential managed by TF"
-#   azure_managed_identity {
-#     managed_identity_id = var.identity_subid
-#     access_connector_id = var.service_connector
-#   }
-# }
+  # purpose = "SERVICE"
+  comment = "Managed identity credential managed by TF"
+  azure_managed_identity {
+    managed_identity_id = var.identity_subid
+    access_connector_id = var.service_connector
+  }
+}
 
+
+resource "databricks_external_location" "some" {
+  name = "external"
+  url = format("abfss://%s@%s.dfs.core.windows.net",
+    var.storage_container,
+  var.storage_account)
+  credential_name = databricks_storage_credential.external_mi.id
+  comment         = "Managed by TF"
+  depends_on = [
+    data.databricks_current_metastore.this
+  ]
+}
 
 resource "databricks_cluster" "cluster" {
   # provider                = databricks.workspace

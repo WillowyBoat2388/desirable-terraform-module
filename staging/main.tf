@@ -89,6 +89,7 @@ module "databricks" {
   identity_objid                  = local.msi_oid
   identity_clientid               = local.msi_id
   identity_subid                  = local.msi_sid
+  service_connector               = module.data-workflow.databricks_service_connector
   workspace_url                   = module.data-workflow.databricks_workspace_url
   workspace_id                    = module.data-workflow.databricks_workspace_resource_id
   cluster_autotermination_minutes = 60
