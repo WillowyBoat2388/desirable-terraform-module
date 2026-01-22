@@ -89,7 +89,7 @@ resource "databricks_group_member" "eng" {
 resource "databricks_storage_credential" "external_mi" {
   # provider = databricks.workspace
   name = "mi_credential"
-  owner= databricks_group.eng.display_name
+  owner= databricks_group.eng.id
   # purpose = "SERVICE"
   comment = "Managed identity credential managed by TF"
   azure_managed_identity {

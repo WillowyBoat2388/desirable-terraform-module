@@ -21,7 +21,6 @@ data "azurerm_databricks_workspace" "example" {
   name                = "processingWorkspace"
   resource_group_name = azapi_resource.env.name
 
-  depends_on = [azapi_resource.env, module.data-workflow]
 }
 
 locals {
@@ -34,8 +33,8 @@ locals {
   msi_oid     = data.azurerm_client_config.current.object_id
   msi_sid     = data.azurerm_user_assigned_identity.home.id
   msi_id      = data.azurerm_client_config.current.client_id
-  datab_url   = can(data.azurerm_databricks_workspace.example.workspace_url) ? data.azurerm_databricks_workspace.example.workspace_url : data.terraform_remote_state.foo.outputs.databricks_workspace_url
-  datab_rid   = can(data.azurerm_databricks_workspace.example.id) ? data.azurerm_databricks_workspace.example.id : data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
+  datab_url   = data.terraform_remote_state.foo.outputs.databricks_workspace_url != data.azurerm_databricks_workspace.example.workspace_url && (data.azurerm_databricks_workspace.example.workspace_url != null  || can(data.azurerm_databricks_workspace.example.workspace_url)) ? data.azurerm_databricks_workspace.example.workspace_url : data.terraform_remote_state.foo.outputs.databricks_workspace_url
+  datab_rid   = data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id != data.azurerm_databricks_workspace.example.id && (data.azurerm_databricks_workspace.example.id != null || can(data.azurerm_databricks_workspace.example.id)) ? data.azurerm_databricks_workspace.example.id : data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id
 
 }
 
