@@ -190,6 +190,7 @@ resource "random_string" "azurerm_key_vault_name" {
     constant = var.rg_id
   }
 
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 locals {
@@ -211,6 +212,8 @@ resource "azurerm_key_vault" "vault" {
     key_permissions    = var.key_permissions
     secret_permissions = var.secret_permissions
   }
+
+  depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 
 resource "random_string" "azurerm_key_vault_key_name" {
@@ -224,6 +227,7 @@ resource "random_string" "azurerm_key_vault_key_name" {
     constant = var.rg_id
   }
 
+  depends_on = [ azurerm_key_vault.vault ]
 }
 
 resource "azurerm_key_vault_key" "key" {
@@ -242,6 +246,8 @@ resource "azurerm_key_vault_key" "key" {
     expire_after         = "P90D"
     notify_before_expiry = "P29D"
   }
+
+  depends_on = [ azurerm_key_vault.vault ]
 }
 
 # output "AppInsightsWorkspace" {
