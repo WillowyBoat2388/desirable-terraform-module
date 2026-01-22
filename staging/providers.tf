@@ -10,6 +10,10 @@ terraform {
   }
 
   required_providers {
+    databricks = {
+      source = "databricks/databricks"
+      # version = "~>1.100.0"
+    }
     azapi = {
       source  = "Azure/azapi"
       version = "~>2.8.0"
@@ -30,3 +34,9 @@ provider "azurerm" {
 }
 provider "azapi" {}
 
+provider "databricks" {
+  host                        = module.data-workflow.databricks_workspace_url
+  azure_workspace_resource_id = module.data-workflow.databricks_workspace_resource_id
+  # auth_type                   = "azure-cli"
+
+}
