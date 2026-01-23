@@ -104,7 +104,7 @@ resource "databricks_storage_credential" "external_mi" {
     access_connector_id = var.service_connector
   }
 
-  force_update = true
+  force_destroy = true
 
   lifecycle {
     create_before_destroy = false
@@ -124,7 +124,7 @@ resource "databricks_external_location" "some" {
     data.databricks_current_metastore.this, databricks_storage_credential.external_mi
   ]
 
-  force_update = true
+  force_destroy = true
   lifecycle {
     create_before_destroy = false
   }
