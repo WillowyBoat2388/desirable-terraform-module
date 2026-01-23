@@ -30,7 +30,7 @@ resource "azapi_resource" "AppInsights" {
 
   depends_on = [ azapi_resource.logAnalyticsWorkspace ]
   lifecycle {
-    ignore_changes = [etag] # Prevents 'id' from causing replacement on updates
+    ignore_changes = [body.etag] # Prevents 'id' from causing replacement on updates
   }
 }
 
@@ -63,7 +63,7 @@ resource "azapi_resource" "logAnalyticsWorkspace" {
   schema_validation_enabled = true
   type                      = "Microsoft.OperationalInsights/workspaces@2025-02-01"
   lifecycle {
-    ignore_changes = [etag] # Prevents 'id' from causing replacement on updates
+    ignore_changes = [body.etag] # Prevents 'id' from causing replacement on updates
   }
 }
 
