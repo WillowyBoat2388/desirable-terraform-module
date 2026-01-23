@@ -85,13 +85,13 @@ resource "databricks_group_member" "eng" {
 #   depends_on = [data.databricks_group.admins, databricks_group.eng]
 # }
 
-# resource "databricks_grant" "sandbox_data_engineers" {
-# provider = databricks.workspace
-# metastore = data.databricks_current_metastore.this.id
+resource "databricks_grant" "sandbox_data_engineers" {
+provider = databricks.workspace
+metastore = data.databricks_current_metastore.this.id
 
-# principal  = data.databricks_group.admins.id
-# privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
-# }
+principal  = data.databricks_group.admins.id
+privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
+}
 
 resource "databricks_storage_credential" "ong_cred" {
   # provider = databricks.workspace
@@ -107,7 +107,7 @@ resource "databricks_storage_credential" "ong_cred" {
   force_destroy = true
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 
 }
@@ -126,7 +126,7 @@ resource "databricks_external_location" "ong_data_stream" {
 
   force_destroy = true
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 
 }
@@ -161,20 +161,20 @@ resource "databricks_permissions" "cluster_manage" {
   }
 }
 
-# resource "databricks_grant" "external_creds" {
-#   storage_credential = databricks_storage_credential.ong_cred.id
+resource "databricks_grant" "external_creds" {
+  storage_credential = databricks_storage_credential.ong_cred.id
 
-#   principal  = databricks_group.eng.display_name
-#   privileges = ["CREATE_EXTERNAL_TABLE"]
-# }
+  principal  = databricks_group.eng.display_name
+  privileges = ["CREATE_EXTERNAL_TABLE"]
+}
 
-# resource "databricks_grants" "some" {
-#   external_location = databricks_external_location.ong_data_stream.id
-#   grant {
-#     principal  = databricks_group.eng.display_name
-#     privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
-#   }
-# }
+resource "databricks_grants" "some" {
+  external_location = databricks_external_location.ong_data_stream.id
+  grant {
+    principal  = databricks_group.eng.display_name
+    privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
+  }
+}
 
 locals {
   tags = {
