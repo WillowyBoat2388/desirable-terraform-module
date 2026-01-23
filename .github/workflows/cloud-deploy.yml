@@ -68,7 +68,7 @@ jobs:
         id: tf-plan
         run: |
           export exitcode=0
-          terraform apply -target module.databricks -auto-approve -destroy
+          terraform apply -target module.databricks -auto-approve
 
   terraform-test:
     name: 'Terraform Test'

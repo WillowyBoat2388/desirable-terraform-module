@@ -86,7 +86,7 @@ resource "databricks_group_member" "eng" {
 # privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
 # }
 
-resource "databricks_storage_credential" "external_micred" {
+resource "databricks_storage_credential" "external_mi" {
   # provider = databricks.workspace
   name = "mi_credential"
 
@@ -104,7 +104,7 @@ resource "databricks_external_location" "some" {
   url = format("abfss://%s@%s.dfs.core.windows.net",
     var.storage_container,
   var.storage_account)
-  credential_name = databricks_storage_credential.external_micred.id
+  credential_name = databricks_storage_credential.external_mi.id
   comment         = "Managed by TF"
   depends_on = [
     data.databricks_current_metastore.this
@@ -137,7 +137,7 @@ resource "databricks_permissions" "cluster_manage" {
 }
 
 # resource "databricks_grant" "external_creds" {
-#   storage_credential = databricks_storage_credential.external_micred.id
+#   storage_credential = databricks_storage_credential.external_mi.id
 
 #   principal  = databricks_group.eng.display_name
 #   privileges = ["CREATE_EXTERNAL_TABLE"]
