@@ -90,7 +90,7 @@ module "data-workflow" {
 
 import {
   to = module.databricks.databricks_storage_credential.external_mi
-  id = "external_mi"
+   id = "${module.data-workflow.databricks_workspace_resource_id}/storageCredentials/external_mi"
 }
 
 
