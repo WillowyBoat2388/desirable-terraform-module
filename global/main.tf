@@ -29,6 +29,9 @@ resource "azapi_resource" "AppInsights" {
   type                      = "microsoft.insights/components@2020-02-02-preview"
 
   depends_on = [ azapi_resource.logAnalyticsWorkspace ]
+  lifecycle {
+    ignore_changes = [etag] # Prevents 'id' from causing replacement on updates
+  }
 }
 
 resource "azapi_resource" "logAnalyticsWorkspace" {
@@ -59,6 +62,9 @@ resource "azapi_resource" "logAnalyticsWorkspace" {
   parent_id                 = var.rg_id
   schema_validation_enabled = true
   type                      = "Microsoft.OperationalInsights/workspaces@2025-02-01"
+  lifecycle {
+    ignore_changes = [etag] # Prevents 'id' from causing replacement on updates
+  }
 }
 
 resource "azurerm_virtual_network" "rg_vnet" {
@@ -212,7 +218,7 @@ resource "azurerm_key_vault" "vault" {
     key_permissions    = var.key_permissions
     secret_permissions = var.secret_permissions
   }
-
+  
   depends_on = [ azurerm_virtual_network.rg_vnet ]
 }
 

@@ -51,7 +51,7 @@ resource "azapi_resource" "env" {
   location = local.region
   name     = "${random_pet.rg_name.id}-${var.environment}"
 
-  depends_on = [ data.azurerm_user_assigned_identity.home ]
+  depends_on = [data.azurerm_user_assigned_identity.home]
 }
 
 module "global" {
