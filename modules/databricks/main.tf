@@ -85,10 +85,7 @@ resource "databricks_group_member" "eng" {
 # principal  = data.databricks_group.admins.id
 # privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
 # }
-import {
-  to = databricks_storage_credential.external_mi
-  id = "${var.resource_id}/storageCredentials/mi_credential"
-}
+
 resource "databricks_storage_credential" "external_mi" {
   # provider = databricks.workspace
   name = "mi_credential"

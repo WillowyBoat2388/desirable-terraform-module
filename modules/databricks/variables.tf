@@ -80,8 +80,3 @@ variable "storage_account" {
   description = "The name of the storage account to create the container in"
   type        = string
 }
-
-variable "resource_id" {
-  description = "The workspace resource id"
-  type        = string
-}

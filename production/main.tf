@@ -107,7 +107,7 @@ module "databricks" {
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
-  resource_id                      = module.data-workflow.databricks_workspace_resource_id
+  
 
 
   depends_on = [module.data-workflow]
