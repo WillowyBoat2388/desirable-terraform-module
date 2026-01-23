@@ -86,7 +86,7 @@ resource "databricks_group_member" "eng" {
 # }
 
 resource "databricks_grant" "sandbox_data_engineers" {
-provider = databricks.workspace
+# provider = databricks.workspace
 metastore = data.databricks_current_metastore.this.id
 
 principal  = data.databricks_group.admins.id
