@@ -74,6 +74,7 @@ jobs:
   terraform-test:
     name: 'Terraform Test'
     runs-on: ubuntu-latest
+    needs: [terraform-ply]
     defaults:
       run:
         working-directory: production
