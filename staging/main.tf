@@ -88,10 +88,10 @@ module "data-workflow" {
   depends_on = [module.global]
 }
 
-# import {
-#   to = module.databricks.databricks_storage_credential.external_mi
-#   id = "external_mi"
-# }
+import {
+  to = module.databricks.databricks_storage_credential.external_mi
+  id = "external_mi"
+}
 
 
 
