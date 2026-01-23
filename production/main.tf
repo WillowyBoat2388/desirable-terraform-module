@@ -50,7 +50,7 @@ resource "azapi_resource" "env" {
   location = local.region
   name     = "${random_pet.rg_name.id}-${var.environment}"
 
-  depends_on = [ data.azurerm_user_assigned_identity.home ]
+  depends_on = [data.azurerm_user_assigned_identity.home]
 }
 
 module "global" {
@@ -109,7 +109,7 @@ module "databricks" {
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
-  
+
 
 
   depends_on = [module.data-workflow]

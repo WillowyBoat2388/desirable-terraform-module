@@ -57,12 +57,12 @@ resource "databricks_group" "eng" {
 
 resource "databricks_group_member" "eng" {
   # provider   = databricks.workspace
-  group_id   = databricks_group.eng.id
-  member_id  = data.databricks_group.admins.id
+  group_id  = databricks_group.eng.id
+  member_id = data.databricks_group.admins.id
 
 
   lifecycle {
-    ignore_changes = [ group_id ]
+    ignore_changes = [member_id]
   }
 
 
@@ -104,7 +104,7 @@ resource "databricks_storage_credential" "external_mi" {
     access_connector_id = var.service_connector
   }
 
-  force_update = true
+  # force_update = true
 }
 
 
@@ -119,7 +119,7 @@ resource "databricks_external_location" "some" {
     data.databricks_current_metastore.this, databricks_storage_credential.external_mi
   ]
 
-  force_update = true
+  # force_update = true
 }
 
 resource "databricks_cluster" "cluster" {
@@ -133,6 +133,11 @@ resource "databricks_cluster" "cluster" {
   num_workers             = var.cluster_num_workers
   data_security_mode      = var.cluster_data_security_mode
   # single_user_name        = databricks_group.eng.display_name
+
+  lifecycle {
+    ignore_changes = [node_type_id, spark_version]
+  }
+
   depends_on = [data.databricks_spark_version.latest_lts]
 
 }

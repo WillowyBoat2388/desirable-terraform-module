@@ -244,6 +244,11 @@ resource "azapi_resource" "eventhub_namespace" {
     identity_ids = []
     type         = "SystemAssigned"
   }
+
+  lifecycle {
+    ignore_changes = [body.properties.geoDataReplication.locationName]
+  }
+
 }
 
 
