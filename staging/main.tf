@@ -50,6 +50,8 @@ resource "azapi_resource" "env" {
   type     = "Microsoft.Resources/resourceGroups@2020-06-01"
   location = local.region
   name     = "${random_pet.rg_name.id}-${var.environment}"
+
+  depends_on = [ data.azurerm_user_assigned_identity.home ]
 }
 
 module "global" {
