@@ -51,7 +51,7 @@ data "databricks_group" "admins" {
 
 resource "databricks_group" "eng" {
 
-  display_name = "DATA ENGINEERING"
+  display_name = "Data Engineering"
   depends_on   = [var.workspace_id, data.databricks_spark_version.latest_lts]
 }
 
