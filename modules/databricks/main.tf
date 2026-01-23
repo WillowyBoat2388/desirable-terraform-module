@@ -86,7 +86,7 @@ resource "databricks_group_member" "eng" {
 # privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
 # }
 
-resource "databricks_storage_credential" "external_mi" {
+resource "databricks_storage_credential" "external_micred" {
   # provider = databricks.workspace
   name = "mi_credential"
 
