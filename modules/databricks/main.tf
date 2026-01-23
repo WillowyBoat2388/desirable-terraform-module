@@ -96,6 +96,8 @@ resource "databricks_storage_credential" "external_mi" {
     managed_identity_id = var.identity_subid
     access_connector_id = var.service_connector
   }
+
+  force_update = true
 }
 
 
