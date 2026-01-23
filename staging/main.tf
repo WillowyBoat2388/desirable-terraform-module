@@ -88,10 +88,10 @@ module "data-workflow" {
   depends_on = [module.global]
 }
 
-import {
-  to = module.databricks.databricks_external_location.some
-   id = "external"
-}
+# import {
+#   to = module.databricks.databricks_external_location.some
+#    id = "external"
+# }
 
 
 

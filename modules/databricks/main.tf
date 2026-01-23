@@ -59,6 +59,13 @@ resource "databricks_group_member" "eng" {
   # provider   = databricks.workspace
   group_id   = databricks_group.eng.id
   member_id  = data.databricks_group.admins.id
+
+
+  lifecycle {
+    ignore_changes = [ group_id ]
+  }
+
+
   depends_on = [data.databricks_group.admins, databricks_group.eng]
 }
 
@@ -97,7 +104,7 @@ resource "databricks_storage_credential" "external_mi" {
     access_connector_id = var.service_connector
   }
 
-  # force_update = true
+  force_update = true
 }
 
 
