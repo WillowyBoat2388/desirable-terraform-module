@@ -1,3 +1,15 @@
+
+# Generate a random integer to create a globally unique name
+resource "random_integer" "uid" {
+  min = 10000
+  max = 99999
+
+  keepers = {
+    constant = var.rg_name
+  }
+
+}
+
 resource "azurerm_storage_account" "storage_account" {
   access_tier                     = "Hot"
   account_kind                    = "StorageV2"
@@ -153,7 +165,7 @@ resource "azurerm_storage_container" "events_container" {
 resource "random_uuid" "roleass4" {
   keepers = {
     # Generate a new id each time we switch to a new AMI id
-    ami_id = var.rg_id
+    ami_id = var.rg_name
   }
 
 }
@@ -161,7 +173,7 @@ resource "random_uuid" "roleass4" {
 resource "random_uuid" "roleass2" {
   keepers = {
     # Generate a new id each time we switch to a new AMI id
-    ami_id = var.rg_id
+    ami_id = var.rg_name
   }
 
 }
@@ -169,29 +181,17 @@ resource "random_uuid" "roleass2" {
 resource "random_uuid" "roleass3" {
   keepers = {
     # Generate a new id each time we switch to a new AMI id
-    ami_id = var.rg_id
+    ami_id = var.rg_name
   }
 
 }
 
-
-# Generate a random integer to create a globally unique name
-resource "random_integer" "uid" {
-  min = 10000
-  max = 99999
-
-  keepers = {
-    constant = var.rg_id
-  }
-
-
-}
 
 resource "random_pet" "stream" {
   prefix = var.prefix
 
   keepers = {
-    constant = var.rg_id
+    constant = var.rg_name
   }
 
 
@@ -422,14 +422,14 @@ resource "azurerm_databricks_access_connector" "service_connector" {
 data "azapi_resource_id" "workspace_resource_group" {
   type      = "Microsoft.Resources/resourceGroups@2025-04-01"
   parent_id = var.rg_parent_id
-  name      = "databricks-rg-processingWorkspace"
+  name      = "databricks-ongrg-processingWorkspace"
 
 }
 
 resource "azapi_resource" "workspace" { #"analytics_workspace" {
   type      = "Microsoft.Databricks/workspaces@2025-10-01-preview"
   parent_id = var.rg_id
-  name      = "processingWorkspace"
+  name      = "ong_streamWorkspace-${random_integer.uid.result}"
   location  = var.location
   tags = {
     "Owner"       = var.owner

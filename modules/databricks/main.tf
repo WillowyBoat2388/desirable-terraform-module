@@ -93,12 +93,12 @@ resource "databricks_group_member" "eng" {
 # privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
 # }
 
-resource "databricks_storage_credential" "external_mi" {
+resource "databricks_storage_credential" "ong_cred" {
   # provider = databricks.workspace
-  name = "mi_credential"
+  name = "ong_storage_cred"
 
   # purpose = "SERVICE"
-  comment = "Managed identity credential managed by TF"
+  comment = "Managed identity storage credential managed by TF"
   azure_managed_identity {
     managed_identity_id = var.identity_subid
     access_connector_id = var.service_connector
@@ -113,15 +113,15 @@ resource "databricks_storage_credential" "external_mi" {
 }
 
 
-resource "databricks_external_location" "some" {
-  name = "external"
+resource "databricks_external_location" "ong_data_stream" {
+  name = "analytics_data_stream"
   url = format("abfss://%s@%s.dfs.core.windows.net",
     var.storage_container,
   var.storage_account)
-  credential_name = databricks_storage_credential.external_mi.id
+  credential_name = databricks_storage_credential.ong_cred.id
   comment         = "Managed by TF"
   depends_on = [
-    data.databricks_current_metastore.this, databricks_storage_credential.external_mi
+    data.databricks_current_metastore.this, databricks_storage_credential.ong_cred
   ]
 
   force_destroy = true
@@ -162,14 +162,14 @@ resource "databricks_permissions" "cluster_manage" {
 }
 
 # resource "databricks_grant" "external_creds" {
-#   storage_credential = databricks_storage_credential.external_mi.id
+#   storage_credential = databricks_storage_credential.ong_cred.id
 
 #   principal  = databricks_group.eng.display_name
 #   privileges = ["CREATE_EXTERNAL_TABLE"]
 # }
 
 # resource "databricks_grants" "some" {
-#   external_location = databricks_external_location.some.id
+#   external_location = databricks_external_location.ong_data_stream.id
 #   grant {
 #     principal  = databricks_group.eng.display_name
 #     privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]

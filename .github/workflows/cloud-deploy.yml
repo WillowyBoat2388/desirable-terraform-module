@@ -26,18 +26,25 @@ permissions:
     
       
 jobs:
-  # terraform-ple:
-  #   name: 'Terraform ple'
+
+  # terraform-test:
+  #   name: 'Terraform Test'
   #   runs-on: ubuntu-latest
+  #   # needs: [terraform-ple]
   #   defaults:
   #     run:
-  #       working-directory: staging
+  #       working-directory: production
   #   env:
   #     ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
   #     ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
   #     ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
   #     ARM_USE_AZUREAD: true
   #     ARM_USE_CLI: true
+
+  #   # outputs:
+  #     # prodPresent: ${{ steps.tf-plan.outputs.prodPresent }}
+  #     # envEmpty: ${{ steps.tf-plan.outputs.prodPresent }}
+      
 
   #   steps:
   #     - name: Azure login
@@ -64,61 +71,11 @@ jobs:
 
   #     # Generates an execution plan for Terraform
   #     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-  #     - name: Terraform appl
-  #       id: tf-appl
+  #     - name: Terraform Done
+  #       id: tf-done
   #       run: |
-  #         export exitcode=0
-  #         terraform apply -target module.databricks -auto-approve -destroy
-
-  terraform-test:
-    name: 'Terraform Test'
-    runs-on: ubuntu-latest
-    # needs: [terraform-ple]
-    defaults:
-      run:
-        working-directory: production
-    env:
-      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-      ARM_USE_AZUREAD: true
-      ARM_USE_CLI: true
-
-    # outputs:
-      # prodPresent: ${{ steps.tf-plan.outputs.prodPresent }}
-      # envEmpty: ${{ steps.tf-plan.outputs.prodPresent }}
-      
-
-    steps:
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    
-      
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Install the latest version of the Terraform CLI
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: Terraform Init
-        run: terraform init
-
-      # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Done
-        id: tf-done
-        run: |
           
-          terraform apply -auto-approve -destroy
+  #         terraform apply -auto-approve -destroy
           
           
 
@@ -314,68 +271,68 @@ jobs:
   #     - name: Terraform Apply
   #       run: terraform apply -auto-approve tfplan
 
-  # terraform-production:
-  #   name: 'Terraform Apply Production'
-  #   if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
-  #   runs-on: ubuntu-latest
-  #   environment: production
-  #   needs: [terraform-apply]
-  #   defaults:
-  #     run:
-  #       working-directory: production
-  #   env:
-  #     ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-  #     ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-  #     ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-  #     ARM_USE_AZUREAD: true
-  #     ARM_USE_CLI: true
+  terraform-production:
+    name: 'Terraform Apply Production'
+    # if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
+    runs-on: ubuntu-latest
+    environment: production
+    # needs: [terraform-apply]
+    defaults:
+      run:
+        working-directory: production
+    env:
+      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+      ARM_USE_AZUREAD: true
+      ARM_USE_CLI: true
       
-  #   steps:
-  #     - name: Azure login
-  #       uses: azure/login@v2
-  #       with:
-  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     
-  #     # Checkout the repository to the GitHub Actions runner
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     # Install the latest version of the Terraform CLI
-  #     - name: Setup Terraform
-  #       uses: hashicorp/setup-terraform@v3
-  #       with:
-  #         terraform_wrapper: false
+      # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
-  #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-  #     - name: Terraform Init
-  #       run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
 
-  #     # Generates an execution plan for Terraform
-  #     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-  #     - name: Terraform Plan
-  #       id: tf-apply-plan
-  #       run: |
-  #         export exitcode=0
-  #         terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+      # Generates an execution plan for Terraform
+      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+      - name: Terraform Plan
+        id: tf-apply-plan
+        run: |
+          export exitcode=0
+          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
 
-  #         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
           
-  #         if [ $exitcode -eq 1 ]; then
-  #           echo Terraform Plan Failed!
-  #           exit 1
-  #         else 
-  #           exit 0
-  #         fi
+          if [ $exitcode -eq 1 ]; then
+            echo Terraform Plan Failed!
+            exit 1
+          else 
+            exit 0
+          fi
 
-  #     - name: Terraform Apply Product
-  #       if: steps.tf-apply-plan.outputs.exitcode == 2
-  #       run: 
-  #         terraform apply -auto-approve tfplan
+      - name: Terraform Apply Product
+        if: steps.tf-apply-plan.outputs.exitcode == 2
+        run: 
+          terraform apply -auto-approve tfplan
 
-  # terraform-rollback:
-  #   name: 'Terraform Apply Production Rollback'
-  #   needs: [terraform-production]
-  #   if: github.ref == 'refs/heads/main' && needs.terraform-production.result == 'failure' || needs.terraform-production.result == 'skipped'
-  #   uses: ./.github/workflows/clouddeploy-failsafe.yml
+  terraform-rollback:
+    name: 'Terraform Apply Production Rollback'
+    needs: [terraform-production]
+    if: github.ref == 'refs/heads/main' && needs.terraform-production.result == 'failure' || needs.terraform-production.result == 'skipped'
+    uses: ./.github/workflows/clouddeploy-failsafe.yml
