@@ -16,14 +16,14 @@ resource "random_string" "cluster_name" {
 data "databricks_spark_version" "latest_lts" {
 
   long_term_support = true
-  # provider          = databricks.workspace
+
   depends_on = [var.workspace_id, var.workspace_url]
 }
 
 # Create the cluster with the "smallest" amount
 # of resources allowed.
 data "databricks_node_type" "smallest" {
-  # provider   = databricks.workspace
+
   local_disk = true
   provider_config {
     workspace_id = var.workspace_id
@@ -32,14 +32,14 @@ data "databricks_node_type" "smallest" {
 }
 
 data "databricks_current_metastore" "this" {
-  # provider   = databricks.workspace
+
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
 
 data "databricks_group" "admins" {
   display_name = "admins"
-  # provider     = databricks.workspace
+
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
@@ -50,20 +50,15 @@ data "databricks_group" "admins" {
 
 
 resource "databricks_group" "eng" {
-  # provider     = databricks.workspace
-  display_name = "Data Engineering"
+
+  display_name = "DATA ENGINEERING"
   depends_on   = [var.workspace_id, data.databricks_spark_version.latest_lts]
 }
 
 resource "databricks_group_member" "eng" {
-  # provider   = databricks.workspace
+
   group_id  = databricks_group.eng.id
   member_id = data.databricks_group.admins.id
-
-
-  lifecycle {
-    ignore_changes = [member_id]
-  }
 
 
   depends_on = [data.databricks_group.admins, databricks_group.eng]
@@ -73,28 +68,27 @@ resource "databricks_group_member" "eng" {
 
 # # assign account_admin role
 # resource "databricks_service_principal_role" "this" {
-#   # provider             = databricks.workspace
+
 #   service_principal_id = databricks_service_principal.this.id
 #   role                 = "account_admin"
 # }
 
 # resource "databricks_group_role" "eng_account_admin" {
-#   # provider = databricks.account
+
 #   group_id = databricks_group.eng.id
 #   role     = "metastore_admin"
 #   depends_on = [data.databricks_group.admins, databricks_group.eng]
 # }
 
-resource "databricks_grant" "sandbox_data_engineers" {
-# provider = databricks.workspace
-metastore = data.databricks_current_metastore.this.id
+# resource "databricks_grant" "sandbox_data_engineers" {
 
-principal  = data.databricks_group.admins.id
-privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
-}
+# metastore = data.databricks_current_metastore.this.id
+
+# principal  = data.databricks_group.admins.id
+# privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
+# }
 
 resource "databricks_storage_credential" "ong_cred" {
-  # provider = databricks.workspace
   name = "ong_storage_cred"
 
   # purpose = "SERVICE"
@@ -141,11 +135,7 @@ resource "databricks_cluster" "cluster" {
   autotermination_minutes = var.cluster_autotermination_minutes
   num_workers             = var.cluster_num_workers
   data_security_mode      = var.cluster_data_security_mode
-  # single_user_name        = databricks_group.eng.display_name
 
-  lifecycle {
-    ignore_changes = [node_type_id, spark_version]
-  }
 
   depends_on = [data.databricks_spark_version.latest_lts]
 
@@ -165,7 +155,7 @@ resource "databricks_grant" "external_creds" {
   storage_credential = databricks_storage_credential.ong_cred.id
 
   principal  = databricks_group.eng.display_name
-  privileges = ["CREATE_EXTERNAL_TABLE"]
+  privileges = ["CREATE_EXTERNAL_TABLE", "READ_FILES", "WRITE_FILES", "MANAGE"]
 }
 
 resource "databricks_grants" "some" {
