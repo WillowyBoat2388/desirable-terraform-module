@@ -97,7 +97,7 @@ resource "databricks_storage_credential" "external_mi" {
     access_connector_id = var.service_connector
   }
 
-  force_update = true
+  # force_update = true
 }
 
 
@@ -109,8 +109,10 @@ resource "databricks_external_location" "some" {
   credential_name = databricks_storage_credential.external_mi.id
   comment         = "Managed by TF"
   depends_on = [
-    data.databricks_current_metastore.this
+    data.databricks_current_metastore.this, databricks_storage_credential.external_mi
   ]
+
+  force_update = true
 }
 
 resource "databricks_cluster" "cluster" {

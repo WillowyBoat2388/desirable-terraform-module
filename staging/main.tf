@@ -89,8 +89,8 @@ module "data-workflow" {
 }
 
 import {
-  to = module.databricks.databricks_storage_credential.external_mi
-   id = "mi_credential"
+  to = module.databricks.databricks_external_location.some
+   id = "external"
 }
 
 
