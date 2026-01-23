@@ -81,4 +81,7 @@ variable "storage_account" {
   type        = string
 }
 
-
+variable "resource_id" {
+  description = "The workspace resource id"
+  type        = string
+}
