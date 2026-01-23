@@ -135,7 +135,7 @@ resource "databricks_cluster" "cluster" {
   autotermination_minutes = var.cluster_autotermination_minutes
   num_workers             = var.cluster_num_workers
   data_security_mode      = var.cluster_data_security_mode
-
+  # single_user_name        = "ong_rw"
 
   depends_on = [data.databricks_spark_version.latest_lts]
 
@@ -151,20 +151,20 @@ resource "databricks_permissions" "cluster_manage" {
   }
 }
 
-resource "databricks_grant" "external_creds" {
-  storage_credential = databricks_storage_credential.ong_cred.id
+# resource "databricks_grant" "external_creds" {
+#   storage_credential = databricks_storage_credential.ong_cred.id
 
-  principal  = databricks_group.eng.display_name
-  privileges = ["CREATE_EXTERNAL_TABLE", "READ_FILES", "WRITE_FILES", "MANAGE"]
-}
+#   principal  = databricks_group.eng.display_name
+#   privileges = ["CREATE_EXTERNAL_TABLE", "READ_FILES", "WRITE_FILES", "MANAGE"]
+# }
 
-resource "databricks_grants" "some" {
-  external_location = databricks_external_location.ong_data_stream.id
-  grant {
-    principal  = databricks_group.eng.display_name
-    privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
-  }
-}
+# resource "databricks_grants" "some" {
+#   external_location = databricks_external_location.ong_data_stream.id
+#   grant {
+#     principal  = databricks_group.eng.display_name
+#     privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
+#   }
+# }
 
 locals {
   tags = {
