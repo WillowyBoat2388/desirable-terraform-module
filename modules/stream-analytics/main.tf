@@ -544,6 +544,12 @@ resource "azurerm_key_vault_secret" "databricks_workspace_resource_id" {
   key_vault_id = data.azurerm_key_vault.vault.id
 }
 
+resource "azurerm_key_vault_secret" "databricks_workspace_name" {
+  name         = "databricks_workspace_name"
+  value        = azapi_resource.workspace.name
+  key_vault_id = data.azurerm_key_vault.vault.id
+}
+
 output "databricks_workspace_name" {
   value = azapi_resource.workspace.name
 

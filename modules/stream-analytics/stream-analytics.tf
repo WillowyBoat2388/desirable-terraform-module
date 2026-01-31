@@ -106,8 +106,7 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
 
 resource "azurerm_stream_analytics_job_schedule" "now" {
   stream_analytics_job_id = azurerm_stream_analytics_job.job.id
-  start_mode              = "CustomTime"
-  start_time              = "2022-09-21T00:00:00Z"
+  start_mode              = "JobStartTime"
 
   depends_on = [
     azurerm_stream_analytics_job.job,

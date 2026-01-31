@@ -9,7 +9,7 @@ variable "key_permissions" {
 variable "secret_permissions" {
   type        = list(string)
   description = "List of secret permissions."
-  default     = ["Set"]
+  default     = ["Delete", "Get", "List", "Set"]
 }
 
 variable "key_type" {

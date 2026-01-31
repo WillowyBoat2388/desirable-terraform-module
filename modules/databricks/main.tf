@@ -11,6 +11,12 @@ resource "random_string" "cluster_name" {
 
 }
 
+
+data "azurerm_key_vault" "vault" {
+  name                = var.key_vault
+  resource_group_name = var.rg_name
+}
+
 data "azurerm_resource_group" "rg" {
   name = var.rg_name
 }
@@ -117,7 +123,15 @@ resource "databricks_storage_credential" "ong_cred" {
   lifecycle {
     create_before_destroy = true
   }
+}
 
+resource "databricks_secret_scope" "kv" {
+  name = "databricks-keyvault"
+
+  keyvault_metadata {
+    resource_id = data.azurerm_key_vault.vault.id
+    dns_name    = data.azurerm_key_vault.vault.uri
+  }
 }
 
 
@@ -143,9 +157,18 @@ resource "databricks_volume" "sensorstream" {
   catalog_name     = data.databricks_catalog.this.name
   schema_name      = "default"
   volume_type      = "EXTERNAL"
-  storage_location = databricks_external_location.ong_data_stream.url
+  storage_location = "${databricks_external_location.ong_data_stream.url}/analytics"
   comment          = "this volume is managed by terraform"
 }
+
+# resource "databricks_volume" "resources" {
+#   name             = "resources"
+#   catalog_name     = data.databricks_catalog.this.name
+#   schema_name      = "default"
+#   volume_type      = "EXTERNAL"
+#   storage_location = "${databricks_external_location.ong_data_stream.url}/resources"
+#   comment          = "this volume is managed by terraform"
+# }
 
 resource "databricks_volume" "checkPoints" {
   name         = "checkpoints"
@@ -172,17 +195,6 @@ resource "databricks_schema" "bronze_layer2" {
   }
   comment = "this volume is managed by terraform"
 }
-
-data "azurerm_key_vault" "vault" {
-  name                = var.key_vault
-  resource_group_name = var.rg_name
-}
-
-# ephemeral "azurerm_key_vault_secret" "example" {
-#   name         = "secret-sauce"
-#   key_vault_id = data.azurerm_key_vault.vault.id
-# }
-
 # resource "databricks_cluster" "cluster" {
 
 #   cluster_name            = random_string.cluster_name.result
