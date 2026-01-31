@@ -24,11 +24,6 @@ variable "environment" {
   default     = "staging"
 }
 
-variable "rg_id" {
-  description = "subscription id of the resource group"
-  type        = string
-}
-
 variable "rg_parent_id" {
   description = "parent id of the resource group"
   type        = string
@@ -68,4 +63,8 @@ variable "rg_name" {
   type        = string
 }
 
-
+variable "key_vault" {
+  description = "Environment Key Vault"
+  type        = string
+  sensitive   = true
+}  

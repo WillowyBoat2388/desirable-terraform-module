@@ -24,8 +24,8 @@ variable "environment" {
   default     = "staging"
 }
 
-variable "rg_id" {
-  description = "subscription id of the resource group"
+variable "rg_name" {
+  description = "name of the resource group"
   type        = string
 }
 
@@ -53,13 +53,9 @@ variable "cluster_autotermination_minutes" {}
 variable "cluster_num_workers" {}
 variable "cluster_data_security_mode" {}
 
-variable "workspace_id" {
-  description = "databricks workspace id"
-  type        = string
-}
 
-variable "workspace_url" {
-  description = "databricks workspace url"
+variable "workspace_name" {
+  description = "databricks workspace name"
   type        = string
 }
 
@@ -76,7 +72,35 @@ variable "storage_container" {
   description = "The name of the storage container to create"
   type        = string
 }
+
 variable "storage_account" {
   description = "The name of the storage account to create the container in"
   type        = string
+}
+
+variable "github_pat" {
+  description = "The github personal access token for git repo integration"
+  type        = string
+  sensitive   = true
+}
+
+variable "jobsource_url" {
+  description = "The url of the github repo for job source"
+  type        = string
+}
+
+variable "github_username" {
+  description = "The username for the github user"
+  type        = string
+}
+
+variable "github_email" {
+  description = "The email for the github user"
+  type        = string
+}
+
+variable "key_vault" {
+  description = "keyvault name for retrieving environment secrets"
+  type        = string
+  sensitive   = true
 }

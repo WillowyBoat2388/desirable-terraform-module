@@ -6,9 +6,18 @@ resource "random_string" "cluster_name" {
   upper   = false
 
   keepers = {
-    constant = var.rg_id
+    constant = data.azurerm_resource_group.rg.id
   }
 
+}
+
+data "azurerm_resource_group" "rg" {
+  name = var.rg_name
+}
+
+data "azurerm_databricks_workspace" "workspace" {
+  name                = var.workspace_name
+  resource_group_name = var.rg_name
 }
 
 # Use the latest Databricks Runtime
@@ -17,7 +26,7 @@ data "databricks_spark_version" "latest_lts" {
 
   long_term_support = true
 
-  depends_on = [var.workspace_id, var.workspace_url]
+  depends_on = [data.azurerm_databricks_workspace.workspace]
 }
 
 # Create the cluster with the "smallest" amount
@@ -26,8 +35,13 @@ data "databricks_node_type" "smallest" {
 
   local_disk = true
   provider_config {
-    workspace_id = var.workspace_id
+    workspace_id = data.azurerm_databricks_workspace.workspace.workspace_id
   }
+  depends_on = [data.databricks_spark_version.latest_lts]
+}
+
+data "databricks_catalog" "this" {
+  name       = var.workspace_name
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
@@ -52,7 +66,7 @@ data "databricks_group" "admins" {
 resource "databricks_group" "eng" {
 
   display_name = "Data Engineering"
-  depends_on   = [var.workspace_id, data.databricks_spark_version.latest_lts]
+  depends_on   = [data.azurerm_databricks_workspace.workspace, data.databricks_spark_version.latest_lts]
 }
 
 resource "databricks_group_member" "eng" {
@@ -122,27 +136,71 @@ resource "databricks_external_location" "ong_data_stream" {
   lifecycle {
     create_before_destroy = true
   }
-
 }
 
-resource "databricks_cluster" "cluster" {
-  # provider                = databricks.workspace
-  cluster_name            = random_string.cluster_name.result
-  kind                    = "CLASSIC_PREVIEW"
-  is_single_node          = true
-  node_type_id            = data.databricks_node_type.smallest.id
-  spark_version           = data.databricks_spark_version.latest_lts.id
-  autotermination_minutes = var.cluster_autotermination_minutes
-  num_workers             = var.cluster_num_workers
-  data_security_mode      = var.cluster_data_security_mode
-  # single_user_name        = "ong_rw"
-
-  depends_on = [data.databricks_spark_version.latest_lts]
-
+resource "databricks_volume" "sensorstream" {
+  name             = "ong_sensorstream"
+  catalog_name     = data.databricks_catalog.this.name
+  schema_name      = "default"
+  volume_type      = "EXTERNAL"
+  storage_location = databricks_external_location.ong_data_stream.url
+  comment          = "this volume is managed by terraform"
 }
+
+resource "databricks_volume" "checkPoints" {
+  name         = "checkpoints"
+  catalog_name = data.databricks_catalog.this.name
+  schema_name  = "default"
+  volume_type  = "STANDARD"
+  comment      = "this volume is managed by terraform"
+}
+
+resource "databricks_schema" "bronze_layer" {
+  name         = "landing"
+  catalog_name = data.databricks_catalog.this.name
+  properties = {
+    kind = "various"
+  }
+  comment = "this schema is managed by terraform"
+}
+
+resource "databricks_schema" "bronze_layer2" {
+  name         = "raw"
+  catalog_name = data.databricks_catalog.this.name
+  properties = {
+    kind = "various"
+  }
+  comment = "this volume is managed by terraform"
+}
+
+data "azurerm_key_vault" "vault" {
+  name                = var.key_vault
+  resource_group_name = var.rg_name
+}
+
+# ephemeral "azurerm_key_vault_secret" "example" {
+#   name         = "secret-sauce"
+#   key_vault_id = data.azurerm_key_vault.vault.id
+# }
+
+# resource "databricks_cluster" "cluster" {
+
+#   cluster_name            = random_string.cluster_name.result
+#   kind                    = "CLASSIC_PREVIEW"
+#   is_single_node          = true
+#   node_type_id            = data.databricks_node_type.smallest.id
+#   spark_version           = data.databricks_spark_version.latest_lts.id
+#   autotermination_minutes = var.cluster_autotermination_minutes
+#   num_workers             = var.cluster_num_workers
+#   data_security_mode      = var.cluster_data_security_mode
+#   # single_user_name        = "ong_rw"
+
+#   depends_on = [data.databricks_spark_version.latest_lts]
+
+# }
 
 resource "databricks_permissions" "cluster_manage" {
-  # provider   = databricks.workspace
+
   cluster_id = databricks_cluster.cluster.id
 
   access_control {
@@ -151,20 +209,245 @@ resource "databricks_permissions" "cluster_manage" {
   }
 }
 
-# resource "databricks_grant" "external_creds" {
-#   storage_credential = databricks_storage_credential.ong_cred.id
+resource "databricks_git_credential" "workspacejobs-source" {
+  git_username          = var.github_username
+  git_email             = var.github_email
+  git_provider          = "github"
+  personal_access_token = var.github_pat
+}
 
-#   principal  = databricks_group.eng.display_name
-#   privileges = ["CREATE_EXTERNAL_TABLE", "READ_FILES", "WRITE_FILES", "MANAGE"]
-# }
 
-# resource "databricks_grants" "some" {
-#   external_location = databricks_external_location.ong_data_stream.id
-#   grant {
-#     principal  = databricks_group.eng.display_name
-#     privileges = ["BROWSE", "WRITE_FILES", "READ_FILES", "MANAGE"]
-#   }
-# }
+resource "databricks_repos" "git_integration" {
+  url  = var.jobsource_url
+  path = local.repo_source
+}
+
+resource "databricks_job" "telemetry_stream" {
+  name        = "well-telemetry-stream-pull"
+  description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
+  run_as {
+    service_principal_name = "service-account"
+  }
+
+  job_cluster {
+    job_cluster_key = "shared_cluster"
+    new_cluster {
+      num_workers   = 2
+      spark_version = data.databricks_spark_version.latest.id
+      node_type_id  = data.databricks_node_type.smallest.id
+    }
+  }
+
+  trigger {
+    periodic {
+      interval = 15
+      unit     = "MINUTES"
+    }
+  }
+
+  parameter {
+    name    = "source_list"
+    default = ["well-telemetry", "facility-telemetry", "equipment-events"]
+  }
+
+  task {
+    task_key = "data_stream_wrangle"
+
+
+    for_each_task {
+      inputs = parameters.source_list
+      task {
+        task_key = "data_stream_wrangle_iteration"
+
+        job_cluster_key = job_cluster.job_cluster_key
+
+        spark_python_task {
+          python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
+        }
+      }
+    }
+  }
+
+  task {
+    task_key = "rawzone_loading"
+    //this task will only run after task a
+    depends_on {
+      task_key = "data_stream_wrangle"
+    }
+
+    for_each_task {
+      inputs = parameters.source_list
+      task {
+        task_key = "rawzone_loading_iteration"
+
+        job_cluster_key = job_cluster.job_cluster_key
+
+        spark_python_task {
+          python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
+          parameters  = ["{{input}}"]
+        }
+      }
+    }
+  }
+
+  # task {
+  #   task_key = "c"
+
+  #   job_cluster_key = job_cluster_key
+
+  #   spark_jar_task {
+  #     script_path = databricks_notebook.this.path
+  #   }
+  # }
+
+  email_notifications {
+    on_failure                             = ["onidajo99@gmail.com"]
+    on_duration_warning_threshold_exceeded = ["onidajo99@gmail.com"]
+  }
+
+  webhook_notifications {
+    on_failure {
+      id = "onidajo99@gmail.com"
+    }
+    on_duration_warning_threshold_exceeded {
+      id = "onidajo99@gmail.com"
+    }
+  }
+
+  health {
+    rules {
+      metric = "RUN_DURATION_SECONDS"
+      op     = "GREATER THAN"
+      value  = 3600
+    }
+  }
+
+  tags = local.tags
+
+
+
+
+  edit_mode = "UI_LOCKED"
+
+
+}
+
+
+resource "databricks_job" "bidaily_batch_pull" {
+  name        = "bidaily-batch-pull"
+  description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
+  run_as {
+    service_principal_name = "service-account"
+  }
+
+  job_cluster {
+    job_cluster_key = "shared_cluster"
+    new_cluster {
+      num_workers   = 2
+      spark_version = data.databricks_spark_version.latest.id
+      node_type_id  = data.databricks_node_type.smallest.id
+    }
+  }
+
+  trigger {
+    periodic {
+      interval = 12
+      unit     = "HOURS"
+    }
+  }
+
+  parameter {
+    name    = "source_list"
+    default = ["reservoir", "wellbore"]
+  }
+
+  task {
+    task_key = "data_stream_wrangle"
+
+    existing_cluster_id = job_cluster_key
+
+
+    for_each_task {
+      inputs = parameters.source_list
+      task {
+        task_key = "data_stream_wrangle_iteration"
+
+        job_cluster_key = job_cluster.job_cluster_key
+
+        spark_python_task {
+          python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
+          parameters  = ["{{input}}"]
+        }
+      }
+    }
+  }
+
+  task {
+    task_key = "rawzone_loading"
+    //this task will only run after task a
+    depends_on {
+      task_key = "data_stream_wrangle"
+    }
+
+    existing_cluster_id = job_cluster.job_cluster_key
+
+    for_each_task {
+      inputs = parameters.source_list
+      task {
+        task_key = "rawzone_loading_iteration"
+
+        job_cluster_key = job_cluster.job_cluster_key
+
+        spark_python_task {
+          python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
+          parameters  = ["{{input}}"]
+        }
+      }
+    }
+  }
+
+  # task {
+  #   task_key = "c"
+
+  #   job_cluster_key = job_cluster_key
+
+  #   spark_jar_task {
+  #     script_path = databricks_notebook.this.path
+  #   }
+  # }
+
+  email_notifications {
+    on_failure                             = ["onidajo99@gmail.com"]
+    on_duration_warning_threshold_exceeded = ["onidajo99@gmail.com"]
+  }
+
+  webhook_notifications {
+    on_failure {
+      id = "onidajo99@gmail.com"
+    }
+    on_duration_warning_threshold_exceeded {
+      id = "onidajo99@gmail.com"
+    }
+  }
+
+  health {
+    rules {
+      metric = "RUN_DURATION_SECONDS"
+      op     = "GREATER THAN"
+      value  = 3600
+    }
+  }
+
+  tags = local.tags
+
+
+
+
+  edit_mode = "UI_LOCKED"
+
+
+}
+
 
 locals {
   tags = {
@@ -173,7 +456,7 @@ locals {
     owner        = var.owner
     subscription = var.rg_parent_id
   }
-
+  repo_source = "/${var.workspace_name}/Shared/wellanalysisstream"
 }
 
 

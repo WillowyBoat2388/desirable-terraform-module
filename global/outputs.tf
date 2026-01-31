@@ -7,6 +7,11 @@
 #   value = azurerm_container_registry.app_registry.admin_password
 # }
 
+output "azurerm_key_vault_name" {
+  value = azurerm_key_vault.vault.name
+}
+
+
 # output "registry_user" {
 #   value = azurerm_container_registry.app_registry.admin_username
 # }

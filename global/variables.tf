@@ -76,6 +76,6 @@ variable "environment" {
   type = string
 }
 
-variable "rg_id" {
+variable "rg_name" {
   type = string
 }

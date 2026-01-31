@@ -3,7 +3,7 @@ resource "random_pet" "stream_analytics_job_name" {
   prefix = var.prefix
 
   keepers = {
-    constant = var.rg_id
+    constant = data.azurerm_resource_group.resourceGroup.id
   }
 
 
@@ -21,12 +21,36 @@ resource "azurerm_stream_analytics_job" "job" {
   output_error_policy                      = "Stop"
 
   transformation_query = <<QUERY
-SELECT
-    *
+WITH individualContext AS (
+    SELECT
+        data,
+        LEFT(partition_key, CHARINDEX('-', partition_key)-1) AS TGOD,
+        PartitionId
+    FROM 
+        [eventhub-stream-input]
+    PARTITION BY  PartitionId
+),
+advancedContext AS (
+    SELECT 
+        data,
+        CASE
+            WHEN TGOD = 'facility' THEN 'facility-telemetry'
+            WHEN TGOD = 'equipment' THEN 'equipment-events'
+            WHEN TGOD = 'well' THEN 'well-telemetry'
+            WHEN TGOD = 'production' THEN 'production-daily-data'
+            WHEN TGOD = 'reservoir' THEN 'reservoir'
+            WHEN TGOD = 'wellbore' THEN 'wellbore'
+            ELSE 'recovered'
+        END AS partition_identity
+    FROM
+        individualContext
+    PARTITION BY  PartitionId
+)
+
+SELECT stream.data.*, stream.partition_identity
 INTO
     [output-to-blob-storage]
-FROM
-    [eventhub-stream-input]
+FROM advancedContext as stream
 PARTITION BY PartitionId
 
 QUERY
@@ -78,4 +102,16 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
     # encoding        = "UTF8"
     # field_delimiter = ","
   }
+}
+
+resource "azurerm_stream_analytics_job_schedule" "now" {
+  stream_analytics_job_id = azurerm_stream_analytics_job.job.id
+  start_mode              = "CustomTime"
+  start_time              = "2022-09-21T00:00:00Z"
+
+  depends_on = [
+    azurerm_stream_analytics_job.job,
+    azurerm_stream_analytics_stream_input_eventhub_v2.job_input,
+    azurerm_stream_analytics_output_blob.job_output,
+  ]
 }

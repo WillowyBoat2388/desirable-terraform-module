@@ -1,22 +1,21 @@
 
 
 data "azurerm_client_config" "current" {}
+data "azurerm_key_vault" "key_vault" {
+  name                = module.global.key_vault_name
+  resource_group_name = module.global.rg_name
 
-data "azurerm_user_assigned_identity" "home" {
-  name                = "ong-rw"
-  resource_group_name = "management"
+  depends_on = [module.global]
+}
+ephemeral "azurerm_key_vault_secret" "databricks_workspace_id" {
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+  name         = "databricks_workspace_resource_id"
 }
 
-data "terraform_remote_state" "foo" {
-  backend = "azurerm"
-  config = {
-
-    storage_account_name = "dagsterinarian27"       # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
-    container_name       = "tfstate"                # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
-    key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
-  }
+ephemeral "azurerm_key_vault_secret" "databricks_workspace_url" {
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+  name         = "databricks_workspace_url"
 }
-
 
 locals {
   environment = var.environment
@@ -25,12 +24,9 @@ locals {
   app_name    = "azureadmin"
   domain      = "bdatanet.tech"
   prefix      = "ong"
-  msi_oid     = data.azurerm_client_config.current.object_id
-  msi_sid     = data.azurerm_user_assigned_identity.home.id
-  msi_id      = data.azurerm_client_config.current.client_id
-  datab_url   = can(data.terraform_remote_state.foo.outputs.databricks_workspace_url) ? data.terraform_remote_state.foo.outputs.databricks_workspace_url : module.data-workflow.databricks_workspace_url
-  datab_rid   = can(data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id) ? data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id : module.data-workflow.databricks_workspace_resource_id
-
+  msi_oid     = resource.azapi_resource.identity.output.properties.object_id
+  msi_sid     = resource.azapi_resource.identity.id
+  msi_id      = resource.azapi_resource.identity.output.properties.client_id
 }
 
 resource "random_string" "staging" {
@@ -54,11 +50,25 @@ resource "azapi_resource" "env" {
   depends_on = [data.azurerm_user_assigned_identity.home]
 }
 
+resource "azapi_resource" "identity" {
+  type      = "Microsoft.ManagedIdentity/userAssignedIdentities@2023-06-01"
+  location  = local.region
+  name      = "service-account"
+  parent_id = azapi_resource.env.id
+  tags = {
+    environment = local.environment
+    prefix      = local.prefix
+    owner       = "architect"
+    team        = var.team
+  }
+}
+
+
 module "global" {
   source = "../global"
 
   # Input Variables
-  rg_id    = azapi_resource.env.id
+  rg_name  = azapi_resource.env.name
   location = local.region
   # key_name = "prod_"
   prefix      = local.prefix
@@ -77,11 +87,11 @@ module "data-workflow" {
   prefix         = local.prefix
   owner          = "architect"
   team           = var.team
-  rg_id          = azapi_resource.env.id
   rg_parent_id   = azapi_resource.env.parent_id
   identity_id    = local.msi_id
   identity_objid = local.msi_oid
   identity_subid = local.msi_sid
+  key_vault      = module.global.key_vault_name
   rg_name        = local.name
 
 
@@ -104,7 +114,7 @@ module "databricks" {
   prefix                          = local.prefix
   owner                           = "architect"
   team                            = var.team
-  rg_id                           = azapi_resource.env.id
+  rg_name                         = azapi_resource.env.name
   rg_parent_id                    = azapi_resource.env.parent_id
   identity_objid                  = local.msi_oid
   identity_clientid               = local.msi_id
@@ -112,12 +122,15 @@ module "databricks" {
   storage_account                 = module.data-workflow.storage_account_name
   storage_container               = module.data-workflow.storage_container_name
   service_connector               = module.data-workflow.databricks_service_connector
-  workspace_url                   = module.data-workflow.databricks_workspace_url
-  workspace_id                    = module.data-workflow.databricks_workspace_id
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
-
+  jobsource_url                   = var.jobsource_url
+  github_email                    = var.github_email
+  github_pat                      = var.github_pat
+  github_username                 = var.github_username
+  workspace_name                  = module.data-workflow.databricks_workspace_name
+  key_vault                       = module.global.key_vault_name
 
 
   depends_on = [module.global, module.data-workflow]

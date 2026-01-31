@@ -30,13 +30,32 @@ terraform {
 }
 
 provider "azurerm" {
-  features {}
+  features {
+
+    databricks_workspace {
+      force_delete = false
+    }
+
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
+    }
+
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
+
+    subscription {
+      prevent_cancellation_on_destroy = false
+    }
+
+  }
 }
 provider "azapi" {}
 
 provider "databricks" {
-  host                        = can(data.terraform_remote_state.foo.outputs.databricks_workspace_url) ? data.terraform_remote_state.foo.outputs.databricks_workspace_url : module.data-workflow.databricks_workspace_url
-  azure_workspace_resource_id = can(data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id) ? data.terraform_remote_state.foo.outputs.databricks_workspace_resource_id : module.data-workflow.databricks_workspace_resource_id
+  host                        = ephemeral.azurerm_key_vault_secret.databricks_workspace_url.value
+  azure_workspace_resource_id = ephemeral.azurerm_key_vault_secret.databricks_workspace_id.value
   # auth_type                   = "azure-cli"
 
 }

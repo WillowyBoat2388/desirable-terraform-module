@@ -2,6 +2,9 @@
 
 data "azurerm_client_config" "current" {}
 
+data "azurerm_resource_group" "resourceGroup" {
+  name = var.rg_name
+}
 
 ## Resource Group development default resources
 resource "azapi_resource" "AppInsights" {
@@ -24,7 +27,7 @@ resource "azapi_resource" "AppInsights" {
   ignore_null_property      = false
   location                  = var.location
   name                      = "${var.environment}_client_insights"
-  parent_id                 = var.rg_id
+  parent_id                 = data.azurerm_resource_group.resourceGroup.id
   schema_validation_enabled = true
   type                      = "microsoft.insights/components@2020-02-02-preview"
 
@@ -59,7 +62,7 @@ resource "azapi_resource" "logAnalyticsWorkspace" {
   ignore_null_property      = false
   location                  = var.location
   name                      = "DefaultWorkspace-3454637f"
-  parent_id                 = var.rg_id
+  parent_id                 = data.azurerm_resource_group.resourceGroup.id
   schema_validation_enabled = true
   type                      = "Microsoft.OperationalInsights/workspaces@2025-02-01"
   lifecycle {
@@ -193,7 +196,7 @@ resource "random_string" "azurerm_key_vault_name" {
   upper   = false
 
   keepers = {
-    constant = var.rg_id
+    constant = data.azurerm_resource_group.resourceGroup.id
   }
 
   depends_on = [azurerm_virtual_network.rg_vnet]
@@ -222,7 +225,7 @@ resource "azurerm_key_vault" "vault" {
   depends_on = [azurerm_virtual_network.rg_vnet]
 }
 
-resource "random_string" "azurerm_key_vault_key_name" {
+resource "random_string" "azurerm_key_vault_secret" {
   length  = 13
   lower   = true
   numeric = false
@@ -230,31 +233,31 @@ resource "random_string" "azurerm_key_vault_key_name" {
   upper   = false
 
   keepers = {
-    constant = var.rg_id
+    constant = data.azurerm_resource_group.resourceGroup.id
   }
 
   depends_on = [azurerm_key_vault.vault]
 }
 
-resource "azurerm_key_vault_key" "key" {
-  name = coalesce(var.key_name, "key-${random_string.azurerm_key_vault_key_name.result}")
+# resource "azurerm_key_vault_key" "key" {
+#   name = coalesce(var.key_name, "key-${random_string.azurerm_key_vault_key_name.result}")
 
-  key_vault_id = azurerm_key_vault.vault.id
-  key_type     = var.key_type
-  key_size     = var.key_size
-  key_opts     = var.key_ops
+#   key_vault_id = azurerm_key_vault.vault.id
+#   key_type     = var.key_type
+#   key_size     = var.key_size
+#   key_opts     = var.key_ops
 
-  rotation_policy {
-    automatic {
-      time_before_expiry = "P30D"
-    }
+#   rotation_policy {
+#     automatic {
+#       time_before_expiry = "P30D"
+#     }
 
-    expire_after         = "P90D"
-    notify_before_expiry = "P29D"
-  }
+#     expire_after         = "P90D"
+#     notify_before_expiry = "P29D"
+#   }
 
-  depends_on = [azurerm_key_vault.vault]
-}
+#   depends_on = [azurerm_key_vault.vault]
+# }
 
 # output "AppInsightsWorkspace" {
 #   value = azapi_resource.AppInsights.id
