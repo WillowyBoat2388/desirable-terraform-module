@@ -230,6 +230,15 @@ resource "databricks_repo" "git_integration" {
   path = local.repo_source
 }
 
+resource "databricks_notification_destination" "slack" {
+  display_name = "Slack Notification Destination"
+  config {
+    slack {
+      url = var.slack_key
+    }
+  }
+}
+
 resource "databricks_job" "telemetry_stream" {
   name        = "well-telemetry-stream-pull"
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
@@ -314,10 +323,10 @@ resource "databricks_job" "telemetry_stream" {
 
   webhook_notifications {
     on_failure {
-      id = var.slack_key
+      id = databricks_notification_destination.slack.id
     }
     on_duration_warning_threshold_exceeded {
-      id = var.slack_key
+      id = databricks_notification_destination.slack.id
     }
   }
 
@@ -426,10 +435,10 @@ resource "databricks_job" "bidaily_batch_pull" {
 
   webhook_notifications {
     on_failure {
-      id = "onidajo99@gmail.com"
+      id = databricks_notification_destination.slack.id
     }
     on_duration_warning_threshold_exceeded {
-      id = "onidajo99@gmail.com"
+      id = databricks_notification_destination.slack.id
     }
   }
 
