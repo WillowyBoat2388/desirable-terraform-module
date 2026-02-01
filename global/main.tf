@@ -5,6 +5,9 @@ data "azurerm_client_config" "current" {}
 data "azurerm_resource_group" "resourceGroup" {
   name = var.rg_name
 }
+data "azurerm_subscription" "current" {
+}
+
 
 ## Resource Group development default resources
 resource "azapi_resource" "AppInsights" {
@@ -267,4 +270,58 @@ resource "random_string" "azurerm_key_vault_secret" {
 # output "AppInsightsWorkspace" {
 #   value = azapi_resource.AppInsights.id
 # }
+
+resource "azurerm_subscription_cost_management_view" "example" {
+  name         = "Streaming View"
+  display_name = "Cost View per Week"
+  chart_type   = "StackedColumn"
+  accumulated  = true
+
+  subscription_id = data.azurerm_subscription.current.id
+
+  report_type = "Usage"
+  timeframe   = "WeekToDate"
+
+  dataset {
+    granularity = "Daily"
+
+    aggregation {
+      name        = "totalCost"
+      column_name = "Cost"
+    }
+  }
+  pivot {
+    type = "Dimension"
+    name = "ServiceName"
+  }
+  pivot {
+    type = "Dimension"
+    name = "ResourceLocation"
+  }
+  pivot {
+    type = "Dimension"
+    name = "ResourceGroupName"
+  }
+}
+
+resource "azurerm_cost_management_scheduled_action" "example" {
+  name         = "examplescheduledaction"
+  display_name = "Report Last 6 Months"
+
+  view_id = azurerm_subscription_cost_management_view.example.id
+
+  email_address_sender = "platformteam@test.com"
+  email_subject        = "Cost Management Report"
+  email_addresses      = [var.github_email]
+  message              = "Hi all, take a look at today's spending!"
+
+  frequency  = "Daily"
+  start_date = "2026-02-02T00:00:00Z"
+  end_date   = "2026-12-02T00:00:00Z"
+}
+
+
+
+
+
 

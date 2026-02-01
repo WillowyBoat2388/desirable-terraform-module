@@ -40,6 +40,11 @@ variable "environmentid_name" {
   default     = null
 }
 
+variable "github_email" {
+  type        = string
+  description = "The email address to send the report to."
+}
+
 variable "key_size" {
   type        = number
   description = "The size in bits of the key to be created."

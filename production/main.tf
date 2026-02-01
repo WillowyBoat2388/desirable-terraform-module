@@ -77,6 +77,7 @@ module "global" {
   prefix             = local.prefix
   environment        = local.name
   environmentid_name = local.environmentid_name
+  github_email       = var.github_email
 }
 
 
