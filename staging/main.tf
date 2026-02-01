@@ -5,21 +5,18 @@ data "azurerm_client_config" "current" {}
 data "azurerm_key_vault" "key_vault" {
   name                = module.global.key_vault_name
   resource_group_name = azapi_resource.env.name
-
-  depends_on = [module.global]
 }
+
 data "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-resource-id"
 
-  depends_on = [module.data-workflow]
 }
 
 data "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-url"
 
-  depends_on = [module.data-workflow]
 }
 
 locals {

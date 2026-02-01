@@ -91,10 +91,10 @@ jobs:
       #     terraform apply -refresh-only -auto-approve
       
       
-      # - name: Terraform Off
-      #   id: tf-off
-      #   run: |    
-      #     terraform apply -auto-approve -destroy
+      - name: Terraform Off
+        id: tf-off
+        run: |    
+          terraform apply -auto-approve -destroy
           
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
