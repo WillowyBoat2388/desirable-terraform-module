@@ -238,7 +238,7 @@ resource "azurerm_key_vault" "vault" {
     storage_permissions = var.storage_permissions
   }
 
-  rbac_authorization_enabled = true
+  # rbac_authorization_enabled = true
 
   enabled_for_template_deployment = true
 
