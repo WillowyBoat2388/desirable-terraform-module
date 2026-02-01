@@ -117,7 +117,7 @@ module "databricks" {
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
-  key_vault                       = module.global.azurerm_key_vault_name
+  key_vault                       = module.global.key_vault_name
   github_pat                      = var.github_pat
   github_username                 = var.github_username
   github_email                    = var.github_email
@@ -131,7 +131,3 @@ module "databricks" {
 
 }
 
-
-output "databricks_workspace_resource_id_prod" {
-  value = module.data-workflow.databricks_workspace_resource_id
-}

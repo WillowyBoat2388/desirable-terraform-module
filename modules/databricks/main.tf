@@ -165,20 +165,11 @@ resource "databricks_volume" "sensorstream" {
   comment          = "this volume is managed by terraform"
 }
 
-# resource "databricks_volume" "resources" {
-#   name             = "resources"
-#   catalog_name     = data.databricks_catalog.this.name
-#   schema_name      = "default"
-#   volume_type      = "EXTERNAL"
-#   storage_location = "${databricks_external_location.ong_data_stream.url}/resources"
-#   comment          = "this volume is managed by terraform"
-# }
-
 resource "databricks_volume" "checkPoints" {
   name         = "checkpoints"
   catalog_name = data.databricks_catalog.this.name
   schema_name  = "default"
-  volume_type  = "STANDARD"
+  volume_type  = "MANAGED"
   comment      = "this volume is managed by terraform"
 }
 
@@ -215,15 +206,15 @@ resource "databricks_schema" "bronze_layer2" {
 
 # }
 
-resource "databricks_permissions" "cluster_manage" {
+# resource "databricks_permissions" "cluster_manage" {
 
-  cluster_id = databricks_cluster.cluster.id
+#   cluster_id = databricks_cluster.cluster.id
 
-  access_control {
-    group_name       = databricks_group.eng.display_name
-    permission_level = "CAN_MANAGE"
-  }
-}
+#   access_control {
+#     group_name       = databricks_group.eng.display_name
+#     permission_level = "CAN_MANAGE"
+#   }
+# }
 
 resource "databricks_git_credential" "workspacejobs-source" {
   git_username          = var.github_username
@@ -233,7 +224,7 @@ resource "databricks_git_credential" "workspacejobs-source" {
 }
 
 
-resource "databricks_repos" "git_integration" {
+resource "databricks_repo" "git_integration" {
   url  = var.jobsource_url
   path = local.repo_source
 }
@@ -246,10 +237,10 @@ resource "databricks_job" "telemetry_stream" {
   }
 
   job_cluster {
-    job_cluster_key = "shared_cluster"
+    job_cluster_key = random_string.cluster_name.result
     new_cluster {
       num_workers   = 2
-      spark_version = data.databricks_spark_version.latest.id
+      spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
     }
   }
@@ -271,11 +262,11 @@ resource "databricks_job" "telemetry_stream" {
 
 
     for_each_task {
-      inputs = parameters.source_list
+      inputs = "{{ job.parameters.source_list }}"
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        job_cluster_key = job_cluster.job_cluster_key
+        job_cluster_key = random_string.cluster_name.result
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
@@ -292,11 +283,11 @@ resource "databricks_job" "telemetry_stream" {
     }
 
     for_each_task {
-      inputs = parameters.source_list
+      inputs = "{{ job.parameters.source_list }}"
       task {
         task_key = "rawzone_loading_iteration"
 
-        job_cluster_key = job_cluster.job_cluster_key
+        job_cluster_key = random_string.cluster_name.result
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
@@ -360,7 +351,7 @@ resource "databricks_job" "bidaily_batch_pull" {
     job_cluster_key = "shared_cluster"
     new_cluster {
       num_workers   = 2
-      spark_version = data.databricks_spark_version.latest.id
+      spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
     }
   }
@@ -380,15 +371,13 @@ resource "databricks_job" "bidaily_batch_pull" {
   task {
     task_key = "data_stream_wrangle"
 
-    existing_cluster_id = job_cluster_key
-
 
     for_each_task {
-      inputs = parameters.source_list
+      inputs = "{{ job.parameters.source_list }}"
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        job_cluster_key = job_cluster.job_cluster_key
+        job_cluster_key = "shared_cluster"
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
@@ -405,14 +394,12 @@ resource "databricks_job" "bidaily_batch_pull" {
       task_key = "data_stream_wrangle"
     }
 
-    existing_cluster_id = job_cluster.job_cluster_key
-
     for_each_task {
-      inputs = parameters.source_list
+      inputs = "{{ job.parameters.source_list }}"
       task {
         task_key = "rawzone_loading_iteration"
 
-        job_cluster_key = job_cluster.job_cluster_key
+        job_cluster_key = "shared_cluster"
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
@@ -475,7 +462,3 @@ locals {
   repo_source = "/${var.workspace_name}/Shared/wellanalysisstream"
 }
 
-
-output "cluster_url" {
-  value = databricks_cluster.cluster.url
-}
