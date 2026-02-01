@@ -132,7 +132,7 @@ module "databricks" {
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
 
-  depends_on = [module.data-workflow]
+  depends_on = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 
 }
