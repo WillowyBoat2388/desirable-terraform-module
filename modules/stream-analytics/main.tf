@@ -459,8 +459,8 @@ resource "azurerm_key_vault_secret" "databricks_workspace_name" {
 }
 
 output "databricks_workspace_name" {
-  value      = azapi_resource.workspace.name
-  
+  value = azapi_resource.workspace.name
+
 }
 
 
