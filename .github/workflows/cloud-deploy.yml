@@ -83,7 +83,7 @@ jobs:
       - name: Terraform In
         id: tf-in
         run: |
-          terraform force-unlock 5d75e779-3133-edc2-e26b-c400889c5101
+          terraform force-unlock -force 5d75e779-3133-edc2-e26b-c400889c5101
 
       # - name: Terraform Rep
       #   id: tf-rep
