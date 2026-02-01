@@ -88,7 +88,7 @@ jobs:
       - name: Terraform Rep
         id: tf-rep
         run: |
-          terraform apply -refresh-only
+          terraform apply -refresh-only -auto-approve
       
       
       - name: Terraform Off
