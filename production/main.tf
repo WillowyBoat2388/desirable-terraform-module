@@ -28,13 +28,13 @@ data "azurerm_key_vault" "key_vault" {
 data "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-resource-id"
-
+  depends_on   = [module.data-workflow]
 }
 
 data "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-url"
-
+  depends_on   = [module.data-workflow]
 }
 
 locals {
@@ -46,8 +46,8 @@ locals {
   prefix             = "ong"
   controlid_name     = "assemblymanager"
   environmentid_name = "assemblymanager"
-  workspace_id       = data.azurerm_key_vault_secret.databricks_workspace_id.value
-  workspace_url      = data.azurerm_key_vault_secret.databricks_workspace_url.value
+  workspace_id       = can(data.azurerm_databricks_workspace.databricks_workspace.id) ? data.azurerm_databricks_workspace.databricks_workspace.id : data.azurerm_key_vault_secret.databricks_workspace_id.value
+  workspace_url      = data.azurerm_databricks_workspace.databricks_workspace.workspace_url != null ? data.azurerm_databricks_workspace.databricks_workspace.workspace_url : data.azurerm_key_vault_secret.databricks_workspace_url.value
 
 }
 
