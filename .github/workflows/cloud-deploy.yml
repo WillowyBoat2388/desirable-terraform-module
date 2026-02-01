@@ -86,7 +86,7 @@ jobs:
         id: tf-done
         run: |
           
-          terraform apply -auto-approve -destroy
+          terraform plan
           
           
 
@@ -287,7 +287,7 @@ jobs:
     # if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
     runs-on: ubuntu-latest
     environment: production
-    # needs: [terraform-apply]
+    needs: [terraform-test]
     defaults:
       run:
         working-directory: production
