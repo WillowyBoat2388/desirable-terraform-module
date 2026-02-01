@@ -322,7 +322,7 @@ resource "databricks_job" "telemetry_stream" {
   health {
     rules {
       metric = "RUN_DURATION_SECONDS"
-      op     = "GREATER THAN"
+      op     = "GREATER_THAN"
       value  = 1200
     }
   }
@@ -434,7 +434,7 @@ resource "databricks_job" "bidaily_batch_pull" {
   health {
     rules {
       metric = "RUN_DURATION_SECONDS"
-      op     = "GREATER THAN"
+      op     = "GREATER_THAN"
       value  = 3600
     }
   }
