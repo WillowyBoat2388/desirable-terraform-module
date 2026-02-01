@@ -80,10 +80,10 @@ jobs:
       - name: Terraform Format
         run: terraform fmt -check
  
-      # - name: Terraform In
-      #   id: tf-in
-      #   run: |
-      #     terraform plan -refresh-only
+      - name: Terraform In
+        id: tf-in
+        run: |
+          terraform state force-unlock 5d75e779-3133-edc2-e26b-c400889c5101
 
       # - name: Terraform Rep
       #   id: tf-rep
