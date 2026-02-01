@@ -134,7 +134,7 @@ resource "databricks_secret_scope" "kv" {
 
   keyvault_metadata {
     resource_id = data.azurerm_key_vault.vault.id
-    dns_name    = data.azurerm_key_vault.vault.uri
+    dns_name    = data.azurerm_key_vault.vault.vault_uri
   }
 }
 
@@ -254,7 +254,7 @@ resource "databricks_job" "telemetry_stream" {
 
   parameter {
     name    = "source_list"
-    default = ["well-telemetry", "facility-telemetry", "equipment-events"]
+    default = "['well-telemetry', 'facility-telemetry', 'equipment-events']"
   }
 
   task {
@@ -365,7 +365,7 @@ resource "databricks_job" "bidaily_batch_pull" {
 
   parameter {
     name    = "source_list"
-    default = ["reservoir", "wellbore"]
+    default = "['reservoir', 'wellbore']"
   }
 
   task {
