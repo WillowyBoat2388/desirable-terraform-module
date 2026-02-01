@@ -231,7 +231,6 @@ resource "azurerm_key_vault" "vault" {
   access_policy {
     tenant_id      = data.azurerm_user_assigned_identity.home.tenant_id
     object_id      = data.azurerm_user_assigned_identity.home.principal_id
-    application_id = local.current_user_id
 
     key_permissions     = var.key_permissions
     secret_permissions  = var.secret_permissions
