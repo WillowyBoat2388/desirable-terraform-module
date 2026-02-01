@@ -10,12 +10,12 @@ data "azurerm_key_vault" "key_vault" {
 }
 ephemeral "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks_workspace_resource_id"
+  name         = "databricks-workspace-resource-id"
 }
 
 ephemeral "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks_workspace_url"
+  name         = "databricks-workspace-url"
 }
 
 locals {
