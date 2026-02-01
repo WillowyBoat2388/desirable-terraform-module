@@ -71,5 +71,5 @@ variable "key_vault" {
 
 variable "random_integer" {
   description = "Random integer for resource naming"
-  type        = integer
+  type        = number
 }  
