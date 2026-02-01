@@ -1,5 +1,24 @@
 
 
+
+
+variable "owner" {
+  description = "Owner of the resource"
+  type        = string
+  default     = "architect"
+}
+
+variable "team" {
+  description = "Team managing resource"
+  type        = string
+  default     = "engineering"
+}
+
+variable "rg_parent_id" {
+  description = "parent id of the resource group"
+  type        = string
+}
+
 variable "key_permissions" {
   type        = list(string)
   description = "List of key permissions."
@@ -9,7 +28,13 @@ variable "key_permissions" {
 variable "secret_permissions" {
   type        = list(string)
   description = "List of secret permissions."
-  default     = ["Delete", "Get", "List", "Set"]
+  default     = ["Delete", "Get", "List", "Set", "Purge"]
+}
+
+variable "storage_permissions" {
+  type        = list(string)
+  description = "List of secret permissions."
+  default     = ["Delete", "Get", "List", "Set", "Purge", "Update"]
 }
 
 variable "key_type" {

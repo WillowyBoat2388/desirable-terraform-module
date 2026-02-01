@@ -75,6 +75,10 @@ module "global" {
   environment        = local.name
   environmentid_name = local.environmentid_name
   github_email       = var.github_email
+  rg_parent_id       = azapi_resource.env.parent_id
+  owner              = "architect"
+  team               = var.team
+
 }
 
 

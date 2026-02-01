@@ -1,11 +1,21 @@
 
 
+
+locals {
+  current_user_id = data.azurerm_user_assigned_identity.home.client_id
+  tags = {
+    Environment  = var.environment
+    team         = var.team
+    owner        = var.owner
+    subscription = var.rg_parent_id
+  }
+
+}
+
 data "azurerm_user_assigned_identity" "home" {
   name                = var.environmentid_name
   resource_group_name = "assembly"
 }
-
-data "azurerm_client_config" "current" {}
 
 data "azurerm_resource_group" "resourceGroup" {
   name = var.rg_name
@@ -210,25 +220,29 @@ resource "random_string" "azurerm_key_vault_name" {
   depends_on = [azurerm_virtual_network.rg_vnet]
 }
 
-locals {
-  current_user_id = coalesce(data.azurerm_user_assigned_identity.home.client_id, data.azurerm_client_config.current.object_id)
-}
-
 resource "azurerm_key_vault" "vault" {
   name                       = coalesce(var.vault_name, "vault-${random_string.azurerm_key_vault_name.result}")
   location                   = var.location
   resource_group_name        = var.environment
-  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  tenant_id                  = data.azurerm_user_assigned_identity.home.tenant_id
   sku_name                   = var.sku_name
   soft_delete_retention_days = 7
 
   access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = local.current_user_id
+    tenant_id      = data.azurerm_user_assigned_identity.home.tenant_id
+    object_id      = data.azurerm_user_assigned_identity.home.principal_id
+    application_id = local.current_user_id
 
-    key_permissions    = var.key_permissions
-    secret_permissions = var.secret_permissions
+    key_permissions     = var.key_permissions
+    secret_permissions  = var.secret_permissions
+    storage_permissions = var.storage_permissions
   }
+
+  rbac_authorization_enabled = true
+
+  enabled_for_template_deployment = true
+
+  tags = local.tags
 
   depends_on = [azurerm_virtual_network.rg_vnet]
 }
