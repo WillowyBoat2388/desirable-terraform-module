@@ -20,19 +20,6 @@ locals {
   identity_subid = data.azurerm_user_assigned_identity.environmentid.id
 }
 
-
-
-# Generate a random integer to create a globally unique name
-resource "random_integer" "uid" {
-  min = 10000
-  max = 99999
-
-  keepers = {
-    constant = var.rg_name
-  }
-
-}
-
 resource "azurerm_storage_account" "storage_account" {
   access_tier                     = "Hot"
   account_kind                    = "StorageV2"
@@ -46,7 +33,7 @@ resource "azurerm_storage_account" "storage_account" {
   local_user_enabled              = true
   location                        = var.location
   min_tls_version                 = "TLS1_2"
-  name                            = "analyticsstorage${random_integer.uid.result}"
+  name                            = "analyticsstorage${var.random_integer}"
   public_network_access_enabled   = true
   queue_encryption_key_type       = "Service"
   resource_group_name             = var.rg_name
@@ -192,7 +179,7 @@ resource "azapi_resource" "eventhub_namespace" {
   schema_validation_enabled = true
   tags = {
     "Owner"       = var.owner
-    id            = "bdn-ongupstream-log-${random_integer.uid.result}"
+    id            = "bdn-ongupstream-log-${var.random_integer}"
     "environment" = var.environment
     team          = var.team
   }
@@ -276,11 +263,11 @@ data "azapi_resource_id" "workspace_resource_group" {
 resource "azapi_resource" "workspace" { #"analytics_workspace" {
   type      = "Microsoft.Databricks/workspaces@2025-10-01-preview"
   parent_id = data.azurerm_resource_group.resourceGroup.id
-  name      = "ong_streamWorkspace-${random_integer.uid.result}"
+  name      = "ong_streamWorkspace-${var.random_integer}"
   location  = var.location
   tags = {
     "Owner"       = var.owner
-    id            = "processingWorkspace-${random_integer.uid.result}"
+    id            = "processingWorkspace-${var.random_integer}"
     "environment" = var.environment
     team          = var.team
   }
@@ -473,7 +460,7 @@ resource "azurerm_key_vault_secret" "databricks_workspace_name" {
 
 output "databricks_workspace_name" {
   value      = azapi_resource.workspace.name
-  depends_on = [azurerm_key_vault_secret.databricks_workspace_name]
+  
 }
 
 

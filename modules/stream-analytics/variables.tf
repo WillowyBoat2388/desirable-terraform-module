@@ -67,4 +67,9 @@ variable "key_vault" {
   description = "Environment Key Vault"
   type        = string
   sensitive   = true
+}
+
+variable "random_integer" {
+  description = "Random integer for resource naming"
+  type        = integer
 }  
