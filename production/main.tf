@@ -10,13 +10,13 @@ data "azurerm_key_vault" "key_vault" {
 data "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-resource-id"
-  depends_on   = [module.data-workflow.databricks_workspace_name]
+  
 }
 
 data "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-url"
-  depends_on   = [module.data-workflow.databricks_workspace_name]
+  
 }
 
 locals {
