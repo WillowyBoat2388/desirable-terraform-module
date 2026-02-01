@@ -427,16 +427,6 @@ resource "azapi_resource" "roleAssignment2" {
 
 }
 
-locals {
-  tags = {
-    Environment  = var.environment
-    team         = var.team
-    owner        = var.owner
-    subscription = var.rg_parent_id
-  }
-
-}
-
 output "storage_account_name" {
   value = azurerm_storage_account.storage_account.name
 

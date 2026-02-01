@@ -21,12 +21,15 @@ ephemeral "azurerm_key_vault_secret" "databricks_workspace_url" {
 locals {
   environment        = var.environment
   name               = azapi_resource.env.name
-  region             = "West US 2"
+  region             = "Central US"
   app_name           = "azureadmin"
   domain             = "bdatanet.tech"
   prefix             = "ong"
   controlid_name     = "assembly_manager"
-  environmentid_name = "service-account"
+  environmentid_name = "assembly_manager"
+  backend_storage    = var.backend_storage
+  backend_container  = var.backend_container
+
 }
 
 resource "random_string" "production" {
