@@ -8,14 +8,18 @@ data "azurerm_key_vault" "key_vault" {
 
   depends_on = [module.global]
 }
-ephemeral "azurerm_key_vault_secret" "databricks_workspace_id" {
+data "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-resource-id"
+
+  depends_on = [module.data-workflow]
 }
 
-ephemeral "azurerm_key_vault_secret" "databricks_workspace_url" {
+data "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-url"
+
+  depends_on = [module.data-workflow]
 }
 
 locals {
@@ -75,6 +79,10 @@ module "global" {
   environment        = local.name
   environmentid_name = local.environmentid_name
   github_email       = var.github_email
+  rg_parent_id       = azapi_resource.env.parent_id
+  owner              = "architect"
+  team               = var.team
+
 }
 
 
@@ -124,7 +132,7 @@ module "databricks" {
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
 
-  depends_on = [module.data-workflow]
+  depends_on = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 
 }

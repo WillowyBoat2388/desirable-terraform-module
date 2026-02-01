@@ -4,8 +4,8 @@ terraform {
   backend "azurerm" {
     # use_azuread_auth     = true                     # Can also be set via `ARM_USE_AZUREAD` environment variable.
     # use_oidc             = true                     # Can also be set via `ARM_USE_CLI` environment variable.
-    storage_account_name = var.backend_storage      # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
-    container_name       = var.backend_container    # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
+    # storage_account_name = var.backend_storage      # Can be passed via `-backend-config=`"storage_account_name=<storage account name>"` in the `init` command.
+    # container_name       = var.backend_container    # Can be passed via `-backend-config=`"container_name=<container name>"` in the `init` command.
     key                  = "prod.terraform.tfstate" # Can be passed via `-backend-config=`"key=<blob key name>"` in the `init` command.
   }
 
@@ -54,8 +54,8 @@ provider "azurerm" {
 provider "azapi" {}
 
 provider "databricks" {
-  host                        = ephemeral.azurerm_key_vault_secret.databricks_workspace_url.value
-  azure_workspace_resource_id = ephemeral.azurerm_key_vault_secret.databricks_workspace_id.value
+  host                        = data.azurerm_key_vault_secret.databricks_workspace_url.value
+  azure_workspace_resource_id = data.azurerm_key_vault_secret.databricks_workspace_id.value
   # auth_type                   = "azure-cli"
 
 }
