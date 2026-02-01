@@ -8,15 +8,15 @@ data "azurerm_key_vault" "key_vault" {
 
   depends_on = [module.global]
 }
-data "azurerm_key_vault_secret" "databricks_workspace_id" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks-workspace-resource-id"
-}
+# data "azurerm_key_vault_secret" "databricks_workspace_id" {
+#   key_vault_id = data.azurerm_key_vault.key_vault.id
+#   name         = "databricks-workspace-resource-id"
+# }
 
-data "azurerm_key_vault_secret" "databricks_workspace_url" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks-workspace-url"
-}
+# data "azurerm_key_vault_secret" "databricks_workspace_url" {
+#   key_vault_id = data.azurerm_key_vault.key_vault.id
+#   name         = "databricks-workspace-url"
+# }
 
 locals {
   environment        = var.environment
