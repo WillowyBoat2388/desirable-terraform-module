@@ -246,9 +246,9 @@ resource "databricks_job" "telemetry_stream" {
   }
 
   schedule {
-    timezone_id = "UTC"
+    timezone_id            = "UTC"
     quartz_cron_expression = "0 0/15 * * * ?"
-  
+
   }
 
   parameter {

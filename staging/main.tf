@@ -1,35 +1,36 @@
 
 
 data "azurerm_client_config" "current" {}
+
 data "azurerm_key_vault" "key_vault" {
   name                = module.global.key_vault_name
-  resource_group_name = module.global.rg_name
+  resource_group_name = azapi_resource.env.name
 
   depends_on = [module.global]
 }
 ephemeral "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks_workspace_resource_id"
+  name         = "databricks-workspace-resource-id"
 }
 
 ephemeral "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks_workspace_url"
+  name         = "databricks-workspace-url"
 }
 
 locals {
-  environment = var.environment
-  name        = azapi_resource.env.name
-  region      = "West US 2"
-  app_name    = "azureadmin"
-  domain      = "bdatanet.tech"
-  prefix      = "ong"
-  msi_oid     = resource.azapi_resource.identity.output.properties.object_id
-  msi_sid     = resource.azapi_resource.identity.id
-  msi_id      = resource.azapi_resource.identity.output.properties.client_id
+  environment        = var.environment
+  name               = azapi_resource.env.name
+  region             = "Central US"
+  app_name           = "azureadmin"
+  domain             = "bdatanet.tech"
+  prefix             = "ong"
+  controlid_name     = "assemblymanager"
+  environmentid_name = "assemblymanager"
+
 }
 
-resource "random_string" "staging" {
+resource "random_string" "production" {
   length  = 15
   lower   = true
   numeric = true
@@ -47,11 +48,10 @@ resource "azapi_resource" "env" {
   location = local.region
   name     = "${random_pet.rg_name.id}-${var.environment}"
 
-  depends_on = [data.azurerm_user_assigned_identity.home]
 }
 
 resource "azapi_resource" "identity" {
-  type      = "Microsoft.ManagedIdentity/userAssignedIdentities@2023-06-01"
+  type      = "Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview"
   location  = local.region
   name      = "service-account"
   parent_id = azapi_resource.env.id
@@ -68,13 +68,13 @@ module "global" {
   source = "../global"
 
   # Input Variables
-  rg_name  = azapi_resource.env.name
-  location = local.region
-  # key_name = "prod_"
-  prefix      = local.prefix
-  environment = local.name
-
-
+  rg_name            = azapi_resource.env.name
+  location           = local.region
+  key_name           = "prod_"
+  prefix             = local.prefix
+  environment        = local.name
+  environmentid_name = local.environmentid_name
+  github_email       = var.github_email
 }
 
 
@@ -82,28 +82,20 @@ module "global" {
 module "data-workflow" {
   source = "../modules/stream-analytics"
   # Input Variables
-  environment    = local.environment
-  location       = local.region
-  prefix         = local.prefix
-  owner          = "architect"
-  team           = var.team
-  rg_parent_id   = azapi_resource.env.parent_id
-  identity_id    = local.msi_id
-  identity_objid = local.msi_oid
-  identity_subid = local.msi_sid
-  key_vault      = module.global.key_vault_name
-  rg_name        = local.name
+  environment        = local.environment
+  location           = local.region
+  prefix             = local.prefix
+  owner              = "architect"
+  team               = var.team
+  rg_parent_id       = azapi_resource.env.parent_id
+  environmentid_name = local.environmentid_name
+  controlid_name     = local.controlid_name
+  rg_name            = local.name
+  key_vault          = module.global.key_vault_name
 
 
   depends_on = [module.global]
 }
-
-# import {
-#   to = module.databricks.databricks_external_location.some
-#    id = "external"
-# }
-
-
 
 module "databricks" {
   source = "../modules/databricks"
@@ -114,33 +106,26 @@ module "databricks" {
   prefix                          = local.prefix
   owner                           = "architect"
   team                            = var.team
-  rg_name                         = azapi_resource.env.name
   rg_parent_id                    = azapi_resource.env.parent_id
-  identity_objid                  = local.msi_oid
-  identity_clientid               = local.msi_id
-  identity_subid                  = local.msi_sid
+  controlid_name                  = local.controlid_name
+  environmentid_name              = local.environmentid_name
   storage_account                 = module.data-workflow.storage_account_name
   storage_container               = module.data-workflow.storage_container_name
   service_connector               = module.data-workflow.databricks_service_connector
   cluster_autotermination_minutes = 60
   cluster_num_workers             = 1
   cluster_data_security_mode      = "USER_ISOLATION"
-  jobsource_url                   = var.jobsource_url
-  github_email                    = var.github_email
+  key_vault                       = module.global.key_vault_name
   github_pat                      = var.github_pat
   github_username                 = var.github_username
+  github_email                    = var.github_email
+  jobsource_url                   = var.jobsource_url
+  slack_key                       = var.slack_key
   workspace_name                  = module.data-workflow.databricks_workspace_name
-  key_vault                       = module.global.key_vault_name
+  rg_name                         = local.name
+
+  depends_on = [module.data-workflow]
 
 
-  depends_on = [module.global, module.data-workflow]
-}
-
-output "rg_name" {
-  value = azapi_resource.env.name
-}
-
-output "databricks_workspace_resource_id" {
-  value = module.data-workflow.databricks_workspace_resource_id
 }
 

@@ -1,14 +1,5 @@
 # Environment Variables
 
-variable "backend_storage" {
-  description = "storage account name for terraform state storage"
-  type        = string
-}
-
-variable "backend_container" {
-  description = "storage container name for terraform state storage"
-  type        = string
-}
 
 variable "team" {
   description = "resource group management team"

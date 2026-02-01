@@ -27,8 +27,6 @@ locals {
   prefix             = "ong"
   controlid_name     = "assemblymanager"
   environmentid_name = "assemblymanager"
-  backend_storage    = var.backend_storage
-  backend_container  = var.backend_container
 
 }
 
