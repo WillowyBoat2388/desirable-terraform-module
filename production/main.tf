@@ -4,7 +4,7 @@ data "azurerm_client_config" "current" {}
 
 data "azurerm_key_vault" "key_vault" {
   name                = module.global.key_vault_name
-  resource_group_name = module.global.rg_name
+  resource_group_name = azapi_resource.env.name
 
   depends_on = [module.global]
 }

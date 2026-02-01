@@ -7,7 +7,7 @@
 #   value = azurerm_container_registry.app_registry.admin_password
 # }
 
-output "azurerm_key_vault_name" {
+output "key_vault_name" {
   value = azurerm_key_vault.vault.name
 }
 
