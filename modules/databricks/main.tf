@@ -435,7 +435,7 @@ resource "databricks_job" "bidaily_batch_pull" {
     rules {
       metric = "RUN_DURATION_SECONDS"
       op     = "GREATER_THAN"
-      value  = 3600
+      value  = 1200
     }
   }
 
