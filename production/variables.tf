@@ -11,3 +11,29 @@ variable "environment" {
   type        = string
   default     = "production"
 }
+
+variable "github_pat" {
+  description = "github personal access token"
+  sensitive   = true
+}
+
+variable "github_username" {
+  description = "github username for job source"
+}
+
+variable "github_email" {
+  description = "github email for job source"
+}
+
+variable "jobsource_url" {
+  description = "github job source url"
+}
+
+variable "slack_key" {
+  description = "slack webhook key"
+  sensitive   = true
+}
+
+
+
+

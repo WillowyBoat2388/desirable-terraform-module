@@ -11,6 +11,10 @@ resource "random_string" "cluster_name" {
 
 }
 
+data "azurerm_user_assigned_identity" "identity" {
+  name                = var.environmentid_name
+  resource_group_name = "assembly"
+}
 
 data "azurerm_key_vault" "vault" {
   name                = var.key_vault
@@ -114,7 +118,7 @@ resource "databricks_storage_credential" "ong_cred" {
   # purpose = "SERVICE"
   comment = "Managed identity storage credential managed by TF"
   azure_managed_identity {
-    managed_identity_id = var.identity_subid
+    managed_identity_id = data.azurerm_user_assigned_identity.identity.id
     access_connector_id = var.service_connector
   }
 
@@ -313,16 +317,16 @@ resource "databricks_job" "telemetry_stream" {
   # }
 
   email_notifications {
-    on_failure                             = ["onidajo99@gmail.com"]
-    on_duration_warning_threshold_exceeded = ["onidajo99@gmail.com"]
+    on_failure                             = [var.github_email]
+    on_duration_warning_threshold_exceeded = [var.github_email]
   }
 
   webhook_notifications {
     on_failure {
-      id = "onidajo99@gmail.com"
+      id = var.slack_key
     }
     on_duration_warning_threshold_exceeded {
-      id = "onidajo99@gmail.com"
+      id = var.slack_key
     }
   }
 

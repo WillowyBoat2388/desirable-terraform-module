@@ -90,7 +90,7 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
   storage_account_name      = azurerm_storage_account.storage_account.name
   storage_account_key       = azurerm_storage_account.storage_account.primary_access_key
   storage_container_name    = azurerm_storage_container.analytics_container.name
-  path_pattern              = "analytics/output/{date}/{time}"
+  path_pattern              = "analytics/output/{partition_identity}/{date}/{time}"
   date_format               = "yyyy-MM-dd"
   time_format               = "HH"
   batch_min_rows            = 10000
@@ -114,3 +114,4 @@ resource "azurerm_stream_analytics_job_schedule" "now" {
     azurerm_stream_analytics_output_blob.job_output,
   ]
 }
+

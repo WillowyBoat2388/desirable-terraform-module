@@ -34,20 +34,20 @@ variable "rg_parent_id" {
   type        = string
 }
 
-variable "identity_subid" {
-  description = "id of the user-assigned identity for"
+variable "environmentid_name" {
+  description = "name of the managed identity created in the environment"
   type        = string
 }
 
-variable "identity_clientid" {
-  description = "managed identity client id"
+variable "controlid_name" {
+  description = "orchestrating managed identity name"
   type        = string
 }
 
-variable "identity_objid" {
-  description = "managed identity object id"
-  type        = string
-}
+# variable "identity_objid" {
+#   description = "managed identity object id"
+#   type        = string
+# }
 
 variable "cluster_autotermination_minutes" {}
 variable "cluster_num_workers" {}
@@ -80,7 +80,6 @@ variable "storage_account" {
 
 variable "github_pat" {
   description = "The github personal access token for git repo integration"
-  type        = string
   sensitive   = true
 }
 
@@ -98,6 +97,13 @@ variable "github_email" {
   description = "The email for the github user"
   type        = string
 }
+
+variable "slack_key" {
+  description = "The slack webhook key"
+  sensitive   = true
+}
+
+
 
 variable "key_vault" {
   description = "keyvault name for retrieving environment secrets"

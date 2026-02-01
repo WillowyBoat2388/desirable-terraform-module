@@ -19,10 +19,12 @@ permissions:
   contents: read
 
 #These environment variables are used by the terraform azure provider to setup OIDD authenticate. 
-# env:
-  # ARM_OIDC_TOKEN: {{}}
-  # ARM_USE_MSI: true
-
+env:
+  TF_VAR_github_pat: ${{ secrets.PAT }}
+  TF_VAR_github_username: ${{ vars.USERNAME }}
+  TF_VAR_github_email: ${{ vars.EMAIL }}
+  TF_VAR_jobsource_url: ${{ vars.SOURCE }}
+  TF_VAR_slack_key: ${{ secrets.SLACK_KEY }}
     
       
 jobs:
@@ -69,6 +71,15 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      # Validate terraform files
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      # Will fail the build if not
+      - name: Terraform Format
+        run: terraform fmt -check
+      
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Done

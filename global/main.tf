@@ -202,8 +202,13 @@ resource "random_string" "azurerm_key_vault_name" {
   depends_on = [azurerm_virtual_network.rg_vnet]
 }
 
+data "azurerm_user_assigned_identity" "home" {
+  name                = var.environmentid_name
+  resource_group_name = var.environment
+}
+
 locals {
-  current_user_id = coalesce(var.msi_id, data.azurerm_client_config.current.object_id)
+  current_user_id = coalesce(data.azurerm_user_assigned_identity.home.client_id, data.azurerm_client_config.current.object_id)
 }
 
 resource "azurerm_key_vault" "vault" {

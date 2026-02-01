@@ -29,20 +29,20 @@ variable "rg_parent_id" {
   type        = string
 }
 
-variable "identity_subid" {
-  description = "subscription id of the user-assigned identity for"
+variable "environmentid_name" {
+  description = "name of the managed identity created within the environment"
   type        = string
 }
 
-variable "identity_id" {
-  description = "managed identity object id"
+variable "controlid_name" {
+  description = "name of the managed identity automating deployment of the environment"
   type        = string
 }
 
-variable "identity_objid" {
-  description = "managed identity object id"
-  type        = string
-}
+# variable "identity_objid" {
+#   description = "managed identity object id"
+#   type        = string
+# }
 
 variable "number_of_streaming_units" {
   type        = number

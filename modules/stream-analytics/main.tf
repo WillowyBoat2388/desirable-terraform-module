@@ -4,6 +4,24 @@ data "azurerm_key_vault" "vault" {
   resource_group_name = var.rg_name
 }
 
+data "azurerm_user_assigned_identity" "environmentid" {
+  name                = var.environmentid_name
+  resource_group_name = "assembly"
+}
+
+locals {
+  tags = {
+    Environment  = var.environment
+    team         = var.team
+    owner        = var.owner
+    subscription = var.rg_parent_id
+  }
+  identity_objid = data.azurerm_user_assigned_identity.environmentid.principal_id
+  identity_subid = data.azurerm_user_assigned_identity.environmentid.id
+}
+
+
+
 # Generate a random integer to create a globally unique name
 resource "random_integer" "uid" {
   min = 10000
@@ -34,10 +52,7 @@ resource "azurerm_storage_account" "storage_account" {
   resource_group_name             = var.rg_name
   shared_access_key_enabled       = true
   table_encryption_key_type       = "Service"
-  tags = {
-    environment = var.environment
-    team        = var.team
-  }
+  tags                            = local.tags
   blob_properties {
     change_feed_enabled      = false
     default_service_version  = "2023-01-03"
@@ -62,98 +77,14 @@ resource "azurerm_storage_account" "storage_account" {
 resource "azurerm_role_assignment" "storageAccountRoleAssignment" {
   scope                = azurerm_storage_account.storage_account.id
   role_definition_name = "Storage Account Contributor"
-  principal_id         = var.identity_objid
+  principal_id         = local.identity_objid
 }
 
 resource "azurerm_role_assignment" "storageAccountRoleAssignment2" {
   scope                = azurerm_storage_account.storage_account.id
   role_definition_name = "Storage Blob Data Owner"
-  principal_id         = var.identity_objid
+  principal_id         = local.identity_objid
 }
-
-resource "azurerm_storage_data_lake_gen2_filesystem" "adls_gen2" {
-  name               = "example"
-  storage_account_id = azurerm_storage_account.storage_account.id
-  ace {
-    type        = "user"
-    permissions = "rwx"
-  }
-  ace {
-    type        = "user"
-    id          = var.identity_id
-    permissions = "--x"
-  }
-  ace {
-    type        = "group"
-    permissions = "r-x"
-  }
-  ace {
-    type        = "mask"
-    permissions = "r-x"
-  }
-  ace {
-    type        = "other"
-    permissions = "---"
-  }
-  depends_on = [
-    azurerm_role_assignment.storageAccountRoleAssignment
-  ]
-}
-
-resource "azurerm_storage_data_lake_gen2_path" "adls_gen2_path" {
-  storage_account_id = azurerm_storage_account.storage_account.id
-  filesystem_name    = azurerm_storage_data_lake_gen2_filesystem.adls_gen2.name
-  path               = "storage"
-  resource           = "directory"
-  ace {
-    type        = "user"
-    permissions = "r-x"
-  }
-  ace {
-    type        = "user"
-    id          = var.identity_id
-    permissions = "r-x"
-  }
-  ace {
-    type        = "group"
-    permissions = "-wx"
-  }
-  ace {
-    type        = "mask"
-    permissions = "--x"
-  }
-  ace {
-    type        = "other"
-    permissions = "--x"
-  }
-  ace {
-    scope       = "default"
-    type        = "user"
-    permissions = "r-x"
-  }
-  ace {
-    scope       = "default"
-    type        = "user"
-    id          = var.identity_id
-    permissions = "r-x"
-  }
-  ace {
-    scope       = "default"
-    type        = "group"
-    permissions = "-wx"
-  }
-  ace {
-    scope       = "default"
-    type        = "mask"
-    permissions = "--x"
-  }
-  ace {
-    scope       = "default"
-    type        = "other"
-    permissions = "--x"
-  }
-}
-
 
 data "azurerm_resource_group" "resourceGroup" {
 
@@ -326,7 +257,7 @@ resource "azurerm_databricks_access_connector" "service_connector" {
 
   identity {
     type         = "UserAssigned"
-    identity_ids = [var.identity_subid]
+    identity_ids = [local.identity_subid]
   }
 
   tags = local.tags
@@ -393,7 +324,7 @@ resource "azapi_resource" "roleAssignment4" {
   parent_id = azurerm_storage_container.analytics_container.id
   body = {
     properties = {
-      principalId      = var.identity_objid
+      principalId      = local.identity_objid
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleDataOwner.id
     }
@@ -417,7 +348,7 @@ resource "azapi_resource" "roleAssignment5" {
   parent_id = azurerm_storage_container.analytics_container.id
   body = {
     properties = {
-      principalId      = var.identity_objid
+      principalId      = local.identity_objid
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleQueueContributor.id
     }
@@ -441,7 +372,7 @@ resource "azapi_resource" "roleAssignment6" {
   parent_id = data.azurerm_resource_group.resourceGroup.id
   body = {
     properties = {
-      principalId      = var.identity_objid
+      principalId      = local.identity_objid
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleEventContributor.id
     }
@@ -465,7 +396,7 @@ resource "azapi_resource" "roleAssignment3" {
   parent_id = azurerm_storage_account.storage_account.id
   body = {
     properties = {
-      principalId      = var.identity_objid
+      principalId      = local.identity_objid
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleConnectorContributor.id
     }
@@ -488,7 +419,7 @@ resource "azapi_resource" "roleAssignment2" {
   parent_id = data.azurerm_resource_group.resourceGroup.id
   body = {
     properties = {
-      principalId      = var.identity_objid
+      principalId      = local.identity_objid
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleContributor.id
     }
