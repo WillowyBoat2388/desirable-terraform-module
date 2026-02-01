@@ -234,7 +234,7 @@ resource "databricks_job" "telemetry_stream" {
   name        = "well-telemetry-stream-pull"
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
   run_as {
-    service_principal_name = var.controlid_name
+    service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
   job_cluster {
@@ -344,7 +344,7 @@ resource "databricks_job" "bidaily_batch_pull" {
   name        = "bidaily-batch-pull"
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
   run_as {
-    service_principal_name = var.controlid_name
+    service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
   job_cluster {
