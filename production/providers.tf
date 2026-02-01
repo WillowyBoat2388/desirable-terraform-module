@@ -53,11 +53,11 @@ provider "azurerm" {
 }
 provider "azapi" {}
 
-provider "databricks" {
-  host                        = data.azurerm_key_vault_secret.databricks_workspace_url.value
-  azure_workspace_resource_id = data.azurerm_key_vault_secret.databricks_workspace_id.value
-  # auth_type                   = "azure-cli"
+# provider "databricks" {
+#   host                        = data.azurerm_key_vault_secret.databricks_workspace_url.value
+#   azure_workspace_resource_id = data.azurerm_key_vault_secret.databricks_workspace_id.value
+#   # auth_type                   = "azure-cli"
 
-}
+# }
 
 
