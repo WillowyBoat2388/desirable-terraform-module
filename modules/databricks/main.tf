@@ -52,6 +52,10 @@ data "databricks_node_type" "smallest" {
 
 data "databricks_catalogs" "this" {}
 
+data "databricks_catalog" "this" {
+  name = lower(replace(var.workspace_name, "-", "_"))
+}
+
 data "databricks_current_metastore" "this" {
 
   depends_on = [data.databricks_spark_version.latest_lts]
@@ -321,7 +325,7 @@ resource "databricks_job" "telemetry_stream" {
     rules {
       metric = "RUN_DURATION_SECONDS"
       op     = "GREATER THAN"
-      value  = 3600
+      value  = 1200
     }
   }
 
