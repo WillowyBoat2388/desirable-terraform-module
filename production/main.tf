@@ -25,8 +25,8 @@ locals {
   app_name           = "azureadmin"
   domain             = "bdatanet.tech"
   prefix             = "ong"
-  controlid_name     = "assembly_manager"
-  environmentid_name = "assembly_manager"
+  controlid_name     = "assemblymanager"
+  environmentid_name = "assemblymanager"
   backend_storage    = var.backend_storage
   backend_container  = var.backend_container
 
