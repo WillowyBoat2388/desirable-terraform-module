@@ -229,8 +229,8 @@ resource "azurerm_key_vault" "vault" {
   soft_delete_retention_days = 7
 
   access_policy {
-    tenant_id      = data.azurerm_user_assigned_identity.home.tenant_id
-    object_id      = data.azurerm_user_assigned_identity.home.principal_id
+    tenant_id = data.azurerm_user_assigned_identity.home.tenant_id
+    object_id = data.azurerm_user_assigned_identity.home.principal_id
 
     key_permissions     = var.key_permissions
     secret_permissions  = var.secret_permissions
