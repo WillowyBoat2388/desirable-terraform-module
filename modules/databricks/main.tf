@@ -155,7 +155,7 @@ resource "databricks_external_location" "ong_data_stream" {
 
 resource "databricks_volume" "sensorstream" {
   name             = "ong_sensorstream"
-  catalog_name     = data.databricks_catalogs.this.ids[0]
+  catalog_name     = data.databricks_catalogs.this.ids
   schema_name      = "default"
   volume_type      = "EXTERNAL"
   storage_location = "${databricks_external_location.ong_data_stream.url}/analytics"
@@ -164,7 +164,7 @@ resource "databricks_volume" "sensorstream" {
 
 resource "databricks_volume" "checkPoints" {
   name         = "checkpoints"
-  catalog_name = data.databricks_catalogs.this.ids[0]
+  catalog_name = data.databricks_catalogs.this.ids
   schema_name  = "default"
   volume_type  = "MANAGED"
   comment      = "this volume is managed by terraform"
@@ -172,7 +172,7 @@ resource "databricks_volume" "checkPoints" {
 
 resource "databricks_schema" "bronze_layer" {
   name         = "landing"
-  catalog_name = data.databricks_catalogs.this.ids[0]
+  catalog_name = data.databricks_catalogs.this.ids
   properties = {
     kind = "various"
   }
@@ -181,7 +181,7 @@ resource "databricks_schema" "bronze_layer" {
 
 resource "databricks_schema" "bronze_layer2" {
   name         = "raw"
-  catalog_name = data.databricks_catalogs.this.ids[0]
+  catalog_name = data.databricks_catalogs.this.ids
   properties = {
     kind = "various"
   }
