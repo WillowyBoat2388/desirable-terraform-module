@@ -316,6 +316,9 @@ resource "azapi_resource" "roleAssignment4" {
       roleDefinitionId = data.azurerm_role_definition.roleDataOwner.id
     }
   }
+  lifecycle {
+    ignore_changes = [name]
+  }
 
   depends_on = [azurerm_storage_container.analytics_container]
 }
@@ -339,6 +342,9 @@ resource "azapi_resource" "roleAssignment5" {
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleQueueContributor.id
     }
+  }
+  lifecycle {
+    ignore_changes = [name]
   }
 
   depends_on = [azurerm_storage_container.analytics_container]
@@ -364,6 +370,9 @@ resource "azapi_resource" "roleAssignment6" {
       roleDefinitionId = data.azurerm_role_definition.roleEventContributor.id
     }
   }
+  lifecycle {
+    ignore_changes = [name]
+  }
 
   depends_on = [azapi_resource.workspace]
 }
@@ -388,7 +397,9 @@ resource "azapi_resource" "roleAssignment3" {
       roleDefinitionId = data.azurerm_role_definition.roleConnectorContributor.id
     }
   }
-
+  lifecycle {
+    ignore_changes = [name]
+  }
   depends_on = [azurerm_storage_account.storage_account]
 }
 
@@ -410,6 +421,9 @@ resource "azapi_resource" "roleAssignment2" {
       principalType    = "ServicePrincipal"
       roleDefinitionId = data.azurerm_role_definition.roleContributor.id
     }
+  }
+  lifecycle {
+    ignore_changes = [name]
   }
 
 }

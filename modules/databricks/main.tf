@@ -149,19 +149,21 @@ resource "databricks_external_location" "ong_data_stream" {
     data.databricks_current_metastore.this, databricks_storage_credential.ong_cred
   ]
 
-  force_destroy = true
+  # force_destroy = true
   lifecycle {
     create_before_destroy = true
   }
 }
 
 resource "databricks_volume" "sensorstream" {
-  name             = "ong_sensorstream"
-  catalog_name     = data.databricks_catalog.this.name
-  schema_name      = "default"
-  volume_type      = "EXTERNAL"
-  storage_location = "${databricks_external_location.ong_data_stream.url}/analytics"
-  comment          = "this volume is managed by terraform"
+  name         = "ong_sensorstream"
+  catalog_name = data.databricks_catalog.this.name
+  schema_name  = "default"
+  volume_type  = "EXTERNAL"
+  storage_location = "${format("abfss://%s@%s.dfs.core.windows.net",
+    var.storage_container,
+  var.storage_account)}/analytics"
+  comment = "this volume is managed by terraform"
 }
 
 resource "databricks_volume" "checkPoints" {
@@ -232,7 +234,7 @@ resource "databricks_job" "telemetry_stream" {
   name        = "well-telemetry-stream-pull"
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
   run_as {
-    service_principal_name = "service-account"
+    service_principal_name = var.controlid_name
   }
 
   job_cluster {
@@ -342,7 +344,7 @@ resource "databricks_job" "bidaily_batch_pull" {
   name        = "bidaily-batch-pull"
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
   run_as {
-    service_principal_name = "service-account"
+    service_principal_name = var.controlid_name
   }
 
   job_cluster {
