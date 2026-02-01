@@ -1,5 +1,10 @@
 
 
+data "azurerm_user_assigned_identity" "home" {
+  name                = var.environmentid_name
+  resource_group_name = "assembly"
+}
+
 data "azurerm_client_config" "current" {}
 
 data "azurerm_resource_group" "resourceGroup" {
@@ -203,11 +208,6 @@ resource "random_string" "azurerm_key_vault_name" {
   }
 
   depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-data "azurerm_user_assigned_identity" "home" {
-  name                = var.environmentid_name
-  resource_group_name = var.environment
 }
 
 locals {
