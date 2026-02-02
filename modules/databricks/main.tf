@@ -263,7 +263,10 @@ resource "databricks_job" "telemetry_stream" {
 
   parameter {
     name    = "source_list"
-    default = "['well-telemetry', 'facility-telemetry', 'equipment-events']"
+    default = <<EOF
+        ["well-telemetry", "facility-telemetry", "equipment-events"]
+  EOF
+
   }
 
   task {
@@ -292,7 +295,7 @@ resource "databricks_job" "telemetry_stream" {
     }
 
     for_each_task {
-      inputs = "{{ job.parameters.source_list }}"
+      inputs = "{{job.parameters.source_list}}"
       task {
         task_key = "rawzone_loading_iteration"
 
@@ -382,7 +385,7 @@ resource "databricks_job" "bidaily_batch_pull" {
 
 
     for_each_task {
-      inputs = "{{ job.parameters.source_list }}"
+      inputs = "{{job.parameters.source_list}}"
       task {
         task_key = "data_stream_wrangle_iteration"
 
