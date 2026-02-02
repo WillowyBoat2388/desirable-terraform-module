@@ -216,14 +216,14 @@ resource "databricks_schema" "bronze_layer2" {
 resource "databricks_git_credential" "workspacejobs-source" {
   git_username          = var.github_username
   git_email             = var.github_email
-  git_provider          = "github"
+  git_provider          = "gitHub"
   personal_access_token = var.github_pat
 }
 
 
 resource "databricks_repo" "git_integration" {
   url          = var.jobsource_url
-  path         = local.repo_source
+  path         = "${local.repo_source}/"
   depends_on   =  [resource.databricks_git_credential.workspacejobs-source]
 }
 
