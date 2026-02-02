@@ -377,7 +377,10 @@ resource "databricks_job" "bidaily_batch_pull" {
 
   parameter {
     name    = "source_list"
-    default = "['reservoir', 'wellbore']"
+    default = <<EOF
+        ["reservoir", "wellbore"]
+  EOF
+
   }
 
   task {
