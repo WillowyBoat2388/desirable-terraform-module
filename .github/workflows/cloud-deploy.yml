@@ -365,4 +365,4 @@ jobs:
 
       - name: Terraform Output to file
         run: 
-          terraform output -raw -json | jq '.' > outputs.json
+          terraform output -raw | jq '.' > outputs.json

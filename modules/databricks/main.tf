@@ -274,7 +274,8 @@ resource "databricks_job" "telemetry_stream" {
 
 
     for_each_task {
-      inputs = "{{ job.parameters.source_list }}"
+      concurrency = 5
+      inputs      = "{{ job.parameters.source_list }}"
       task {
         task_key = "data_stream_wrangle_iteration"
 
@@ -296,7 +297,8 @@ resource "databricks_job" "telemetry_stream" {
     }
 
     for_each_task {
-      inputs = "{{job.parameters.source_list}}"
+      concurrency = 5
+      inputs      = "{{job.parameters.source_list}}"
       task {
         task_key = "rawzone_loading_iteration"
 
@@ -386,7 +388,8 @@ resource "databricks_job" "bidaily_batch_pull" {
 
 
     for_each_task {
-      inputs = "{{job.parameters.source_list}}"
+      concurrency = 5
+      inputs      = "{{job.parameters.source_list}}"
       task {
         task_key = "data_stream_wrangle_iteration"
 
@@ -408,7 +411,8 @@ resource "databricks_job" "bidaily_batch_pull" {
     }
 
     for_each_task {
-      inputs = "{{ job.parameters.source_list }}"
+      concurrency = 5
+      inputs      = "{{ job.parameters.source_list }}"
       task {
         task_key = "rawzone_loading_iteration"
 
