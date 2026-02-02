@@ -139,10 +139,8 @@ resource "databricks_secret_scope" "kv" {
 
 
 resource "databricks_external_location" "ong_data_stream" {
-  name = "analytics_data_stream"
-  url = format("abfss://%s@%s.dfs.core.windows.net",
-    var.storage_container,
-  var.storage_account)
+  name            = "analytics_data_stream"
+  url             = local.external
   credential_name = databricks_storage_credential.ong_cred.id
   comment         = "Managed by TF"
   depends_on = [
@@ -156,14 +154,12 @@ resource "databricks_external_location" "ong_data_stream" {
 }
 
 resource "databricks_volume" "sensorstream" {
-  name         = "ong_sensorstream"
-  catalog_name = data.databricks_catalog.this.name
-  schema_name  = "default"
-  volume_type  = "EXTERNAL"
-  storage_location = "${format("abfss://%s@%s.dfs.core.windows.net",
-    var.storage_container,
-  var.storage_account)}/analytics"
-  comment = "this volume is managed by terraform"
+  name             = "ong_sensorstream"
+  catalog_name     = data.databricks_catalog.this.name
+  schema_name      = "default"
+  volume_type      = "EXTERNAL"
+  storage_location = "${local.external}/analytics"
+  comment          = "this volume is managed by terraform"
 }
 
 resource "databricks_volume" "checkPoints" {
@@ -469,6 +465,100 @@ resource "databricks_job" "bidaily_batch_pull" {
 }
 
 
+resource "databricks_job" "daily_prod_pull" {
+  name        = "daily-prod-pull"
+  description = "This job pulls in from Kafka-sink to landing and raw zone."
+  run_as {
+    service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
+  }
+
+  job_cluster {
+    job_cluster_key = "daily_cluster"
+    new_cluster {
+      num_workers   = 2
+      spark_version = data.databricks_spark_version.latest_lts.id
+      node_type_id  = data.databricks_node_type.smallest.id
+    }
+  }
+
+  trigger {
+    file_arrival {
+      url = "${local.external}/analytics/output/production-daily-data/"
+    }
+  }
+
+
+  task {
+    task_key = "data_stream_wrangle"
+
+
+    job_cluster_key = "daily_cluster"
+
+    spark_python_task {
+      python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
+      parameters  = ["production_daily_data"]
+    }
+  }
+
+  task {
+    task_key = "rawzone_loading"
+    //this task will only run after task a
+    depends_on {
+      task_key = "data_stream_wrangle"
+    }
+
+
+    job_cluster_key = "daily_cluster"
+
+    spark_python_task {
+      python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
+      parameters  = ["production-daily-data"]
+    }
+  }
+
+  # task {
+  #   task_key = "c"
+
+  #   job_cluster_key = job_cluster_key
+
+  #   spark_jar_task {
+  #     script_path = databricks_notebook.this.path
+  #   }
+  # }
+
+  email_notifications {
+    on_failure                             = ["onidajo99@gmail.com"]
+    on_duration_warning_threshold_exceeded = ["onidajo99@gmail.com"]
+  }
+
+  webhook_notifications {
+    on_failure {
+      id = databricks_notification_destination.slack.id
+    }
+    on_duration_warning_threshold_exceeded {
+      id = databricks_notification_destination.slack.id
+    }
+  }
+
+  health {
+    rules {
+      metric = "RUN_DURATION_SECONDS"
+      op     = "GREATER_THAN"
+      value  = 1200
+    }
+  }
+
+  tags = local.tags
+
+
+
+
+  edit_mode = "UI_LOCKED"
+
+
+}
+
+
 locals {
   tags = {
     Environment  = var.environment
@@ -477,5 +567,8 @@ locals {
     subscription = var.rg_parent_id
   }
   repo_source = "/Shared/wellanalysisstream"
+  external = format("abfss://%s@%s.dfs.core.windows.net",
+    var.storage_container,
+  var.storage_account)
 }
 
