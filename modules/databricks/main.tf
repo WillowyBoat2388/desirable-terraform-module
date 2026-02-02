@@ -222,8 +222,9 @@ resource "databricks_git_credential" "workspacejobs-source" {
 
 
 resource "databricks_repo" "git_integration" {
-  url  = var.jobsource_url
-  path = local.repo_source
+  url          = var.jobsource_url
+  path         = local.repo_source
+  depends_on   =  [resource.databricks_git_credential.workspacejobs-source]
 }
 
 resource "databricks_notification_destination" "slack" {
