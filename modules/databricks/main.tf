@@ -282,6 +282,7 @@ resource "databricks_job" "telemetry_stream" {
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
+          parameters  = ["{{input}}"]
         }
       }
     }
@@ -471,6 +472,6 @@ locals {
     owner        = var.owner
     subscription = var.rg_parent_id
   }
-  repo_source = "/${var.workspace_name}/Shared/wellanalysisstream"
+  repo_source = "/Shared/wellanalysisstream"
 }
 
