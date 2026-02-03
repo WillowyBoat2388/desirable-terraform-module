@@ -42,8 +42,8 @@ data "databricks_spark_version" "latest_lts" {
 # Create the cluster with the "smallest" amount
 # of resources allowed.
 data "databricks_node_type" "smallest" {
-
-  local_disk = true
+  # category   = "Memory Optimized"
+  # local_disk = true
   provider_config {
     workspace_id = data.azurerm_databricks_workspace.workspace.workspace_id
   }
