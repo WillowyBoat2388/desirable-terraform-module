@@ -293,11 +293,11 @@ resource "databricks_job" "telemetry_stream" {
     for_each_task {
       concurrency = 2
       inputs      = "{{ job.parameters.source_list }}"
-      max_retries = 1
       task {
         task_key = "data_stream_wrangle_iteration"
 
         job_cluster_key = random_string.cluster_name.result
+        max_retries = 1
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
@@ -317,11 +317,11 @@ resource "databricks_job" "telemetry_stream" {
     for_each_task {
       concurrency = 3
       inputs      = "{{job.parameters.source_list}}"
-      max_retries = 1
       task {
         task_key = "rawzone_loading_iteration"
 
         job_cluster_key = random_string.cluster_name.result
+        max_retries = 1
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
@@ -414,11 +414,11 @@ resource "databricks_job" "bidaily_batch_pull" {
     for_each_task {
       concurrency = 2
       inputs      = "{{job.parameters.source_list}}"
-      max_retries = 1
       task {
         task_key = "data_stream_wrangle_iteration"
 
         job_cluster_key = "shared_cluster"
+        max_retries = 1
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
@@ -438,11 +438,11 @@ resource "databricks_job" "bidaily_batch_pull" {
     for_each_task {
       concurrency = 2
       inputs      = "{{ job.parameters.source_list }}"
-      max_retries = 1
       task {
         task_key = "rawzone_loading_iteration"
 
         job_cluster_key = "shared_cluster"
+        max_retries = 1
 
         spark_python_task {
           python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_raw_zone.py"
@@ -524,7 +524,8 @@ resource "databricks_job" "daily_prod_pull" {
   task {
     task_key = "data_stream_wrangle"
 
-
+  
+    max_retries = 1
     job_cluster_key = "daily_cluster"
 
     spark_python_task {
@@ -540,7 +541,8 @@ resource "databricks_job" "daily_prod_pull" {
       task_key = "data_stream_wrangle"
     }
 
-
+    
+    max_retries = 1
     job_cluster_key = "daily_cluster"
 
     spark_python_task {
