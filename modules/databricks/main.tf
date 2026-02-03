@@ -185,7 +185,25 @@ resource "databricks_schema" "bronze_layer2" {
   properties = {
     kind = "various"
   }
+  comment = "this schema is managed by terraform"
+}
+
+resource "databricks_schema" "silver" {
+  name         = "base"
+  catalog_name = data.databricks_catalog.this.name
+  properties = {
+    kind = "various"
+  }
   comment = "this volume is managed by terraform"
+}
+
+resource "databricks_schema" "gold" {
+  name         = "serving"
+  catalog_name = data.databricks_catalog.this.name
+  properties = {
+    kind = "various"
+  }
+  comment = "this schema is managed by terraform"
 }
 # resource "databricks_cluster" "cluster" {
 
@@ -246,7 +264,9 @@ resource "databricks_job" "telemetry_stream" {
   job_cluster {
     job_cluster_key = random_string.cluster_name.result
     new_cluster {
-      num_workers   = 2
+      kind                    = "CLASSIC_PREVIEW"
+      is_single_node          = true
+      num_workers   = 1
       spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
     }
@@ -271,8 +291,9 @@ resource "databricks_job" "telemetry_stream" {
 
 
     for_each_task {
-      concurrency = 5
+      concurrency = 2
       inputs      = "{{ job.parameters.source_list }}"
+      max_retries = 1
       task {
         task_key = "data_stream_wrangle_iteration"
 
@@ -294,8 +315,9 @@ resource "databricks_job" "telemetry_stream" {
     }
 
     for_each_task {
-      concurrency = 5
+      concurrency = 3
       inputs      = "{{job.parameters.source_list}}"
+      max_retries = 1
       task {
         task_key = "rawzone_loading_iteration"
 
@@ -362,7 +384,9 @@ resource "databricks_job" "bidaily_batch_pull" {
   job_cluster {
     job_cluster_key = "shared_cluster"
     new_cluster {
-      num_workers   = 2
+      kind                    = "CLASSIC_PREVIEW"
+      is_single_node          = true
+      num_workers   = 1
       spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
     }
@@ -388,8 +412,9 @@ resource "databricks_job" "bidaily_batch_pull" {
 
 
     for_each_task {
-      concurrency = 5
+      concurrency = 2
       inputs      = "{{job.parameters.source_list}}"
+      max_retries = 1
       task {
         task_key = "data_stream_wrangle_iteration"
 
@@ -411,8 +436,9 @@ resource "databricks_job" "bidaily_batch_pull" {
     }
 
     for_each_task {
-      concurrency = 5
+      concurrency = 2
       inputs      = "{{ job.parameters.source_list }}"
+      max_retries = 1
       task {
         task_key = "rawzone_loading_iteration"
 
@@ -479,7 +505,10 @@ resource "databricks_job" "daily_prod_pull" {
   job_cluster {
     job_cluster_key = "daily_cluster"
     new_cluster {
-      num_workers   = 2
+      kind                    = "CLASSIC_PREVIEW"
+      is_single_node          = true
+      data_security_mode      = var.cluster_data_security_mode
+      num_workers   = 1
       spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
     }
