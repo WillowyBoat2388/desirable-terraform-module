@@ -121,7 +121,10 @@ module "data-workflow" {
   parent             = local.parent
   depends_on         = [module.global]
 }
-
+import {
+  to = module.databricks.ong_cred
+  id = "ong_storage_cred"
+}
 module "databricks" {
   source = "../modules/databricks"
 
