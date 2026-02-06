@@ -14,7 +14,7 @@ locals {
 
 data "azurerm_user_assigned_identity" "home" {
   name                = var.environmentid_name
-  resource_group_name = "assembly"
+  resource_group_name = var.parent
 }
 
 data "azurerm_resource_group" "resourceGroup" {

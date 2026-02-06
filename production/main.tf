@@ -41,7 +41,7 @@ locals {
   environment        = var.environment
   name               = azapi_resource.env.name
   region             = "East US 2"
-  app_name           = "azureadmin"
+  parent             = "floor_zero"
   domain             = "bdatanet.tech"
   prefix             = "ong"
   controlid_name     = "floor_zero_admin"
@@ -99,7 +99,7 @@ module "global" {
   rg_parent_id       = azapi_resource.env.parent_id
   owner              = "architect"
   team               = var.team
-
+  parent             = local.parent
 }
 
 
@@ -118,7 +118,7 @@ module "data-workflow" {
   rg_name            = local.name
   key_vault          = module.global.key_vault_name
   random_integer     = random_integer.uid.result
-
+  parent             = local.parent
   depends_on = [module.global]
 }
 
@@ -148,7 +148,7 @@ module "databricks" {
   slack_key                       = var.slack_key
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
-
+  parent                          = local.parent
   depends_on = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 

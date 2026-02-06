@@ -1,33 +1,53 @@
 
 
+
+# Generate a random integer to create a globally unique name
+resource "random_integer" "uid" {
+  min = 10000
+  max = 99999
+
+  keepers = {
+    constant = local.name
+  }
+
+}
+
+
 data "azurerm_client_config" "current" {}
+
+data "azurerm_databricks_workspace" "databricks_workspace" {
+  name                = "ong_streamWorkspace-${random_integer.uid.result}"
+  resource_group_name = local.name
+}
 
 data "azurerm_key_vault" "key_vault" {
   name                = module.global.key_vault_name
-  resource_group_name = azapi_resource.env.name
+  resource_group_name = local.name
 }
 
 data "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-resource-id"
-
+  depends_on   = [module.data-workflow]
 }
 
 data "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-url"
-
+  depends_on   = [module.data-workflow]
 }
 
 locals {
   environment        = var.environment
   name               = azapi_resource.env.name
-  region             = "Central US"
-  app_name           = "azureadmin"
+  region             = "East US 2"
+  parent             = "floor_zero"
   domain             = "bdatanet.tech"
   prefix             = "ong"
-  controlid_name     = "assemblymanager"
-  environmentid_name = "assemblymanager"
+  controlid_name     = "floor_zero_admin"
+  environmentid_name = "floor_zero_dmin"
+  workspace_id       = can(data.azurerm_databricks_workspace.databricks_workspace.id) ? data.azurerm_databricks_workspace.databricks_workspace.id : data.azurerm_key_vault_secret.databricks_workspace_id.value
+  workspace_url      = data.azurerm_databricks_workspace.databricks_workspace.workspace_url != null ? data.azurerm_databricks_workspace.databricks_workspace.workspace_url : data.azurerm_key_vault_secret.databricks_workspace_url.value
 
 }
 
@@ -69,7 +89,7 @@ module "global" {
   source = "../global"
 
   # Input Variables
-  rg_name            = azapi_resource.env.name
+  rg_name            = local.name
   location           = local.region
   key_name           = "prod_"
   prefix             = local.prefix
@@ -79,7 +99,7 @@ module "global" {
   rg_parent_id       = azapi_resource.env.parent_id
   owner              = "architect"
   team               = var.team
-
+  parent             = local.parent
 }
 
 
@@ -97,8 +117,8 @@ module "data-workflow" {
   controlid_name     = local.controlid_name
   rg_name            = local.name
   key_vault          = module.global.key_vault_name
-
-
+  random_integer     = random_integer.uid.result
+  parent             = local.parent
   depends_on = [module.global]
 }
 
@@ -128,9 +148,11 @@ module "databricks" {
   slack_key                       = var.slack_key
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
-
+  parent                          = local.parent
   depends_on = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 
 }
+
+
 

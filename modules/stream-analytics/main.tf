@@ -6,7 +6,7 @@ data "azurerm_key_vault" "vault" {
 
 data "azurerm_user_assigned_identity" "environmentid" {
   name                = var.environmentid_name
-  resource_group_name = "assembly"
+  resource_group_name = var.parent
 }
 
 locals {

@@ -39,10 +39,10 @@ variable "controlid_name" {
   type        = string
 }
 
-# variable "identity_objid" {
-#   description = "managed identity object id"
-#   type        = string
-# }
+variable "parent" {
+  description = "managed identity resource group"
+  type        = string
+}
 
 variable "number_of_streaming_units" {
   type        = number

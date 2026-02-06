@@ -13,7 +13,7 @@ resource "random_string" "cluster_name" {
 
 data "azurerm_user_assigned_identity" "identity" {
   name                = var.environmentid_name
-  resource_group_name = "assembly"
+  resource_group_name = var.parent
 }
 
 data "azurerm_key_vault" "vault" {
