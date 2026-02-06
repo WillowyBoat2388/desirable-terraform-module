@@ -345,7 +345,7 @@ jobs:
       - name: Terraform Apply Product
         if: steps.tf-apply-plan.outputs.exitcode == 2
         run: 
-          TF_LOG=DEBUG terraform apply -auto-approve tfplan
+          terraform apply -auto-approve tfplan
 
       - name: Terraform Output to file
         run: 
