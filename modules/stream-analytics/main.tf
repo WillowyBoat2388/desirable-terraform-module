@@ -385,7 +385,6 @@ resource "azapi_resource" "roleAssignment6" {
 #   depends_on = [azurerm_storage_account.storage_account]
 # }
 
-
 # resource "azapi_resource" "roleAssignment3" {
 #   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
 #   name      = random_uuid.roleass3.result
