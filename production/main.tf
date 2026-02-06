@@ -40,12 +40,12 @@ data "azurerm_key_vault_secret" "databricks_workspace_url" {
 locals {
   environment        = var.environment
   name               = azapi_resource.env.name
-  region             = "Central US"
+  region             = "East US 2"
   app_name           = "azureadmin"
   domain             = "bdatanet.tech"
   prefix             = "ong"
-  controlid_name     = "assemblymanager"
-  environmentid_name = "assemblymanager"
+  controlid_name     = "floor_zero_admin"
+  environmentid_name = "floor_zero_dmin"
   workspace_id       = can(data.azurerm_databricks_workspace.databricks_workspace.id) ? data.azurerm_databricks_workspace.databricks_workspace.id : data.azurerm_key_vault_secret.databricks_workspace_id.value
   workspace_url      = data.azurerm_databricks_workspace.databricks_workspace.workspace_url != null ? data.azurerm_databricks_workspace.databricks_workspace.workspace_url : data.azurerm_key_vault_secret.databricks_workspace_url.value
 
