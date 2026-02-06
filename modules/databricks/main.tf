@@ -530,7 +530,7 @@ resource "databricks_job" "daily_prod_pull" {
 
     spark_python_task {
       python_file = "${local.repo_source}/bronze_layer_ingest/ingestion_landing_zone.py"
-      parameters  = ["production_daily_data"]
+      parameters  = ["production-daily-data"]
     }
   }
 
