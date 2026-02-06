@@ -122,7 +122,7 @@ module "data-workflow" {
   depends_on         = [module.global]
 }
 import {
-  to = module.databricks.ong_cred
+  to = module.databricks.databricks_storage_credential.ong_cred
   id = "ong_storage_cred"
 }
 module "databricks" {
