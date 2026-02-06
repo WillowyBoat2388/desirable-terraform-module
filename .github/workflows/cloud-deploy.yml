@@ -69,7 +69,7 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}" -reconfigure
+        run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}" -migrate-state
 
       # Validate terraform files
       - name: Terraform Validate
@@ -83,7 +83,7 @@ jobs:
       - name: Terraform Off
         id: tf-off
         run: |    
-          terraform apply -auto-approve -refresh-only
+          terraform apply -auto-approve -destroy -refresh-only
           
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
