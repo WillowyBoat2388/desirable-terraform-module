@@ -81,14 +81,9 @@ jobs:
         run: terraform fmt -check
       
       - name: Terraform Off
-        id: tf-of
-        run: |    
-          terraform apply -auto-approve -refresh-only
-      
-      - name: Terraform Off
         id: tf-off
         run: |    
-          terraform apply -auto-approve -destroy
+          terraform apply -auto-approve -refresh-only
           
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.

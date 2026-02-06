@@ -15,10 +15,10 @@ resource "random_integer" "uid" {
 
 data "azurerm_client_config" "current" {}
 
-# data "azurerm_databricks_workspace" "databricks_workspace" {
-#   name                = "ong_streamWorkspace-${random_integer.uid.result}"
-#   resource_group_name = local.name
-# }
+data "azurerm_databricks_workspace" "databricks_workspace" {
+  name                = "ong_streamWorkspace-${random_integer.uid.result}"
+  resource_group_name = local.name
+}
 
 data "azurerm_key_vault" "key_vault" {
   name                = module.global.key_vault_name
