@@ -377,6 +377,34 @@ resource "azapi_resource" "roleAssignment6" {
   depends_on = [azapi_resource.workspace]
 }
 
+
+# data "azurerm_role_definition" "roleConnectorContributor" {
+#   name  = "Service Connector Contributor"
+#   scope = azurerm_storage_account.storage_account.id
+# 
+#   depends_on = [azurerm_storage_account.storage_account]
+# }
+
+
+# resource "azapi_resource" "roleAssignment3" {
+#   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
+#   name      = random_uuid.roleass3.result
+#   parent_id = azurerm_storage_account.storage_account.id
+#   body = {
+#     properties = {
+#       principalId      = local.identity_objid
+#       principalType    = "ServicePrincipal"
+#       roleDefinitionId = data.azurerm_role_definition.roleConnectorContributor.id
+#     }
+#   }
+#   lifecycle {
+#     ignore_changes = [name]
+#   }
+#   depends_on = [azurerm_storage_account.storage_account]
+# }
+
+
+
 data "azurerm_role_definition" "roleContributor" {
   name  = "Contributor"
   scope = data.azurerm_resource_group.resourceGroup.id
