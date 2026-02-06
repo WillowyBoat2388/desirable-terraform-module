@@ -185,7 +185,7 @@ resource "azurerm_network_interface_security_group_association" "example" {
   network_interface_id      = azurerm_network_interface.rg_nic.id
   network_security_group_id = azurerm_network_security_group.rg_nsg.id
 
-  depends_on = [azurerm_virtual_network.rg_vnet]
+  depends_on = [azurerm_virtual_network.rg_vnet, azurerm_network_interface]
 }
 
 

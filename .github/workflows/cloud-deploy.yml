@@ -83,6 +83,11 @@ jobs:
       - name: Terraform Off
         id: tf-off
         run: |    
+          terraform apply -auto-approve -refresh-only
+      
+      - name: Terraform Off
+        id: tf-off
+        run: |    
           terraform apply -auto-approve -destroy
           
       # Generates an execution plan for Terraform
