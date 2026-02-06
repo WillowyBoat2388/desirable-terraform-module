@@ -119,7 +119,7 @@ module "data-workflow" {
   key_vault          = module.global.key_vault_name
   random_integer     = random_integer.uid.result
   parent             = local.parent
-  depends_on = [module.global]
+  depends_on         = [module.global]
 }
 
 module "databricks" {
@@ -149,7 +149,7 @@ module "databricks" {
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
   parent                          = local.parent
-  depends_on = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
+  depends_on                      = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 
 }
