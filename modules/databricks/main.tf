@@ -277,7 +277,7 @@ resource "databricks_job" "dashboard_push" {
 
   trigger {
     table_update {
-      table_names = ["${local.catalog_name}.base.firm_info", "${local.catalog_name}.base.lease"]
+      table_names = ["${local.catalog_name}.raw.`well-telemetry`"]
       condition = "ALL_UPDATED"
     }
   }
@@ -327,7 +327,11 @@ resource "databricks_job" "dashboard_push" {
   task {
     task_key = "postgres_dashboard_slide"
 
-    existing_cluster_id = databricks_cluster.cluster.id
+    existing_cluster_id = databricks_cluster.cluster.id    
+
+    depends_on {
+      task_key = "silver_layer_firm_fill"
+    }
 
     spark_python_task {
       python_file = "${local.repo_source}/gold_bi_table_sink/postgres_push.py"
