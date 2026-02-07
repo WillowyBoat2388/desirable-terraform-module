@@ -277,7 +277,7 @@ resource "databricks_job" "dashboard_push" {
 
   trigger {
     table_update {
-      table_names = ["${local.catalog_name}.raw.`well-telemetry`"]
+      table_names = ["${local.catalog_name}.raw.well-telemetry"]
       condition = "ALL_UPDATED"
     }
   }
