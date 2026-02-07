@@ -161,7 +161,7 @@ resource "databricks_volume" "sensorstream" {
   storage_location = "${local.external}/analytics"
   comment          = "this volume is managed by terraform"
 
-  depends_on       = ["databricks_external_location.ong_data_stream"]
+  depends_on       = [databricks_external_location.ong_data_stream]
 }
 
 resource "databricks_volume" "checkPoints" {
