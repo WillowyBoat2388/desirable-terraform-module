@@ -51,7 +51,7 @@ data "databricks_node_type" "smallest" {
 }
 
 data "databricks_catalog" "this" {
-  name = lower(replace(var.workspace_name, "-", "_"))
+  name = local.catalog_name
 }
 
 data "databricks_current_metastore" "this" {
@@ -207,31 +207,29 @@ resource "databricks_schema" "gold" {
   }
   comment = "this schema is managed by terraform"
 }
-# resource "databricks_cluster" "cluster" {
 
-#   cluster_name            = random_string.cluster_name.result
-#   kind                    = "CLASSIC_PREVIEW"
-#   is_single_node          = true
-#   node_type_id            = data.databricks_node_type.smallest.id
-#   spark_version           = data.databricks_spark_version.latest_lts.id
-#   autotermination_minutes = var.cluster_autotermination_minutes
-#   num_workers             = var.cluster_num_workers
-#   data_security_mode      = var.cluster_data_security_mode
-#   # single_user_name        = "ong_rw"
 
-#   depends_on = [data.databricks_spark_version.latest_lts]
+resource "databricks_cluster" "cluster" {
+  cluster_name            = random_string.cluster_name.result
+  kind                    = "CLASSIC_PREVIEW"
+  is_single_node          = true
+  node_type_id            = data.databricks_node_type.smallest.id
+  spark_version           = data.databricks_spark_version.latest_lts.id
+  autotermination_minutes = var.cluster_autotermination_minutes
+  num_workers             = var.cluster_num_workers
+  data_security_mode      = var.cluster_data_security_mode
 
-# }
+  depends_on = [data.databricks_spark_version.latest_lts]
+}
 
-# resource "databricks_permissions" "cluster_manage" {
+resource "databricks_permissions" "cluster_manage" {
+  cluster_id = databricks_cluster.cluster.id
 
-#   cluster_id = databricks_cluster.cluster.id
-
-#   access_control {
-#     group_name       = databricks_group.eng.display_name
-#     permission_level = "CAN_MANAGE"
-#   }
-# }
+  access_control {
+    group_name       = databricks_group.eng.display_name
+    permission_level = "CAN_MANAGE"
+  }
+}
 
 resource "databricks_git_credential" "workspacejobs-source" {
   git_username          = var.github_username
@@ -256,8 +254,11 @@ resource "databricks_notification_destination" "slack" {
   }
 }
 
-resource "databricks_job" "telemetry_stream" {
-  name        = "well-telemetry-stream-pull"
+data "databricks_sql_warehouses" "all" {
+}
+  
+resource "databricks_job" "dashboard_push" {
+  name        = "well-telemetry-dashboard-push"
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
   run_as {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
@@ -272,6 +273,103 @@ resource "databricks_job" "telemetry_stream" {
       spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
     }
+  }
+
+  trigger {
+    table_update {
+      table_names = ["$(local.catalog_name).base.firm_info", "$(local.catalog_name).base.lease"]
+      condition = "ALL_UPDATED"
+    }
+  }
+
+  task {
+    task_key = "silver_layer_lease_fill"
+
+    job_cluster_key = random_string.cluster_name.result
+    max_retries = 1
+
+    spark_python_task {
+      python_file = "${local.repo_source}/silver_layer_transform/base_lease_refresh.py"
+      parameters  = ["{{input}}"]
+    }
+  }
+  
+  task {
+    task_key = "silver_layer_firm_fill"
+
+    job_cluster_key = random_string.cluster_name.result
+    max_retries = 1
+
+    spark_python_task {
+      python_file = "${local.repo_source}/silver_layer_transform/base_firm_refresh.py"
+    }  
+  }
+  
+  task {
+    task_key = "gold_layer_transform_iteration"
+    max_retries = 1
+    depends_on {
+      task_key = "silver_layer_lease_fill"
+    }
+
+    depends_on {
+      task_key = "silver_layer_firm_fill"
+    }
+
+    sql_task {
+      warehouse_id = data.databricks_sql_warehouses.all.ids[0]
+      query  = "serving_fill"
+    }  
+  }
+
+
+  task {
+    task_key = "postgres_dashboard_slide"
+
+    existing_cluster_id = databricks_cluster.cluster.id
+
+    spark_python_task {
+      python_file = "${local.repo_source}/gold_bi_table_sink/postgres_push.py"
+    }  
+  }
+
+  email_notifications {
+    on_failure                             = [var.github_email]
+    on_duration_warning_threshold_exceeded = [var.github_email]
+  }
+
+  webhook_notifications {
+    on_failure {
+      id = databricks_notification_destination.slack.id
+    }
+    on_duration_warning_threshold_exceeded {
+      id = databricks_notification_destination.slack.id
+    }
+  }
+
+  health {
+    rules {
+      metric = "RUN_DURATION_SECONDS"
+      op     = "GREATER_THAN"
+      value  = 600
+    }
+  }
+
+  tags = local.tags
+
+
+  edit_mode = "UI_LOCKED"
+
+
+}
+
+
+
+resource "databricks_job" "telemetry_stream" {
+  name        = "well-telemetry-stream-pull"
+  description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
+  run_as {
+    service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
   schedule {
@@ -298,7 +396,7 @@ resource "databricks_job" "telemetry_stream" {
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        job_cluster_key = random_string.cluster_name.result
+        existing_cluster_id = random_string.cluster_name.result
         max_retries = 1
 
         spark_python_task {
@@ -322,7 +420,7 @@ resource "databricks_job" "telemetry_stream" {
       task {
         task_key = "rawzone_loading_iteration"
 
-        job_cluster_key = random_string.cluster_name.result
+        existing_cluster_id = random_string.cluster_name.result
         max_retries = 1
 
         spark_python_task {
@@ -333,17 +431,7 @@ resource "databricks_job" "telemetry_stream" {
     }
   }
 
-  # task {
-  #   task_key = "c"
-
-  #   job_cluster_key = job_cluster_key
-
-  #   spark_jar_task {
-  #     script_path = databricks_notebook.this.path
-  #   }
-  # }
-
-  email_notifications {
+email_notifications {
     on_failure                             = [var.github_email]
     on_duration_warning_threshold_exceeded = [var.github_email]
   }
@@ -383,17 +471,6 @@ resource "databricks_job" "bidaily_batch_pull" {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
-  job_cluster {
-    job_cluster_key = "shared_cluster"
-    new_cluster {
-      kind                    = "CLASSIC_PREVIEW"
-      is_single_node          = true
-      num_workers   = 1
-      spark_version = data.databricks_spark_version.latest_lts.id
-      node_type_id  = data.databricks_node_type.smallest.id
-    }
-  }
-
   trigger {
     periodic {
       interval = 12
@@ -419,7 +496,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        job_cluster_key = "shared_cluster"
+        existing_cluster_id = random_string.cluster_name.result
         max_retries = 1
 
         spark_python_task {
@@ -443,7 +520,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       task {
         task_key = "rawzone_loading_iteration"
 
-        job_cluster_key = "shared_cluster"
+        existing_cluster_id = databricks_cluster.cluster.name
         max_retries = 1
 
         spark_python_task {
@@ -454,15 +531,6 @@ resource "databricks_job" "bidaily_batch_pull" {
     }
   }
 
-  # task {
-  #   task_key = "c"
-
-  #   job_cluster_key = job_cluster_key
-
-  #   spark_jar_task {
-  #     script_path = databricks_notebook.this.path
-  #   }
-  # }
 
   email_notifications {
     on_failure                             = ["onidajo99@gmail.com"]
@@ -504,18 +572,6 @@ resource "databricks_job" "daily_prod_pull" {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
-  job_cluster {
-    job_cluster_key = "daily_cluster"
-    new_cluster {
-      kind                    = "CLASSIC_PREVIEW"
-      is_single_node          = true
-      data_security_mode      = var.cluster_data_security_mode
-      num_workers   = 1
-      spark_version = data.databricks_spark_version.latest_lts.id
-      node_type_id  = data.databricks_node_type.smallest.id
-    }
-  }
-
   trigger {
     file_arrival {
       url = "${local.external}/analytics/output/production-daily-data/"
@@ -552,16 +608,6 @@ resource "databricks_job" "daily_prod_pull" {
       parameters  = ["production-daily-data"]
     }
   }
-
-  # task {
-  #   task_key = "c"
-
-  #   job_cluster_key = job_cluster_key
-
-  #   spark_jar_task {
-  #     script_path = databricks_notebook.this.path
-  #   }
-  # }
 
   email_notifications {
     on_failure                             = ["onidajo99@gmail.com"]
@@ -603,6 +649,8 @@ locals {
     owner        = var.owner
     subscription = var.rg_parent_id
   }
+  catalog_name = lower(replace(var.workspace_name, "-", "_"))
+
   repo_source = "/Shared/wellanalysisstream"
   external = format("abfss://%s@%s.dfs.core.windows.net",
     var.storage_container,
