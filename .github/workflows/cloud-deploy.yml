@@ -29,69 +29,69 @@ env:
       
 jobs:
 
-  terraform-test:
-    name: 'Terraform Test'
-    runs-on: ubuntu-latest
-    # needs: [terraform-ple]
-    defaults:
-      run:
-        working-directory: production
-    env:
-      ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-      ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-      ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-      ARM_USE_AZUREAD: true
-      ARM_USE_CLI: true
+  # terraform-test:
+  #   name: 'Terraform Test'
+  #   runs-on: ubuntu-latest
+  #   # needs: [terraform-ple]
+  #   defaults:
+  #     run:
+  #       working-directory: production
+  #   env:
+  #     ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+  #     ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+  #     ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+  #     ARM_USE_AZUREAD: true
+  #     ARM_USE_CLI: true
 
-    # outputs:
-      # prodPresent: ${{ steps.tf-plan.outputs.prodPresent }}
-      # envEmpty: ${{ steps.tf-plan.outputs.prodPresent }}
+  #   # outputs:
+  #     # prodPresent: ${{ steps.tf-plan.outputs.prodPresent }}
+  #     # envEmpty: ${{ steps.tf-plan.outputs.prodPresent }}
       
 
-    steps:
-      - name: Azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  #   steps:
+  #     - name: Azure login
+  #       uses: azure/login@v2
+  #       with:
+  #         client-id: ${{ secrets.AZURE_CLIENT_ID }}
+  #         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+  #         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     
       
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
+  #     # Checkout the repository to the GitHub Actions runner
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
 
-      # Install the latest version of the Terraform CLI
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
+  #     # Install the latest version of the Terraform CLI
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v3
+  #       with:
+  #         terraform_wrapper: false
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: Terraform Init
-        run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"
+  #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+  #     - name: Terraform Init
+  #       run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"
 
-      # Validate terraform files
-      - name: Terraform Validate
-        run: terraform validate
+  #     # Validate terraform files
+  #     - name: Terraform Validate
+  #       run: terraform validate
 
-      # Checks that all Terraform configuration files adhere to a canonical format
-      # Will fail the build if not
-      - name: Terraform Format
-        run: terraform fmt -check
+  #     # Checks that all Terraform configuration files adhere to a canonical format
+  #     # Will fail the build if not
+  #     - name: Terraform Format
+  #       run: terraform fmt -check
       
-      - name: Terraform Off
-        id: tf-off
-        run: |    
-          terraform force-unlock -force dea650c3-6d08-a663-4328-5a91fa89dc9b
+  #     # - name: Terraform Off
+  #     #   id: tf-off
+  #     #   run: |    
+  #     #     terraform apply -auto-approve -destroy
           
-      # Generates an execution plan for Terraform
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Done
-        id: tf-done
-        run: |
+  #     # Generates an execution plan for Terraform
+  #     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+  #     - name: Terraform Done
+  #       id: tf-done
+  #       run: |
           
-          terraform plan
+  #         terraform plan
           
           
 
@@ -292,7 +292,7 @@ jobs:
     # if: github.ref == 'refs/heads/main' && needs.terraform-apply.result == 'success'
     runs-on: ubuntu-latest
     environment: production
-    needs: [terraform-test]
+    # needs: [terraform-test]
     defaults:
       run:
         working-directory: production
