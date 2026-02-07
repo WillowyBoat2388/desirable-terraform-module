@@ -317,7 +317,7 @@ resource "databricks_job" "dashboard_push" {
     }
 
     sql_task {
-      warehouse_id = data.databricks_sql_warehouses.all.ids[0]
+      warehouse_id = tolist(data.databricks_sql_warehouses.all.ids)[0]
       query  = "serving_fill"
     }  
   }
@@ -520,7 +520,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       task {
         task_key = "rawzone_loading_iteration"
 
-        existing_cluster_id = databricks_cluster.cluster.name
+        existing_cluster_id = databricks_cluster.cluster.id
         max_retries = 1
 
         spark_python_task {
