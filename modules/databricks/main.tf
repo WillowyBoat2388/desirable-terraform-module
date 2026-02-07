@@ -318,7 +318,9 @@ resource "databricks_job" "dashboard_push" {
 
     sql_task {
       warehouse_id = tolist(data.databricks_sql_warehouses.all.ids)[0]
-      query  = "serving_fill"
+      query  {
+        query_id = "serving_fill"
+      }
     }  
   }
 
