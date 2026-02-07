@@ -398,7 +398,7 @@ resource "databricks_job" "telemetry_stream" {
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        existing_cluster_id = random_string.cluster_name.result
+        existing_cluster_id = databricks_cluster.cluster.id
         max_retries = 1
 
         spark_python_task {
@@ -422,7 +422,7 @@ resource "databricks_job" "telemetry_stream" {
       task {
         task_key = "rawzone_loading_iteration"
 
-        existing_cluster_id = random_string.cluster_name.result
+        existing_cluster_id = databricks_cluster.cluster.id
         max_retries = 1
 
         spark_python_task {
@@ -498,7 +498,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        existing_cluster_id = random_string.cluster_name.result
+        existing_cluster_id = databricks_cluster.cluster.id
         max_retries = 1
 
         spark_python_task {
@@ -572,6 +572,18 @@ resource "databricks_job" "daily_prod_pull" {
   description = "This job pulls in from Kafka-sink to landing and raw zone."
   run_as {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
+  }
+
+  job_cluster {
+    job_cluster_key = "daily_cluster"
+    new_cluster {
+      kind                    = "CLASSIC_PREVIEW"
+      is_single_node          = true
+      data_security_mode      = var.cluster_data_security_mode
+      num_workers   = 1
+      spark_version = data.databricks_spark_version.latest_lts.id
+      node_type_id  = data.databricks_node_type.smallest.id
+    }
   }
 
   trigger {
