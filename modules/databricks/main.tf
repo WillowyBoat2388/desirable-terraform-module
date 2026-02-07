@@ -277,7 +277,7 @@ resource "databricks_job" "dashboard_push" {
 
   trigger {
     table_update {
-      table_names = ["$(local.catalog_name).base.firm_info", "$(local.catalog_name).base.lease"]
+      table_names = ["${local.catalog_name}.base.firm_info", "${local.catalog_name}.base.lease"]
       condition = "ALL_UPDATED"
     }
   }
