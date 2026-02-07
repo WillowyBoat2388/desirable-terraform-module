@@ -290,7 +290,6 @@ resource "databricks_job" "dashboard_push" {
 
     spark_python_task {
       python_file = "${local.repo_source}/silver_layer_transform/base_lease_refresh.py"
-      parameters  = ["{{input}}"]
     }
   }
   
