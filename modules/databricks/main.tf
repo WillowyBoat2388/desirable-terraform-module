@@ -330,7 +330,7 @@ resource "databricks_job" "dashboard_push" {
     existing_cluster_id = databricks_cluster.cluster.id    
 
     depends_on {
-      task_key = "silver_layer_firm_fill"
+      task_key = "gold_layer_transform_iteration"
     }
 
     spark_python_task {
