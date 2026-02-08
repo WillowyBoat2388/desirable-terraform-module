@@ -265,13 +265,21 @@ resource "databricks_job" "dashboard_push" {
   }
 
   job_cluster {
-    job_cluster_key = random_string.cluster_name.result
+    job_cluster_key = "test_cluster"
     new_cluster {
-      kind                    = "CLASSIC_PREVIEW"
-      is_single_node          = true
+      enable_local_disk_encryption = true
       num_workers   = 1
       spark_version = data.databricks_spark_version.latest_lts.id
       node_type_id  = data.databricks_node_type.smallest.id
+      autoscale {
+        min_workers = 1
+        max_workers = 25
+      }
+      spark_conf = {
+        "spark.databricks.io.cache.enabled" : true,
+        "spark.databricks.io.cache.maxDiskUsage" : "50g",
+        "spark.databricks.io.cache.maxMetaDataCache" : "1g"
+      }
     }
   }
 
@@ -285,7 +293,7 @@ resource "databricks_job" "dashboard_push" {
   task {
     task_key = "silver_layer_lease_fill"
 
-    job_cluster_key = random_string.cluster_name.result
+    existing_cluster_id = databricks_cluster.cluster.id
     max_retries = 1
 
     spark_python_task {
@@ -296,7 +304,7 @@ resource "databricks_job" "dashboard_push" {
   task {
     task_key = "silver_layer_firm_fill"
 
-    job_cluster_key = random_string.cluster_name.result
+    job_cluster_key = test_cluster
     max_retries = 1
 
     spark_python_task {
