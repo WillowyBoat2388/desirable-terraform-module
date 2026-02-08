@@ -323,7 +323,7 @@ resource "databricks_job" "dashboard_push" {
       warehouse_id = tolist(data.databricks_sql_warehouses.all.ids)[0]
       file  {
         source   = "WORKSPACE"
-        path = "${repo_source}/gold_bi_table_sink/serving_fill"
+        path = "${local.repo_source}/gold_bi_table_sink/serving_fill"
       }
     }  
   }
