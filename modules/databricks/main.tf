@@ -304,7 +304,7 @@ resource "databricks_job" "dashboard_push" {
   task {
     task_key = "silver_layer_firm_fill"
 
-    job_cluster_key = test_cluster
+    job_cluster_key = "test_cluster"
     max_retries = 1
 
     spark_python_task {
