@@ -319,11 +319,11 @@ resource "databricks_job" "dashboard_push" {
       task_key = "silver_layer_lease_fill"
     }
 
-    notebook_task {
-      
+    sql_task {
+      file {
         source   = "WORKSPACE"
-        notebook_path = "${local.repo_source}/gold_bi_table_sink/serving_fill.dbquery.ipynb"
-      
+        path = "${local.repo_source}/gold_bi_table_sink/serving_fill.sql"
+      }
     }  
   }
 
