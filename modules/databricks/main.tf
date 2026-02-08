@@ -277,8 +277,8 @@ resource "databricks_job" "dashboard_push" {
       }
       spark_conf = {
         "spark.databricks.io.cache.enabled" : true,
-        "spark.databricks.io.cache.maxDiskUsage" : "50g",
-        "spark.databricks.io.cache.maxMetaDataCache" : "1g"
+        "spark.databricks.io.cache.maxDiskUsage" : "500g",
+        "spark.databricks.io.cache.maxMetaDataCache" : "10g"
       }
     }
   }
@@ -321,8 +321,9 @@ resource "databricks_job" "dashboard_push" {
 
     sql_task {
       warehouse_id = tolist(data.databricks_sql_warehouses.all.ids)[0]
-      query  {
-        query_id = "serving_fill"
+      file  {
+        source   = "WORKSPACE"
+        path = "${repo_source}/gold_bi_table_sink/serving_fill"
       }
     }  
   }
