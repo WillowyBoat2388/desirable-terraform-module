@@ -319,10 +319,6 @@ resource "databricks_job" "dashboard_push" {
       task_key = "silver_layer_lease_fill"
     }
 
-    depends_on {
-      task_key = "silver_layer_firm_fill"
-    }
-
     sql_task {
       warehouse_id = tolist(data.databricks_sql_warehouses.all.ids)[0]
       query  {
