@@ -361,7 +361,7 @@ resource "databricks_job" "dashboard_push" {
     rules {
       metric = "RUN_DURATION_SECONDS"
       op     = "GREATER_THAN"
-      value  = 600
+      value  = 1020
     }
   }
 
