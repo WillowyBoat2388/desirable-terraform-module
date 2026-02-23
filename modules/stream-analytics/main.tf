@@ -199,9 +199,9 @@ resource "azapi_resource" "eventhub_namespace" {
     type         = "SystemAssigned"
   }
 
-  # lifecycle {
-  #   ignore_changes = [ body, parent_id ]
-  # }
+  lifecycle {
+    ignore_changes = [ body, parent_id ]
+  }
 
 }
 
@@ -303,9 +303,9 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
   schema_validation_enabled = true
   response_export_values    = ["*"]
 
-  # lifecycle {
-  #   ignore_changes = [ parent_id ]
-  # }
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
 
 }
 
@@ -384,9 +384,9 @@ resource "azapi_resource" "roleAssignment6" {
       roleDefinitionId = data.azurerm_role_definition.roleEventContributor.id
     }
   }
-  # lifecycle {
-  #   ignore_changes = [name, body, parent_id]
-  # }
+  lifecycle {
+    ignore_changes = [name, body, parent_id]
+  }
 
   depends_on = [azapi_resource.workspace]
 }
@@ -410,9 +410,9 @@ resource "azapi_resource" "roleAssignment2" {
       roleDefinitionId = data.azurerm_role_definition.roleContributor.id
     }
   }
-  # lifecycle {
-  #   ignore_changes = [name, body, parent_id]
-  # }
+  lifecycle {
+    ignore_changes = [name, body, parent_id]
+  }
 
 }
 
@@ -440,24 +440,48 @@ resource "azurerm_key_vault_secret" "databricks_workspace_url" {
   name         = "databricks-workspace-url"
   value        = azapi_resource.workspace.output.properties.workspaceUrl
   key_vault_id = data.azurerm_key_vault.vault.id
+
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
+
+
 }
 
 resource "azurerm_key_vault_secret" "databricks_workspace_id" {
   name         = "databricks-workspace-id"
   value        = azapi_resource.workspace.output.properties.workspaceId
   key_vault_id = data.azurerm_key_vault.vault.id
+
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
+
+
 }
 
 resource "azurerm_key_vault_secret" "databricks_workspace_resource_id" {
   name         = "databricks-workspace-resource-id"
   value        = azapi_resource.workspace.id
   key_vault_id = data.azurerm_key_vault.vault.id
+
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
+
+
 }
 
 resource "azurerm_key_vault_secret" "databricks_workspace_name" {
   name         = "databricks-workspace-name"
   value        = azapi_resource.workspace.name
   key_vault_id = data.azurerm_key_vault.vault.id
+  
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
+
+
 }
 
 output "databricks_workspace_name" {
