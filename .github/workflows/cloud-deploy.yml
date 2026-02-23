@@ -327,7 +327,7 @@ jobs:
 
       - name: destroy my life
         run: |
-          terraform plan 2>&1 | grep -E "deposed object|must be replaced" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^[[:space:]]*//' | sed 's/# //' | sed 's/ (deposed.*//;s/ must be replaced//' | sort -u > problem_resources.txt
+          terraform plan 2>&1 | grep -E "^\s*#.*deposed object|^\s*#.*must be replaced" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^[[:space:]]*//' | sed 's/^# //' | sed 's/ (deposed.*//;s/ must be replaced//' | sort -u > problem_resources.txt
           
           bash test.sh
           terraform apply -auto-approve -refresh-only
