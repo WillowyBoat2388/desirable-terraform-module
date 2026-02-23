@@ -228,7 +228,7 @@ resource "databricks_instance_pool" "smallest_nodes" {
   idle_instance_autotermination_minutes = 30
   # custom_tags = local.tags
   enable_elastic_disk = true
-  preloaded_spark_versions = data.databricks_spark_version.latest_lts.id
+  preloaded_spark_versions = [ data.databricks_spark_version.latest_lts.id ]
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
