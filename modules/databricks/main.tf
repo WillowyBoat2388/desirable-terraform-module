@@ -135,6 +135,11 @@ resource "databricks_secret_scope" "kv" {
     resource_id = data.azurerm_key_vault.vault.id
     dns_name    = data.azurerm_key_vault.vault.vault_uri
   }
+
+  lifecycle {
+    ignore_changes = [ keyvault_metadata ]
+  }
+
 }
 
 
@@ -221,13 +226,8 @@ resource "databricks_instance_pool" "smallest_nodes" {
     spot_bid_max_price = "-1"
   }
   idle_instance_autotermination_minutes = 30
-  disk_spec {
-    disk_type {
-      ebs_volume_type = "GENERAL_PURPOSE_SSD"
-    }
-    disk_size  = 80
-    disk_count = 1
-  }
+  custom_tags = local.tags
+  enable_elastic_disk = true
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
@@ -611,8 +611,8 @@ resource "databricks_job" "daily_prod_pull" {
       kind                    = "CLASSIC_PREVIEW"
       is_single_node          = true
       data_security_mode      = var.cluster_data_security_mode
-      spark_version = data.databricks_spark_version.latest_lts.id
-      instance_pool_id  = data.databricks_node_type.smallest.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
+      instance_pool_id        = databricks_instance_pool.smallest_nodes.id
     }
   }
 
