@@ -117,15 +117,6 @@ import {
   id = "31cb1eb2-bf89-ee30-9427-13640c8be766"
 }
 
-import {
-  to = module.data-workflow.azurerm_role_assignment.storageAccountRoleAssignment2
-  id = "Storage Blob Data Owner"
-}
-import {
-  to = module.data-workflow.azurerm_role_assignment.storageAccountRoleAssignment
-  id = "Storage Account Contributor"
-}
-
 
 # Analytics Module
 module "data-workflow" {

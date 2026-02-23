@@ -65,12 +65,22 @@ resource "azurerm_role_assignment" "storageAccountRoleAssignment" {
   scope                = azurerm_storage_account.storage_account.id
   role_definition_name = "Storage Account Contributor"
   principal_id         = local.identity_objid
+  # name                 = ""
+
+  lifecycle {
+    ignore_changes = [ principal_id ]
+  }
 }
 
 resource "azurerm_role_assignment" "storageAccountRoleAssignment2" {
   scope                = azurerm_storage_account.storage_account.id
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = local.identity_objid
+  # name                 = ""
+
+  lifecycle {
+    ignore_changes = [ principal_id ]
+  }
 }
 
 data "azurerm_resource_group" "resourceGroup" {
@@ -190,7 +200,7 @@ resource "azapi_resource" "eventhub_namespace" {
   }
 
   lifecycle {
-    ignore_changes = [body.properties.geoDataReplication.locationName]
+    ignore_changes = [body]
   }
 
 }
@@ -317,7 +327,7 @@ resource "azapi_resource" "roleAssignment4" {
     }
   }
   lifecycle {
-    ignore_changes = [name]
+    ignore_changes = [name, body]
   }
 
   depends_on = [azurerm_storage_container.analytics_container]
@@ -344,7 +354,7 @@ resource "azapi_resource" "roleAssignment5" {
     }
   }
   lifecycle {
-    ignore_changes = [name]
+    ignore_changes = [name, body]
   }
 
   depends_on = [azurerm_storage_container.analytics_container]
@@ -371,36 +381,11 @@ resource "azapi_resource" "roleAssignment6" {
     }
   }
   lifecycle {
-    ignore_changes = [name]
+    ignore_changes = [name, body]
   }
 
   depends_on = [azapi_resource.workspace]
 }
-
-
-# data "azurerm_role_definition" "roleConnectorContributor" {
-#   name  = "Service Connector Contributor"
-#   scope = azurerm_storage_account.storage_account.id
-# 
-#   depends_on = [azurerm_storage_account.storage_account]
-# }
-
-# resource "azapi_resource" "roleAssignment3" {
-#   type      = "Microsoft.Authorization/roleAssignments@2022-04-01"
-#   name      = random_uuid.roleass3.result
-#   parent_id = azurerm_storage_account.storage_account.id
-#   body = {
-#     properties = {
-#       principalId      = local.identity_objid
-#       principalType    = "ServicePrincipal"
-#       roleDefinitionId = data.azurerm_role_definition.roleConnectorContributor.id
-#     }
-#   }
-#   lifecycle {
-#     ignore_changes = [name]
-#   }
-#   depends_on = [azurerm_storage_account.storage_account]
-# }
 
 
 
@@ -422,7 +407,7 @@ resource "azapi_resource" "roleAssignment2" {
     }
   }
   lifecycle {
-    ignore_changes = [name]
+    ignore_changes = [name, body]
   }
 
 }
