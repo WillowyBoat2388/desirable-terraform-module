@@ -200,7 +200,7 @@ resource "azapi_resource" "eventhub_namespace" {
   }
 
   lifecycle {
-    ignore_changes = [body]
+    ignore_changes = [ body, parent_id ]
   }
 
 }
@@ -302,6 +302,10 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
   }
   schema_validation_enabled = true
   response_export_values    = ["*"]
+
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
 
 }
 
@@ -407,7 +411,7 @@ resource "azapi_resource" "roleAssignment2" {
     }
   }
   lifecycle {
-    ignore_changes = [name, body]
+    ignore_changes = [name, body, parent_id]
   }
 
 }
