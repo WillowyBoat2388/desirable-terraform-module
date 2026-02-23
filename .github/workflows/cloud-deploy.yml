@@ -329,7 +329,7 @@ jobs:
         run: |
           terraform plan 2>&1 | grep "deposed object" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^[[:space:]]*//' | sed 's/# //' | sed 's/ (deposed.*//' | sort -u > deposed_resources.txt
           
-          test.sh
+          bash test.sh
           terraform apply -auto-approve -refresh-only
           
           
