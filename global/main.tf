@@ -88,124 +88,6 @@ resource "azapi_resource" "logAnalyticsWorkspace" {
   }
 }
 
-resource "azurerm_virtual_network" "rg_vnet" {
-  name                = "${var.prefix}-network"
-  resource_group_name = var.environment
-  location            = var.location
-  address_space       = ["10.0.0.0/16"]
-}
-
-resource "azurerm_subnet" "receipt-zone" {
-  name                 = "frontend"
-  virtual_network_name = azurerm_virtual_network.rg_vnet.name
-  resource_group_name  = var.environment
-  address_prefixes     = ["10.0.1.0/24"]
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-resource "azurerm_subnet" "distro-zone" {
-  name                              = "backend"
-  virtual_network_name              = azurerm_virtual_network.rg_vnet.name
-  resource_group_name               = var.environment
-  address_prefixes                  = ["10.0.2.0/24"]
-  private_endpoint_network_policies = "Enabled"
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-resource "azurerm_subnet" "support-zone" {
-  name                 = "database"
-  virtual_network_name = azurerm_virtual_network.rg_vnet.name
-  resource_group_name  = var.environment
-  address_prefixes     = ["10.0.3.0/24"]
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-resource "azurerm_public_ip" "vnet_public_ip" {
-  name                = "${var.prefix}-pip"
-  location            = var.location
-  resource_group_name = var.environment
-  allocation_method   = "Static"
-
-
-}
-
-
-# Create public IPs
-resource "azurerm_public_ip" "my_terraform_public_ip" {
-  name                = "myPublicIP"
-  location            = var.location
-  resource_group_name = var.environment
-  allocation_method   = "Static"
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-# Create Network Security Group and rule
-resource "azurerm_network_security_group" "rg_nsg" {
-  name                = "${var.environment}NetworkSecurityGroup"
-  location            = var.location
-  resource_group_name = var.environment
-
-  security_rule {
-    name                       = "SSH"
-    priority                   = 1001
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-# Create network interface
-resource "azurerm_network_interface" "rg_nic" {
-  name                = "${var.environment}NIC"
-  location            = var.location
-  resource_group_name = var.environment
-
-  ip_configuration {
-    name                          = "${var.environment}_nic_configuration"
-    subnet_id                     = azurerm_subnet.receipt-zone.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.my_terraform_public_ip.id
-  }
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-# Connect the security group to the network interface
-resource "azurerm_network_interface_security_group_association" "example" {
-  network_interface_id      = azurerm_network_interface.rg_nic.id
-  network_security_group_id = azurerm_network_security_group.rg_nsg.id
-
-  depends_on = [azurerm_virtual_network.rg_vnet]
-}
-
-
-resource "random_string" "acr_name" {
-  length  = 5
-  lower   = true
-  numeric = false
-  special = false
-  upper   = false
-}
-
-# resource "azurerm_container_registry" "app_registry" {
-#   name                = "${random_string.acr_name.result}registry"
-#   resource_group_name = var.environment
-#   location            = var.location
-#   sku                 = "Basic"
-#   admin_enabled       = true
-
-# }
-
 resource "random_string" "azurerm_key_vault_name" {
   length  = 13
   lower   = true
@@ -217,7 +99,6 @@ resource "random_string" "azurerm_key_vault_name" {
     constant = data.azurerm_resource_group.resourceGroup.id
   }
 
-  depends_on = [azurerm_virtual_network.rg_vnet]
 }
 
 resource "azurerm_key_vault" "vault" {
@@ -243,7 +124,6 @@ resource "azurerm_key_vault" "vault" {
 
   tags = local.tags
 
-  depends_on = [azurerm_virtual_network.rg_vnet]
 }
 
 resource "random_string" "azurerm_key_vault_secret" {
@@ -259,30 +139,6 @@ resource "random_string" "azurerm_key_vault_secret" {
 
   depends_on = [azurerm_key_vault.vault]
 }
-
-# resource "azurerm_key_vault_key" "key" {
-#   name = coalesce(var.key_name, "key-${random_string.azurerm_key_vault_key_name.result}")
-
-#   key_vault_id = azurerm_key_vault.vault.id
-#   key_type     = var.key_type
-#   key_size     = var.key_size
-#   key_opts     = var.key_ops
-
-#   rotation_policy {
-#     automatic {
-#       time_before_expiry = "P30D"
-#     }
-
-#     expire_after         = "P90D"
-#     notify_before_expiry = "P29D"
-#   }
-
-#   depends_on = [azurerm_key_vault.vault]
-# }
-
-# output "AppInsightsWorkspace" {
-#   value = azapi_resource.AppInsights.id
-# }
 
 resource "azurerm_subscription_cost_management_view" "example" {
   name         = "Streaming View"
