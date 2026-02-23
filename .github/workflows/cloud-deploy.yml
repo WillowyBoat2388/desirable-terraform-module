@@ -325,12 +325,12 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"
 
-      # - name: destroy my life
-      #   run: |
-      #     terraform plan 2>&1 | grep "deposed object" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^[[:space:]]*//' | sed 's/# //' | sed 's/ (deposed.*//' | sort -u > deposed_resources.txt
+      - name: destroy my life
+        run: |
+          terraform plan 2>&1 | grep -E "deposed object|must be replaced" | sed 's/\x1b\[[0-9;]*m//g' | sed 's/^[[:space:]]*//' | sed 's/# //' | sed 's/ (deposed.*//;s/ must be replaced//' | sort -u > problem_resources.txt
           
-      #     bash test.sh
-      #     terraform apply -auto-approve -refresh-only
+          bash test.sh
+          terraform apply -auto-approve -refresh-only
           
           
 
