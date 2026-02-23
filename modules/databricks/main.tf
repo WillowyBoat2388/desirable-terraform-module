@@ -269,7 +269,6 @@ resource "databricks_job" "dashboard_push" {
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
-      autotermination_minutes = var.cluster_autotermination_minutes
       data_security_mode      = var.cluster_data_security_mode
 
     }
@@ -380,7 +379,6 @@ resource "databricks_job" "telemetry_stream" {
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
-      autotermination_minutes = var.cluster_autotermination_minutes
       data_security_mode      = var.cluster_data_security_mode
 
     }
@@ -491,7 +489,6 @@ resource "databricks_job" "bidaily_batch_pull" {
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
-      autotermination_minutes = var.cluster_autotermination_minutes
       data_security_mode      = var.cluster_data_security_mode
 
     }
