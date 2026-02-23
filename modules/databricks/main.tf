@@ -329,6 +329,20 @@ resource "databricks_job" "dashboard_push" {
   }
 
 
+  task {
+    task_key = "postgres_dashboard_slide"
+
+    existing_cluster_id = databricks_cluster.cluster.id    
+
+    depends_on {
+      task_key = "gold_layer_transform_iteration"
+    }
+
+    spark_python_task {
+      python_file = "${local.repo_source}/gold_bi_table_sink/postgres_push.py"
+    }  
+  }
+
   email_notifications {
     on_failure                             = [var.github_email]
     on_duration_warning_threshold_exceeded = [var.github_email]
