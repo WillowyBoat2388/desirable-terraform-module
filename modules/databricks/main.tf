@@ -228,7 +228,7 @@ resource "databricks_instance_pool" "smallest_nodes" {
   idle_instance_autotermination_minutes = 30
   # custom_tags = local.tags
   enable_elastic_disk = true
-  preloaded_spark_versions = [ data.databricks_spark_version.latest_lts.id ]
+  preloaded_spark_versions = [ data.databricks_spark_version.latest_lts.id]
   depends_on = [data.databricks_spark_version.latest_lts]
 }
 
@@ -279,6 +279,7 @@ resource "databricks_job" "dashboard_push" {
     job_cluster_key = "dashboard_cluster"
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
 
     }
@@ -308,6 +309,7 @@ resource "databricks_job" "dashboard_push" {
     
     new_cluster {
       enable_local_disk_encryption = true
+      spark_version = data.databricks_spark_version.latest_lts.id
       instance_pool_id  = databricks_instance_pool.smallest_nodes.id
       autoscale {
         min_workers = 1
@@ -387,6 +389,7 @@ resource "databricks_job" "telemetry_stream" {
     job_cluster_key = "stream_ingest_cluster"
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
 
     }
@@ -496,6 +499,7 @@ resource "databricks_job" "bidaily_batch_pull" {
     job_cluster_key = "bidaily_cluster"
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
 
     }
@@ -608,6 +612,7 @@ resource "databricks_job" "daily_prod_pull" {
       kind                    = "CLASSIC_PREVIEW"
       is_single_node          = true
       data_security_mode      = var.cluster_data_security_mode
+      spark_version           = data.databricks_spark_version.latest_lts.id
       instance_pool_id        = databricks_instance_pool.smallest_nodes.id
     }
   }

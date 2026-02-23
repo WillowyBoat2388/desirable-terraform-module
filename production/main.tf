@@ -121,10 +121,10 @@ module "data-workflow" {
   parent             = local.parent
   depends_on         = [module.global]
 }
-# import {
-#   to = module.databricks.databricks_secret_scope.kv
-#   id = "databricks-keyvault"
-# }
+import {
+  to = module.databricks.databricks_secret_scope.kv
+  id = "databricks-keyvault"
+}
 module "databricks" {
   source = "../modules/databricks"
 
