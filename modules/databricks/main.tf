@@ -236,12 +236,20 @@ resource "databricks_git_credential" "workspacejobs-source" {
   git_email             = var.github_email
   git_provider          = "gitHub"
   personal_access_token = var.github_pat
+
+  lifecycle {
+    ignore_changes = [personal_access_token]
+  }
 }
 
 
 resource "databricks_repo" "git_integration" {
   url          = var.jobsource_url
   path         = "${local.repo_source}/"
+
+  lifecycle {
+    ignore_changes = [url]
+  }
   depends_on   =  [resource.databricks_git_credential.workspacejobs-source]
 }
 
@@ -251,6 +259,10 @@ resource "databricks_notification_destination" "slack" {
     slack {
       url = var.slack_key
     }
+  }
+
+  lifecycle {
+    ignore_changes = [config]
   }
 }
 
@@ -355,6 +367,7 @@ resource "databricks_job" "dashboard_push" {
     on_duration_warning_threshold_exceeded {
       id = databricks_notification_destination.slack.id
     }
+
   }
 
   health {
@@ -369,7 +382,6 @@ resource "databricks_job" "dashboard_push" {
 
 
   edit_mode = "UI_LOCKED"
-
 
 }
 
