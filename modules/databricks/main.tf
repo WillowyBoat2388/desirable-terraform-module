@@ -209,26 +209,26 @@ resource "databricks_schema" "gold" {
 }
 
 
-resource "databricks_cluster" "cluster" {
-  cluster_name            = random_string.cluster_name.result
-  kind                    = "CLASSIC_PREVIEW"
-  is_single_node          = true
-  node_type_id            = data.databricks_node_type.smallest.id
-  spark_version           = data.databricks_spark_version.latest_lts.id
-  autotermination_minutes = var.cluster_autotermination_minutes
-  num_workers             = var.cluster_num_workers
-  data_security_mode      = var.cluster_data_security_mode
 
-  depends_on = [data.databricks_spark_version.latest_lts]
-}
 
-resource "databricks_permissions" "cluster_manage" {
-  cluster_id = databricks_cluster.cluster.id
-
-  access_control {
-    group_name       = databricks_group.eng.display_name
-    permission_level = "CAN_MANAGE"
+resource "databricks_instance_pool" "smallest_nodes" {
+  instance_pool_name = "Smallest Nodes"
+  min_idle_instances = 5
+  max_capacity       = 25
+  node_type_id       = data.databricks_node_type.smallest.id
+  azure_attributes {
+    availability           = "ON_DEMAND_AZURE"
+    spot_bid_max_price = "-1"
   }
+  idle_instance_autotermination_minutes = 30
+  disk_spec {
+    disk_type {
+      ebs_volume_type = "GENERAL_PURPOSE_SSD"
+    }
+    disk_size  = 80
+    disk_count = 1
+  }
+  depends_on = [data.databricks_spark_version.latest_lts]
 }
 
 resource "databricks_git_credential" "workspacejobs-source" {
@@ -238,18 +238,15 @@ resource "databricks_git_credential" "workspacejobs-source" {
   personal_access_token = var.github_pat
 
   lifecycle {
-    ignore_changes = [personal_access_token]
+    ignore_changes = [ personal_access_token ]
   }
+
 }
 
 
 resource "databricks_repo" "git_integration" {
   url          = var.jobsource_url
   path         = "${local.repo_source}/"
-
-  lifecycle {
-    ignore_changes = [url]
-  }
   depends_on   =  [resource.databricks_git_credential.workspacejobs-source]
 }
 
@@ -262,8 +259,9 @@ resource "databricks_notification_destination" "slack" {
   }
 
   lifecycle {
-    ignore_changes = [config]
+    ignore_changes = [ config ]
   }
+
 }
 
 data "databricks_sql_warehouses" "all" {
@@ -276,22 +274,13 @@ resource "databricks_job" "dashboard_push" {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
-  job_cluster {
-    job_cluster_key = "test_cluster"
+  job_cluster { 
+    job_cluster_key = "dashboard_cluster"
     new_cluster {
-      enable_local_disk_encryption = true
-      num_workers   = 1
-      spark_version = data.databricks_spark_version.latest_lts.id
-      node_type_id  = data.databricks_node_type.smallest.id
-      autoscale {
-        min_workers = 1
-        max_workers = 25
-      }
-      spark_conf = {
-        "spark.databricks.io.cache.enabled" : true,
-        "spark.databricks.io.cache.maxDiskUsage" : "500g",
-        "spark.databricks.io.cache.maxMetaDataCache" : "10g"
-      }
+      instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
+      data_security_mode      = var.cluster_data_security_mode
+
     }
   }
 
@@ -305,7 +294,7 @@ resource "databricks_job" "dashboard_push" {
   task {
     task_key = "silver_layer_lease_fill"
 
-    existing_cluster_id = databricks_cluster.cluster.id
+    job_cluster_key = "dashboard_cluster"
     max_retries = 1
 
     spark_python_task {
@@ -316,7 +305,21 @@ resource "databricks_job" "dashboard_push" {
   task {
     task_key = "silver_layer_firm_fill"
 
-    job_cluster_key = "test_cluster"
+    
+    new_cluster {
+      enable_local_disk_encryption = true
+      spark_version = data.databricks_spark_version.latest_lts.id
+      instance_pool_id  = databricks_instance_pool.smallest_nodes.id
+      autoscale {
+        min_workers = 1
+        max_workers = 25
+      }
+      spark_conf = {
+        "spark.databricks.io.cache.enabled" : true,
+        "spark.databricks.io.cache.maxDiskUsage" : "500g",
+        "spark.databricks.io.cache.maxMetaDataCache" : "10g"
+      }
+    }
     max_retries = 1
 
     spark_python_task {
@@ -341,20 +344,6 @@ resource "databricks_job" "dashboard_push" {
   }
 
 
-  task {
-    task_key = "postgres_dashboard_slide"
-
-    existing_cluster_id = databricks_cluster.cluster.id    
-
-    depends_on {
-      task_key = "gold_layer_transform_iteration"
-    }
-
-    spark_python_task {
-      python_file = "${local.repo_source}/gold_bi_table_sink/postgres_push.py"
-    }  
-  }
-
   email_notifications {
     on_failure                             = [var.github_email]
     on_duration_warning_threshold_exceeded = [var.github_email]
@@ -367,7 +356,6 @@ resource "databricks_job" "dashboard_push" {
     on_duration_warning_threshold_exceeded {
       id = databricks_notification_destination.slack.id
     }
-
   }
 
   health {
@@ -383,6 +371,7 @@ resource "databricks_job" "dashboard_push" {
 
   edit_mode = "UI_LOCKED"
 
+
 }
 
 
@@ -392,6 +381,17 @@ resource "databricks_job" "telemetry_stream" {
   description = "This job executes multiple tasks on a shared job cluster, which will be provisioned as part of execution, and terminated once all tasks are finished."
   run_as {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
+  }
+
+  
+  job_cluster { 
+    job_cluster_key = "stream_ingest_cluster"
+    new_cluster {
+      instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
+      data_security_mode      = var.cluster_data_security_mode
+
+    }
   }
 
   schedule {
@@ -418,7 +418,7 @@ resource "databricks_job" "telemetry_stream" {
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        existing_cluster_id = databricks_cluster.cluster.id
+        job_cluster_key = "stream_ingest_cluster"
         max_retries = 1
 
         spark_python_task {
@@ -442,7 +442,7 @@ resource "databricks_job" "telemetry_stream" {
       task {
         task_key = "rawzone_loading_iteration"
 
-        existing_cluster_id = databricks_cluster.cluster.id
+        job_cluster_key = "stream_ingest_cluster"
         max_retries = 1
 
         spark_python_task {
@@ -493,6 +493,17 @@ resource "databricks_job" "bidaily_batch_pull" {
     service_principal_name = data.azurerm_user_assigned_identity.identity.client_id
   }
 
+  
+  job_cluster { 
+    job_cluster_key = "bidaily_cluster"
+    new_cluster {
+      instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      spark_version           = data.databricks_spark_version.latest_lts.id
+      data_security_mode      = var.cluster_data_security_mode
+
+    }
+  }
+
   trigger {
     periodic {
       interval = 12
@@ -518,7 +529,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       task {
         task_key = "data_stream_wrangle_iteration"
 
-        existing_cluster_id = databricks_cluster.cluster.id
+        job_cluster_key = "bidaily_cluster"
         max_retries = 1
 
         spark_python_task {
@@ -542,7 +553,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       task {
         task_key = "rawzone_loading_iteration"
 
-        existing_cluster_id = databricks_cluster.cluster.id
+        job_cluster_key = "bidaily_cluster"
         max_retries = 1
 
         spark_python_task {
@@ -600,9 +611,8 @@ resource "databricks_job" "daily_prod_pull" {
       kind                    = "CLASSIC_PREVIEW"
       is_single_node          = true
       data_security_mode      = var.cluster_data_security_mode
-      num_workers   = 1
       spark_version = data.databricks_spark_version.latest_lts.id
-      node_type_id  = data.databricks_node_type.smallest.id
+      instance_pool_id  = data.databricks_node_type.smallest.id
     }
   }
 
