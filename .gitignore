@@ -6,5 +6,5 @@
 
 # Local .env files
 .env
-
+production/test.sh
 
