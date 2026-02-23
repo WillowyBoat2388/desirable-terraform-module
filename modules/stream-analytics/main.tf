@@ -199,9 +199,9 @@ resource "azapi_resource" "eventhub_namespace" {
     type         = "SystemAssigned"
   }
 
-  lifecycle {
-    ignore_changes = [ body, parent_id ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ body, parent_id ]
+  # }
 
 }
 
@@ -303,9 +303,9 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
   schema_validation_enabled = true
   response_export_values    = ["*"]
 
-  lifecycle {
-    ignore_changes = [ parent_id ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ parent_id ]
+  # }
 
 }
 
@@ -384,9 +384,9 @@ resource "azapi_resource" "roleAssignment6" {
       roleDefinitionId = data.azurerm_role_definition.roleEventContributor.id
     }
   }
-  lifecycle {
-    ignore_changes = [name, body]
-  }
+  # lifecycle {
+  #   ignore_changes = [name, body, parent_id]
+  # }
 
   depends_on = [azapi_resource.workspace]
 }
@@ -410,9 +410,9 @@ resource "azapi_resource" "roleAssignment2" {
       roleDefinitionId = data.azurerm_role_definition.roleContributor.id
     }
   }
-  lifecycle {
-    ignore_changes = [name, body, parent_id]
-  }
+  # lifecycle {
+  #   ignore_changes = [name, body, parent_id]
+  # }
 
 }
 
