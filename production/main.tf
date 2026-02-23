@@ -106,20 +106,20 @@ module "global" {
 
 import {
   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_url
-  id = "databricks-workspace-url"
+  id = "https://vault-jmobkhmjzznwf.vault.azure.net/secrets/databricks-workspace-url/ec744027f9b54431971109ce21e17236"
 }
 import {
   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_resource_id
-  id = "databricks-workspace-resource-id"
+  id = "https://vault-jmobkhmjzznwf.vault.azure.net/secrets/databricks-workspace-resource-id/87ef3d753a954fadbef07d8eae47f36e"
 }
 import {
   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_id
-  id = "databricks-workspace-id"
+  id = "https://vault-jmobkhmjzznwf.vault.azure.net/secrets/databricks-workspace-id/1e29ee5ea81048c2906dfc16e459c06a"
 }
 
 import {
   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_name
-  id = "databricks-workspace-name"
+  id = "https://vault-jmobkhmjzznwf.vault.azure.net/secrets/databricks-workspace-name/bce1dad88b5e46f5b5f9f53ca75c53b0"
 }
 
 

@@ -50,7 +50,7 @@ resource "azurerm_storage_account" "storage_account" {
     }
     delete_retention_policy {
       days                     = 7
-      permanent_delete_enabled = false
+      permanent_delete_enabled = true
     }
   }
   share_properties {
