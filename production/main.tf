@@ -103,26 +103,6 @@ module "global" {
 }
 
 
-
-# import {
-#   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_url
-#   id = "databricks-workspace-url"
-# }
-# import {
-#   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_resource_id
-#   id = "databricks-workspace-resource-id"
-# }
-# import {
-#   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_id
-#   id = "databricks-workspace-id"
-# }
-
-# import {
-#   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_name
-#   id = "databricks-workspace-name"
-# }
-
-
 # Analytics Module
 module "data-workflow" {
   source = "../modules/stream-analytics"
