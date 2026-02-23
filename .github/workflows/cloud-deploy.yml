@@ -326,8 +326,10 @@ jobs:
         run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"
 
       - name: destroy my life
-        run: terraform state list | grep data-workflow
-              terraform plan 2>&1 | head -80
+        run: |
+            terraform state list | grep data-workflow
+
+            terraform plan 2>&1 | head -80
 
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
