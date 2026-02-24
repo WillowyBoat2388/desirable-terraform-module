@@ -103,7 +103,7 @@ module "global" {
 }
 
 import {
-  to = module.data-workflow.azurerm_stream_analytics_input_eventhub_v2.job_input
+  to = module.data-workflow.azurerm_stream_analytics_stream_input_eventhub_v2.job_input
   id = "/subscriptions/75de56f3-8167-4d70-ac37-893b9cfb6840/resourceGroups/ong-hopeful-boar-production/providers/Microsoft.StreamAnalytics/streamingJobs/ong-knowing-pipefish/inputs/eventhub-stream-input"
 }
 import {
