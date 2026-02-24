@@ -123,7 +123,7 @@ module "data-workflow" {
 }
 import {
   to = module.data-workflow.azurerm_stream_analytics_job.job
-  id = "id=/subscriptions/75de56f3-8167-4d70-ac37-893b9cfb6840/resourceGroups/ong-hopeful-boar-production/providers/Microsoft.StreamAnalytics/streamingJobs/ong-knowing-pipefish"
+  id = "/subscriptions/75de56f3-8167-4d70-ac37-893b9cfb6840/resourceGroups/ong-hopeful-boar-production/providers/Microsoft.StreamAnalytics/streamingJobs/ong-knowing-pipefish"
 }
 module "databricks" {
   source = "../modules/databricks"
