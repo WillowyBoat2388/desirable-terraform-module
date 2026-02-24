@@ -122,7 +122,7 @@ module "data-workflow" {
   depends_on         = [module.global]
 }
 
- 
+
 module "databricks" {
   source = "../modules/databricks"
 
