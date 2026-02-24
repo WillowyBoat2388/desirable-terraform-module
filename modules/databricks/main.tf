@@ -136,9 +136,9 @@ resource "databricks_secret_scope" "kv" {
     dns_name    = data.azurerm_key_vault.vault.vault_uri
   }
 
-  lifecycle {
-    ignore_changes = [ keyvault_metadata ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ keyvault_metadata ]
+  # }
 
 }
 

@@ -28,13 +28,13 @@ data "azurerm_key_vault" "key_vault" {
 data "azurerm_key_vault_secret" "databricks_workspace_id" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-resource-id"
-  # depends_on   = [module.data-workflow]
+  depends_on   = [module.data-workflow]
 }
 
 data "azurerm_key_vault_secret" "databricks_workspace_url" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
   name         = "databricks-workspace-url"
-  # depends_on   = [module.data-workflow]
+  depends_on   = [module.data-workflow]
 }
 
 locals {
@@ -121,10 +121,10 @@ module "data-workflow" {
   parent             = local.parent
   depends_on         = [module.global]
 }
-import {
-  to = module.databricks.databricks_secret_scope.kv
-  id = "databricks-keyvault"
-}
+# import {
+#   to = module.databricks.databricks_secret_scope.kv
+#   id = "databricks-keyvault"
+# }
 module "databricks" {
   source = "../modules/databricks"
 
