@@ -112,7 +112,6 @@ resource "databricks_secret_scope" "kv" {
     resource_id = data.azurerm_key_vault.vault.id
     dns_name    = data.azurerm_key_vault.vault.vault_uri
   }
-
 }
 
 

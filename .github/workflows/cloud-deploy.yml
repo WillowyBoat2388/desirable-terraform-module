@@ -254,9 +254,6 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"   
 
-      - name: Terraform Validate
-        run: terraform state rm module.data-workflow.azurerm_stream_analytics_job.job
-
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
