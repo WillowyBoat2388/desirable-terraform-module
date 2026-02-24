@@ -53,9 +53,9 @@ PARTITION BY PartitionId
 
 QUERY
 
-  # lifecycle {
-  #   ignore_changes = [ name ]
-  # }
+  lifecycle {
+    ignore_changes = [ name ]
+  }
 
 }
 
