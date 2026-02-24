@@ -60,7 +60,7 @@ jobs:
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
-        run: terraform init
+        run: terraform init  -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"   
 
       # Validate terraform files
       - name: Terraform Validate
@@ -195,7 +195,7 @@ jobs:
 
   #     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
   #     - name: Terraform Init
-  #       run: terraform init
+  #       run: terraform init -backend-config="container_name=${{ vars.AZURE_STORAGE_CONTAINER_NAME }}" -backend-config="storage_account_name=${{ vars.AZURE_STORAGE_ACCOUNT_NAME }}"   
 
   #     # Download saved plan from artifacts  
   #     - name: Download Terraform Plan
