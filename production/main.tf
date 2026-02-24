@@ -121,10 +121,10 @@ module "data-workflow" {
   parent             = local.parent
   depends_on         = [module.global]
 }
-# import {
-#   to = module.databricks.databricks_secret_scope.kv
-#   id = "databricks-keyvault"
-# }
+import {
+  to = module.data-workflow.azurerm_stream_analytics_job.job
+  id = "id=/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/ong-hopeful-boar-production/providers/Microsoft.StreamAnalytics/streamingJobs/ong-knowing-pipefish"
+}
 module "databricks" {
   source = "../modules/databricks"
 

@@ -3,7 +3,7 @@ resource "random_pet" "stream_analytics_job_name" {
   prefix = var.prefix
 
   keepers = {
-    constant = data.azurerm_resource_group.resourceGroup.id
+    constant = var.rg_name
   }
 
 
@@ -24,7 +24,7 @@ resource "azurerm_stream_analytics_job" "job" {
 WITH individualContext AS (
     SELECT
         data,
-        LEFT(partition_key, CHARINDEX('-', partition_key)-1) AS TGOD,
+        LEFT(partition_key, CHARINDEX('-', partition_key)-1) AS TSOURCE,
         PartitionId
     FROM 
         [eventhub-stream-input]
@@ -34,12 +34,12 @@ advancedContext AS (
     SELECT 
         data,
         CASE
-            WHEN TGOD = 'facility' THEN 'facility-telemetry'
-            WHEN TGOD = 'equipment' THEN 'equipment-events'
-            WHEN TGOD = 'well' THEN 'well-telemetry'
-            WHEN TGOD = 'production' THEN 'production-daily-data'
-            WHEN TGOD = 'reservoir' THEN 'reservoir'
-            WHEN TGOD = 'wellbore' THEN 'wellbore'
+            WHEN TSOURCE = 'facility' THEN 'facility-telemetry'
+            WHEN TSOURCE = 'equipment' THEN 'equipment-events'
+            WHEN TSOURCE = 'well' THEN 'well-telemetry'
+            WHEN TSOURCE = 'production' THEN 'production-daily-data'
+            WHEN TSOURCE = 'reservoir' THEN 'reservoir'
+            WHEN TSOURCE = 'wellbore' THEN 'wellbore'
             ELSE 'recovered'
         END AS partition_identity
     FROM
@@ -99,8 +99,6 @@ resource "azurerm_stream_analytics_output_blob" "job_output" {
 
   serialization {
     type = "Parquet"
-    # encoding        = "UTF8"
-    # field_delimiter = ","
   }
 }
 

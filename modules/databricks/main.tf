@@ -88,29 +88,6 @@ resource "databricks_group_member" "eng" {
 }
 
 
-
-# # assign account_admin role
-# resource "databricks_service_principal_role" "this" {
-
-#   service_principal_id = databricks_service_principal.this.id
-#   role                 = "account_admin"
-# }
-
-# resource "databricks_group_role" "eng_account_admin" {
-
-#   group_id = databricks_group.eng.id
-#   role     = "metastore_admin"
-#   depends_on = [data.databricks_group.admins, databricks_group.eng]
-# }
-
-# resource "databricks_grant" "sandbox_data_engineers" {
-
-# metastore = data.databricks_current_metastore.this.id
-
-# principal  = data.databricks_group.admins.id
-# privileges = ["CREATE_CATALOG", "CREATE_EXTERNAL_LOCATION", "CREATE_SERVICE_CREDENTIAL"]
-# }
-
 resource "databricks_storage_credential" "ong_cred" {
   name = "ong_storage_cred"
 
@@ -135,10 +112,6 @@ resource "databricks_secret_scope" "kv" {
     resource_id = data.azurerm_key_vault.vault.id
     dns_name    = data.azurerm_key_vault.vault.vault_uri
   }
-
-  # lifecycle {
-  #   ignore_changes = [ keyvault_metadata ]
-  # }
 
 }
 
@@ -249,6 +222,11 @@ resource "databricks_repo" "git_integration" {
   url          = var.jobsource_url
   path         = "${local.repo_source}/"
   depends_on   =  [resource.databricks_git_credential.workspacejobs-source]
+
+  lifecycle {
+    ignore_changes = [ path ]
+  }
+
 }
 
 resource "databricks_notification_destination" "slack" {
