@@ -431,9 +431,9 @@ resource "azurerm_key_vault_secret" "databricks_workspace_url" {
   value        = azapi_resource.workspace.output.properties.workspaceUrl
   key_vault_id = data.azurerm_key_vault.vault.id
 
-  lifecycle {
-    ignore_changes = [ key_vault_id ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ key_vault_id ]
+  # }
 
 }
 
@@ -442,9 +442,9 @@ resource "azurerm_key_vault_secret" "databricks_workspace_id" {
   value        = azapi_resource.workspace.output.properties.workspaceId
   key_vault_id = data.azurerm_key_vault.vault.id
 
-  lifecycle {
-    ignore_changes = [ key_vault_id ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ key_vault_id ]
+  # }
 
 }
 
@@ -453,9 +453,9 @@ resource "azurerm_key_vault_secret" "databricks_workspace_resource_id" {
   value        = azapi_resource.workspace.id
   key_vault_id = data.azurerm_key_vault.vault.id
 
-  lifecycle {
-    ignore_changes = [ key_vault_id ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ key_vault_id ]
+  # }
 
 }
 
@@ -464,9 +464,9 @@ resource "azurerm_key_vault_secret" "databricks_workspace_name" {
   value        = azapi_resource.workspace.name
   key_vault_id = data.azurerm_key_vault.vault.id
 
-  lifecycle {
-    ignore_changes = [ key_vault_id ]
-  }
+  # lifecycle {
+  #   ignore_changes = [ key_vault_id ]
+  # }
 
 }
 
