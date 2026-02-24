@@ -32,7 +32,6 @@ jobs:
   terraform-plan:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
-    needs: [terraform-test]
     defaults:
       run:
         working-directory: staging
