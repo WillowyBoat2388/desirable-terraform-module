@@ -44,8 +44,8 @@ locals {
   parent             = "floor_zero"
   domain             = "bdatanet.tech"
   prefix             = "ong"
-  controlid_name     = "floor_zero_admin"
-  environmentid_name = "floor_zero_dmin"
+  controlid_name     = "love_admin"
+  environmentid_name = "love_admin"
   workspace_id       = can(data.azurerm_databricks_workspace.databricks_workspace.id) ? data.azurerm_databricks_workspace.databricks_workspace.id : data.azurerm_key_vault_secret.databricks_workspace_id.value
   workspace_url      = data.azurerm_databricks_workspace.databricks_workspace.workspace_url != null ? data.azurerm_databricks_workspace.databricks_workspace.workspace_url : data.azurerm_key_vault_secret.databricks_workspace_url.value
 
@@ -119,9 +119,10 @@ module "data-workflow" {
   key_vault          = module.global.key_vault_name
   random_integer     = random_integer.uid.result
   parent             = local.parent
-  depends_on = [module.global]
+  depends_on         = [module.global]
 }
 
+ 
 module "databricks" {
   source = "../modules/databricks"
 
@@ -149,10 +150,8 @@ module "databricks" {
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
   parent                          = local.parent
-  depends_on = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
+  depends_on                      = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 
 }
-
-
 

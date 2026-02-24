@@ -28,22 +28,22 @@ terraform {
 provider "azurerm" {
   features {
 
-    # databricks_workspace {
-    #   force_delete = false
-    # }
+    databricks_workspace {
+      force_delete = false
+    }
 
-    # key_vault {
-    #   purge_soft_delete_on_destroy    = true
-    #   recover_soft_deleted_key_vaults = true
-    # }
+    key_vault {
+      purge_soft_delete_on_destroy    = true
+      recover_soft_deleted_key_vaults = true
+    }
 
-    # log_analytics_workspace {
-    #   permanently_delete_on_destroy = true
-    # }
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
+    }
 
-    # subscription {
-    #   prevent_cancellation_on_destroy = false
-    # }
+    subscription {
+      prevent_cancellation_on_destroy = false
+    }
 
   }
 }

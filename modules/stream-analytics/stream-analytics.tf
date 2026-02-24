@@ -5,8 +5,6 @@ resource "random_pet" "stream_analytics_job_name" {
   keepers = {
     constant = var.rg_name
   }
-
-
 }
 
 resource "azurerm_stream_analytics_job" "job" {
@@ -54,6 +52,10 @@ FROM advancedContext as stream
 PARTITION BY PartitionId
 
 QUERY
+
+  # lifecycle {
+  #   ignore_changes = [ name ]
+  # }
 
 }
 
