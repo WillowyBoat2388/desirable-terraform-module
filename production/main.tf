@@ -121,10 +121,7 @@ import {
   to = module.data-workflow.azurerm_key_vault_secret.databricks_workspace_name
   id = "https://vault-jmobkhmjzznwf.vault.azure.net/secrets/databricks-workspace-name/bce1dad88b5e46f5b5f9f53ca75c53b0"
 }
-import {
-  to = module.data-workflow.azurerm_stream_analytics_job.job
-  id = "/subscriptions/75de56f3-8167-4d70-ac37-893b9cfb6840/resourceGroups/ong-hopeful-boar-production/providers/Microsoft.StreamAnalytics/streamingJobs/ong-knowing-pipefish"
-}
+
 
 
 # Analytics Module
