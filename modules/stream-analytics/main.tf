@@ -298,9 +298,9 @@ resource "azapi_resource" "workspace" { #"analytics_workspace" {
   schema_validation_enabled = true
   response_export_values    = ["*"]
 
-  # lifecycle {
-  #   ignore_changes = [ parent_id ]
-  # }
+  lifecycle {
+    ignore_changes = [ parent_id ]
+  }
 
 }
 
