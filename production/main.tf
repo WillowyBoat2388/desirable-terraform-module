@@ -25,17 +25,17 @@ data "azurerm_key_vault" "key_vault" {
   resource_group_name = local.name
 }
 
-data "azurerm_key_vault_secret" "databricks_workspace_id" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks-workspace-resource-id"
-  depends_on   = [module.data-workflow]
-}
+# data "azurerm_key_vault_secret" "databricks_workspace_id" {
+#   key_vault_id = data.azurerm_key_vault.key_vault.id
+#   name         = "databricks-workspace-resource-id"
+#   depends_on   = [module.data-workflow]
+# }
 
-data "azurerm_key_vault_secret" "databricks_workspace_url" {
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "databricks-workspace-url"
-  depends_on   = [module.data-workflow]
-}
+# data "azurerm_key_vault_secret" "databricks_workspace_url" {
+#   key_vault_id = data.azurerm_key_vault.key_vault.id
+#   name         = "databricks-workspace-url"
+#   depends_on   = [module.data-workflow]
+# }
 
 locals {
   environment        = var.environment

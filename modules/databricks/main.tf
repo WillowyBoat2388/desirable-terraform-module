@@ -258,6 +258,7 @@ resource "databricks_job" "dashboard_push" {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
+      kind                    = "CLASSIC_PREVIEW"
       autoscale {
         min_workers = 1
         max_workers = 25
@@ -370,6 +371,7 @@ resource "databricks_job" "telemetry_stream" {
     job_cluster_key = "stream_ingest_cluster"
     new_cluster {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
+      kind                    = "CLASSIC_PREVIEW"
       spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
       autoscale {
@@ -486,6 +488,7 @@ resource "databricks_job" "bidaily_batch_pull" {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
+      kind                    = "CLASSIC_PREVIEW"
 
     }
   }

@@ -379,9 +379,9 @@ resource "azapi_resource" "roleAssignment6" {
       roleDefinitionId = data.azurerm_role_definition.roleEventContributor.id
     }
   }
-  lifecycle {
-    ignore_changes = [name, body, parent_id]
-  }
+  # lifecycle {
+  #   ignore_changes = [name, body, parent_id]
+  # }
 
   depends_on = [azapi_resource.workspace]
 }
