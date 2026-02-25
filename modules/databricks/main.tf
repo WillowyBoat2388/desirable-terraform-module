@@ -489,6 +489,10 @@ resource "databricks_job" "bidaily_batch_pull" {
       spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
       kind                    = "CLASSIC_PREVIEW"
+      autoscale {
+        min_workers = 1
+        max_workers = 25
+      }
 
     }
   }
