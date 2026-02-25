@@ -25,17 +25,17 @@ data "azurerm_key_vault" "key_vault" {
   resource_group_name = local.name
 }
 
-# data "azurerm_key_vault_secret" "databricks_workspace_id" {
-#   key_vault_id = data.azurerm_key_vault.key_vault.id
-#   name         = "databricks-workspace-resource-id"
-#   depends_on   = [module.data-workflow]
-# }
+data "azurerm_key_vault_secret" "databricks_workspace_id" {
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+  name         = "databricks-workspace-resource-id"
+  depends_on   = [module.data-workflow]
+}
 
-# data "azurerm_key_vault_secret" "databricks_workspace_url" {
-#   key_vault_id = data.azurerm_key_vault.key_vault.id
-#   name         = "databricks-workspace-url"
-#   depends_on   = [module.data-workflow]
-# }
+data "azurerm_key_vault_secret" "databricks_workspace_url" {
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+  name         = "databricks-workspace-url"
+  depends_on   = [module.data-workflow]
+}
 
 locals {
   environment        = var.environment
@@ -46,8 +46,8 @@ locals {
   prefix             = "ong"
   controlid_name     = "love_admin"
   environmentid_name = "love_admin"
-  workspace_id       = data.azurerm_databricks_workspace.databricks_workspace.id
-  workspace_url      = data.azurerm_databricks_workspace.databricks_workspace.workspace_url
+  workspace_id       = can(data.azurerm_databricks_workspace.databricks_workspace.id) ? data.azurerm_databricks_workspace.databricks_workspace.id : data.azurerm_key_vault_secret.databricks_workspace_id.value
+  workspace_url      = data.azurerm_databricks_workspace.databricks_workspace.workspace_url != null ? data.azurerm_databricks_workspace.databricks_workspace.workspace_url : data.azurerm_key_vault_secret.databricks_workspace_url.value
 
 }
 
@@ -150,7 +150,7 @@ module "databricks" {
   workspace_name                  = module.data-workflow.databricks_workspace_name
   rg_name                         = local.name
   parent                          = local.parent
-  depends_on                      = [module.data-workflow]
+  depends_on                      = [module.data-workflow, data.azurerm_key_vault_secret.databricks_workspace_id]
 
 
 }
