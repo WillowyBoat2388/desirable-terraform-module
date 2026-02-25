@@ -190,7 +190,7 @@ resource "databricks_schema" "gold" {
 
 resource "databricks_instance_pool" "smallest_nodes" {
   instance_pool_name = "Smallest Nodes"
-  min_idle_instances = 5
+  min_idle_instances = 1
   max_capacity       = 25
   node_type_id       = data.databricks_node_type.smallest.id
   azure_attributes {
@@ -258,6 +258,10 @@ resource "databricks_job" "dashboard_push" {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
+      autoscale {
+        min_workers = 1
+        max_workers = 25
+      }
 
     }
   }
@@ -289,8 +293,8 @@ resource "databricks_job" "dashboard_push" {
       spark_version = data.databricks_spark_version.latest_lts.id
       instance_pool_id  = databricks_instance_pool.smallest_nodes.id
       autoscale {
-        min_workers = 1
-        max_workers = 25
+        min_workers = 2
+        max_workers = 35
       }
       spark_conf = {
         "spark.databricks.io.cache.enabled" : true,
@@ -368,6 +372,10 @@ resource "databricks_job" "telemetry_stream" {
       instance_pool_id            = databricks_instance_pool.smallest_nodes.id
       spark_version           = data.databricks_spark_version.latest_lts.id
       data_security_mode      = var.cluster_data_security_mode
+      autoscale {
+        min_workers = 1
+        max_workers = 25
+      }
 
     }
   }
